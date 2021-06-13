@@ -34,7 +34,7 @@ class PackageController extends Controller
             ->join('packages', 'package_bundles.package_id', '=', 'packages.id')
             ->join('bundle_equiptments', 'package_bundles.bundle_equiptment_id', '=', 'bundle_equiptments.id')
             ->where('packages.id','=',$id)
-            ->select('bundle_equiptments.name as bundle_name', 'bundle_equiptments.detail as detail ')
+            ->select('bundle_equiptments.name as bundle_name', 'package_bundles.qty as qty', 'bundle_equiptments.detail as detail ')
             ->get();
             return response()
             ->json($bundles);

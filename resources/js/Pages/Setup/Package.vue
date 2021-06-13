@@ -34,7 +34,7 @@
                             <tr v-for="row in packages.data " v-bind:key="row.id">
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
-                                <td class="px-6 py-3 whitespace-nowrap">{{ getBundles(row.id) }}</td>
+                                <td class="px-6 py-3 whitespace-nowrap"><Bundle :data="row.id" /></td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.contract_period }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="#" @click="edit(row)"  class="text-indigo-600 hover:text-indigo-900">Edit</a> | 
@@ -112,21 +112,24 @@
 <script>
     import AppLayout from '@/Layouts/AppLayout';
     import Pagination from '@/Components/Pagination';
-    import { reactive, ref, computed } from 'vue';
+    import Bundle from '@/Components/Bundle';
+    import { reactive, ref, onMounted } from 'vue';
     import { Inertia } from '@inertiajs/inertia'
     export default {
     name: 'package',
     components: {
               AppLayout,
-              Pagination
+              Pagination,
+              Bundle
           },
     //props: ['packages', 'errors'], 
     props: {
         packages : Object,
-        errors : Object
+        errors : Object,
+        bundles: String
     },
-    setup(props){
-      
+   setup(props){
+
       const form = reactive({
           id : null,
           name: null,
@@ -218,28 +221,38 @@
           console.log('search value is' + search.value)
           Inertia.get('/package/', {package : search.value}, { preserveState: true })
         }
-         function getBundles($id){
-                      var url = '/getpackage/'+$id;
-                      var bdl = '';
-                      axios.get(url,).then((res) => {
-                        res.data.forEach(dd => {
-                        
-                        bdl += dd.bundle_name+' ';
-                        console.log(bdl)
-                        });
-                      
-                      })
-                 
-                   
-                    return bdl;
-        }
-
-       const bundleList = computed(getBundles);
+        // const getBundles = async($id) => {
+        //       let url = '/getpackage/'+$id;
+        //       try{
+        //         const res = await fetch(url);
+        //         const data = await res.json();
+        //         return data;
+        //       }catch(err){
+        //         console.error(err)
+        //       }      
+        //  }
+        //  const showBundle =($id)=> {
+        //    console.log('id is ' + $id)
+        //   const data = getBundles($id).then((data) => {
+        //     data.map(x=> x.bundle_name + ' ' )
+        //    })
+        //    this.props.packages.filter(o => o.id === id).forEach(o => o.bundles = data );
+        // }
+        // const showBundle = computed(($id)=>{
+        //   getBundles($id).then((data) => {
+        //   const list = data.map(x=> x.bundle_name + ' ' )
+        //   console.log(list)
+        //   });
+        // })
+      //   onMounted(() => {
+        
+      //     this.props.packages.forEach(o => {
+      //       console.log('id is ' + o.id)
+      //       this.showBundle(o.id)
+      //     } );
+      //  })
 
        return { form, submit,editMode,isOpen,openModal, closeModal, edit,deleteRow,searchTsp, search}
-      },
-      computed:{
-        
       }
       
   }
