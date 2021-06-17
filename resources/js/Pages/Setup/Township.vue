@@ -2,7 +2,7 @@
     <app-layout>
         <template #header>
             <h2 class="font-semibold text-xl text-white leading-tight">
-                Township
+                Township Setup
             </h2>
         </template>
 

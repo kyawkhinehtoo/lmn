@@ -30,7 +30,11 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
 
 Route::group(['middleware'=> 'auth'], function(){
 	Route::resource('/township', TownshipController::class);
+	Route::resource('/equiptment', EquiptmentController::class);
 	Route::resource('/package', PackageController::class);
+	Route::resource('/project', ProjectController::class);
+	Route::resource('/sale_person', SalePersonController::class);
+	Route::resource('/voip', VoipController::class);
 	Route::get('/getpackage/{id}', 'PackageController@getBundle');
 });
 

@@ -32,7 +32,7 @@ class BundleEquiptment extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'category', 'created_at', 'updated_at'
+        'name', 'detail', 'created_at', 'updated_at'
     ];
 
     /**
@@ -50,7 +50,7 @@ class BundleEquiptment extends Model
      * @var array
      */
     protected $casts = [
-        'name' => 'string', 'category' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp'
+        'name' => 'string', 'detail' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp'
     ];
 
     /**

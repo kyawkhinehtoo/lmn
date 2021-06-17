@@ -18,7 +18,7 @@ class TownshipController extends Controller
     {
         // $data = Township::all();
         // return Inertia::render('township', ['data' => $data]);
-
+      ;
         $townships = Township::when($request->township, function($query, $tsp){
             $query->where('name','LIKE','%'.$tsp.'%')
             ->orWhere('short_code','LIKE','%'.$tsp.'%');

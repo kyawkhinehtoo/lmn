@@ -85,59 +85,57 @@
                                    <i class="fas fa-tv  opacity-75 mr-2 text-sm"></i> Dashboard
                                 </jet-nav-link>
                         </li>
+                    </ul>
+                    <hr class="my-4 md:min-w-full" />
+                    <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
+                        Administrator 
+                    </h6>
+                      <ul class="md:flex-col md:min-w-full flex flex-col list-none">
                         <li>
                               <jet-nav-link :href="route('township.index')" :active="route().current('township.index')">
-                                   <i class="fas fa-newspaper  opacity-75 mr-2 text-sm"></i> Township
+                                   <i class="fas fa-city  opacity-75 mr-2 text-sm"></i> Township Setup
                                 </jet-nav-link>
                         </li>
                         <li>
+                              <jet-nav-link :href="route('equiptment.index')" :active="route().current('equiptment.index')">
+                                   <i class="fas fa-gamepad  opacity-75 mr-2 text-sm"></i> Bundle Setup
+                                </jet-nav-link>
+                        </li>
+                       
+                        <li>
                               <jet-nav-link :href="route('package.index')" :active="route().current('package.index')">
-                                   <i class="fas fa-newspaper  opacity-75 mr-2 text-sm"></i> Packages
+                                   <i class="fas fa-cube  opacity-75 mr-2 text-sm"></i> Package Setup
+                                </jet-nav-link>
+                        </li>
+                        <li>
+                              <jet-nav-link :href="route('project.index')" :active="route().current('project.index')">
+                                   <i class="fas fa-handshake  opacity-75 mr-2 text-sm"></i> Project Setup
+                                </jet-nav-link>
+                        </li>
+                        <li>
+                              <jet-nav-link :href="route('sale_person.index')" :active="route().current('sale_person.index')">
+                                   <i class="fas fa-user-tag  opacity-75 mr-2 text-sm"></i> Sale Person Setup
+                                </jet-nav-link>
+                        </li>
+                        <li>
+                              <jet-nav-link :href="route('voip.index')" :active="route().current('voip.index')">
+                                   <i class="fas fa-phone-square-alt  opacity-75 mr-2 text-sm"></i> VOIP Setup
                                 </jet-nav-link>
                         </li>
                        
                     </ul>
                     <hr class="my-4 md:min-w-full" />
                     <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-                        Documentation
+                        User
                     </h6>
                     <ul class="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
                         <li class="inline-flex">
                             <a class="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
                                 href="#/documentation/styles"><i
-                                    class="fas fa-paint-brush mr-2 text-blueGray-400 text-base"></i>
-                                Styles</a>
+                                    class="fas fa-users mr-2 text-blueGray-400 text-base"></i>
+                                Customers</a>
                         </li>
-                        <li class="inline-flex">
-                            <a class="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                                href="#/documentation/alerts"><i
-                                    class="fab fa-css3-alt mr-2 text-blueGray-400 text-base"></i>
-                                CSS Components</a>
-                        </li>
-                        <li class="inline-flex">
-                            <a class="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                                href="#/documentation/vue/alerts"><i
-                                    class="fab fa-vuejs mr-2 text-blueGray-400 text-base"></i>
-                                VueJS</a>
-                        </li>
-                        <li class="inline-flex">
-                            <a class="text-blueGray-700 hover:text-blueGray-500  text-sm block mb-4 no-underline font-semibold"
-                                href="#/documentation/react/alerts"><i
-                                    class="fab fa-react mr-2 text-blueGray-400 text-base"></i>
-                                React</a>
-                        </li>
-                        <li class="inline-flex">
-                            <a class="text-blueGray-700 hover:text-blueGray-500  text-sm block mb-4 no-underline font-semibold"
-                                href="#/documentation/angular/alerts"><i
-                                    class="fab fa-angular mr-2 text-blueGray-400 text-base"></i>
-                                Angular</a>
-                        </li>
-                        <li class="inline-flex">
-                            <a class="text-blueGray-700 hover:text-blueGray-500  text-sm block mb-4 no-underline font-semibold"
-                                href="#/documentation/javascript/alerts"><i
-                                    class="fab fa-js-square mr-2 text-blueGray-400 text-base"></i>
-                                Javascript</a>
-                        </li>
+                       
                     </ul>
                 </div>
             </div>

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int        $created_at
  * @property int        $updated_at
  */
-class Voips extends Model
+class Voip extends Model
 {
     /**
      * The database table used by the model.
