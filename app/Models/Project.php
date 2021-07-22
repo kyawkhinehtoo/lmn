@@ -75,6 +75,6 @@ class Project extends Model
     // Relations ...
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->hasOne(Customer::class);
     }
 }

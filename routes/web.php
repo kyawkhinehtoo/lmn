@@ -28,14 +28,27 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->name('dashboard');
 
-Route::group(['middleware'=> 'auth'], function(){
+Route::group(['middleware'=> 'auth','middleware'=>'role'], function(){
+	Route::resource('/user', UserController::class);
 	Route::resource('/township', TownshipController::class);
 	Route::resource('/equiptment', EquiptmentController::class);
+	Route::get('/getpackage/{id}', 'PackageController@getBundle');
 	Route::resource('/package', PackageController::class);
 	Route::resource('/project', ProjectController::class);
-	Route::resource('/sale_person', SalePersonController::class);
+	Route::resource('/status', StatusController::class);
+	Route::resource('/role', RoleController::class);
 	Route::resource('/voip', VoipController::class);
-	Route::get('/getpackage/{id}', 'PackageController@getBundle');
+});
+Route::group(['middleware'=> 'auth'], function(){
+	Route::resource('/customer', CustomerController::class);
+	Route::post('/customer/all', 'CustomerController@index');
+	Route::resource('/incident', IncidentController::class);
+	Route::get('importExportView', 'ExcelController@importExportView')->name('importExportView');
+	// Route for export/download tabledata to .csv, .xls or .xlsx
+	Route::get('exportExcel/{type}', 'ExcelController@exportExcel')->name('exportExcel');
+	// Route for import excel data to database.
+	Route::post('importExcel', 'ExcelController@importExcel')->name('importExcel');
+	
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

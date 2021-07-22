@@ -31,7 +31,7 @@ class Package extends Model
      * @var array
      */
     protected $fillable = [
-        'name','speed', 'contract_period', 'created_at', 'updated_at'
+        'name','speed','type','status','price', 'contract_period', 'created_at', 'updated_at'
     ];
 
     /**
@@ -49,7 +49,7 @@ class Package extends Model
      * @var array
      */
     protected $casts = [
-        'name' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp'
+        'name' => 'string','qty' => 'string','price'=>'string' ,'created_at' => 'timestamp', 'updated_at' => 'timestamp'
     ];
 
     /**
@@ -75,7 +75,7 @@ class Package extends Model
     // Relations ...
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->hasOne(Customer::class);
     }
     public function packageBundle()
     {

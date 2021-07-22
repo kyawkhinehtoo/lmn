@@ -26,8 +26,9 @@ class Customers extends Migration
             $table->string('location');
             $table->date('order_date');
             $table->date('installation_date')->nullable();
+            $table->date('prefer_install_date')->nullable();
             $table->date('deposit_receive_date')->nullable();
-            $table->enum('contract_period',[6,12,24]);
+         //   $table->enum('contract_period',[6,12,24]);
             $table->string('deposit_status')->nullable();
             $table->string('deposit_receive_from')->nullable();
             $table->string('deposit_receive_amount')->nullable();
@@ -39,6 +40,18 @@ class Customers extends Migration
             $table->foreignId('package_id');
             $table->foreignId('sale_person_id')->nullable();
             $table->foreignId('project_id');
+            $table->foreignId('status_id');
+            $table->foreignId('subcom_id');
+
+            $table->string('company_name')->nullable();
+            $table->string('company_registration')->nullable();
+            $table->string('typeof_business')->nullable();
+            $table->string('billing_attention')->nullable();
+            $table->string('billing_phone')->nullable();
+            $table->string('billing_email')->nullable();
+            $table->longText('billing_address')->nullable();
+
+
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });

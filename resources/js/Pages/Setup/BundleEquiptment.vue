@@ -59,13 +59,13 @@
                             <div class="">
                                   <div class="mb-4">
                                       <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Equiptment Name:</label>
-                                      <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" placeholder="Enter Equiptment Name" v-model="form.name">
+                                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="name" placeholder="Enter Equiptment Name" v-model="form.name">
                                       <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name[0] }}</div>
                                
                                   </div>
                                   <div class="mb-4">
                                       <label for="detail" class="block text-gray-700 text-sm font-bold mb-2">Equiptment Detail:</label>
-                                      <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="detail" placeholder="Enter Details Info" v-model="form.detail">
+                                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="detail" placeholder="Enter Details Info" v-model="form.detail">
                                       <div v-if="$page.props.errors.detail" class="text-red-500">{{ $page.props.errors.detail[0] }}</div>
                                
                                   </div>

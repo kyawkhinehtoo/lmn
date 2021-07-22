@@ -46,12 +46,16 @@ class PackageController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'speed' => ['required'],
+            'type' => ['required', 'in:ftth,sme,dia'],
             'contract_period' => ['required', 'in:6,12,24'],
         ])->validate();
 
         $package = new Package();
         $package->name = $request->name;
         $package->speed = $request->speed;
+        $package->type = $request->type;
+        $package->status = $request->status;
+        $package->price = $request->price;
         $package->contract_period = (string)$request->contract_period;
         $package->save();
         $id = $package->id;
@@ -76,6 +80,7 @@ class PackageController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'speed' => ['required'],
+            'type' => ['required', 'in:ftth,sme,dia'],
             'contract_period' => ['required', 'in:6,12,24'],
         ])->validate();
   
@@ -83,6 +88,9 @@ class PackageController extends Controller
             $package = Package::find($request->input('id'));
             $package->name = $request->name;
             $package->speed = $request->speed;
+            $package->type = $request->type;
+            $package->status = $request->status;
+            $package->price = $request->price;
             $package->contract_period = (string)$request->contract_period;
             $package->update();
             PackageBundle::where('package_id',$request->input('id'))->delete();

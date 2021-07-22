@@ -61,19 +61,19 @@
                             <div class="">
                                   <div class="mb-4">
                                       <label for="city" class="block text-gray-700 text-sm font-bold mb-2">City:</label>
-                                      <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="city" placeholder="Enter City" v-model="form.city">
+                                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="city" placeholder="Enter City" v-model="form.city">
                                       <div v-if="$page.props.errors.city" class="text-red-500">{{ $page.props.errors.city[0] }}</div>
                                
                                   </div>
                                   <div class="mb-4">
                                       <label for="township" class="block text-gray-700 text-sm font-bold mb-2">Township:</label>
-                                      <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="township" placeholder="Enter Township" v-model="form.name">
+                                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="township" placeholder="Enter Township" v-model="form.name">
                                       <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name[0] }}</div>
                                
                                   </div>
                                   <div class="mb-4">
                                       <label for="short_code" class="block text-gray-700 text-sm font-bold mb-2">Short Code:</label>
-                                      <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="short_code" placeholder="Enter Short Code" v-model="form.short_code">
+                                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="short_code" placeholder="Enter Short Code" v-model="form.short_code">
                                       <div v-if="$page.props.errors.short_code" class="text-red-500">{{ $page.props.errors.short_code[0] }}</div>
                                
                                   </div>

@@ -74,8 +74,14 @@ class Township extends Model
     // Functions ...
 
     // Relations ...
+    // original
+    // public function customer()
+    // {
+    //     return $this->belongsTo(Customer::class);
+    // }
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->hasOne(Customer::class);
     }
+
 }

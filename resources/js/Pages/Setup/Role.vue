@@ -1,0 +1,220 @@
+<template>
+  <app-layout>
+    <template #header>
+      <h2 class="font-semibold text-xl text-white leading-tight">Role Setup</h2>
+    </template>
+
+    <div class="py-2">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="flex justify-between space-x-2 items-end mb-2 px-1 md:px-0">
+          <div class="relative flex flex-wrap">
+            <span class="z-10 h-full leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3"><i class="fas fa-search"></i></span>
+            <input type="text" placeholder="Search here..." class="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full pl-10" id="search" v-model="search" v-on:keyup.enter="searchTsp" />
+          </div>
+          <button @click="openModal" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Create</button>
+        </div>
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg" v-if="roles.data">
+          <!-- <button @click="openModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-3">Create New Township</button>
+                 <input class="w-half rounded py-2 my-3 float-right" type="text" placeholder="Search Township" v-model="search" v-on:keyup.enter="searchTsp">
+                    -->
+
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permission</th>
+                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="row in roles.data" v-bind:key="row.id">
+                <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
+                <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
+                <td class="px-6 py-3 whitespace-nowrap"><div v-html="getPerm(row.permission)"></div></td>
+                <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+                  <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
+                  <a href="#" @click="deleteRow(row)" class="text-red-600 hover:text-red-900">Delete</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+                <div ref="isOpen" class="fixed z-10 inset-0 overflow-y-auto ease-out duration-400" v-if="isOpen">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+              <div class="fixed inset-0 transition-opacity">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+              </div>
+              ​
+              <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full " role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+                   <form @submit.prevent="submit">
+                  <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 min-h-screen">
+                    <div class="">
+                      <div class="mb-4">
+                        <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Status :</label>
+                        <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="name" placeholder="Enter Role Name" v-model="form.name" />
+                        <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name[0] }}</div>
+                      </div>
+                      <div class="mb-4">
+                        <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission :</label>
+                        <!-- <select multiple>
+                          <option v-for="row in col" v-bind:key="row.id" class="capitalize"> {{ row.name.replace(/_/g, " ") }}</option>
+                        </select> -->
+                        <div class="mt-1 flex rounded-md shadow-sm" v-if="col.length !== 0">
+                          <multiselect deselect-label="Selected already" :options="col" track-by="id" label="name" v-model="form.permission" :allow-empty="true" :multiple="true" :taggable="true"> </multiselect>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
+                      <button wire:click.prevent="submit" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="!editMode">Save</button>
+                    </span>
+                    <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
+                      <button wire:click.prevent="submit" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="editMode">Update</button>
+                    </span>
+                    <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
+                      <button @click="closeModal" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5">Cancel</button>
+                    </span>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span v-if="roles.links">
+          <pagination class="mt-6" :links="roles.links" />
+        </span>
+      </div>
+    </div>
+  </app-layout>
+</template>
+
+<script>
+import AppLayout from "@/Layouts/AppLayout";
+import Pagination from "@/Components/Pagination";
+import Multiselect from "@suadelabs/vue3-multiselect";
+import { reactive, ref, onMounted } from "vue";
+import { Inertia } from "@inertiajs/inertia";
+export default {
+  name: "Role",
+  components: {
+    AppLayout,
+    Pagination,
+    Multiselect,
+  },
+  props: {
+    roles: Object,
+    col: Object,
+    errors: Object,
+  },
+  setup(props) {
+    const form = reactive({
+      id: null,
+      name: null,
+      permission: null,
+    });
+    const search = ref("");
+    let editMode = ref(false);
+    let isOpen = ref(false);
+
+    function resetForm() {
+      form.name = null;
+      form.permission = null;
+    }
+    function submit() {
+      if (!editMode.value) {
+        form._method = "POST";
+        Inertia.post("/role", form, {
+          preserveState: true,
+          onSuccess: (page) => {
+            closeModal();
+            resetForm();
+            Toast.fire({
+              icon: "success",
+              title: page.props.flash.message,
+            });
+          },
+          onError: (errors) => {
+            closeModal();
+            console.log("error ..".errors);
+          },
+        });
+      } else {
+        form._method = "PUT";
+        Inertia.post("/role/" + form.id, form, {
+          onSuccess: (page) => {
+            closeModal();
+            resetForm();
+            Toast.fire({
+              icon: "success",
+              title: page.props.flash.message,
+            });
+          },
+
+          onError: (errors) => {
+            closeModal();
+            console.log("error ..".errors);
+          },
+        });
+      }
+    }
+    function edit(data) {
+      form.id = data.id;
+      form.name = data.name;
+      if(data.permission){
+      let permission_array = data.permission.split(",");
+      form.permission = props.col.filter((d) => permission_array.includes(d.name)); 
+      }
+
+      editMode.value = true;
+      openModal();
+    }
+
+    function deleteRow(data) {
+      if (!confirm("Are you sure want to remove?")) return;
+      data._method = "DELETE";
+      Inertia.post("/role/" + data.id, data);
+      closeModal();
+      resetForm();
+    }
+    function openModal() {
+      isOpen.value = true;
+    }
+    function getPerm(d) {
+      let perm_array = "";
+      let perm = "";
+      let count = 0;
+      if (d) {
+        perm_array = d.split(",");
+        perm_array.forEach((e) => {
+            count++;
+            if(count % 6 === 0 ){
+              perm += '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + e + '</span><br />';
+            }else{
+              perm += '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + e + '</span>'; 
+            }     
+        });
+      }
+      return perm;
+    }
+    const closeModal = () => {
+      isOpen.value = false;
+      resetForm();
+      editMode.value = false;
+    };
+    const searchTsp = () => {
+      console.log("search value is" + search.value);
+      Inertia.get("/role/", { role: search.value }, { preserveState: true });
+    };
+
+    onMounted(() => {
+      //   form.permission = props.col.filter((d) => d.name == 1)[0],
+      props.col.map(function (x) {
+        return (x.col_data = "<label :class='capitalize'>" + x.name + "</label>");
+      });
+    });
+    return { form, submit, getPerm, editMode, isOpen, openModal, closeModal, edit, deleteRow, searchTsp, search };
+  },
+};
+</script>

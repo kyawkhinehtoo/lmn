@@ -25,17 +25,21 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package Name</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bundle Equiptment</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MRC (MMK)</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Terms</th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="row in packages.data" v-bind:key="row.id">
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
-                <td class="px-6 py-3 whitespace-nowrap"><Bundle :data="row.id" :key="form.componentKey" /></td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.contract_period }} Months</td>
-                <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+              <tr v-for="row in packages.data" v-bind:key="row.id" :class="{'text-gray-400':!row.status}">
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.id }}</td>
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.name }}</td>
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap"><Bundle :data="row.id" :key="form.componentKey" /></td>
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.price }}</td>
+                <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.contract_period }} Months</td>
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap text-right">
                   <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                   <a href="#" @click="deleteRow(row)" class="text-red-600 hover:text-red-900">Delete</a>
                 </td>
@@ -61,11 +65,28 @@
                               <input type="text" v-model="form.name" name="name" id="name" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Package Name" required />
                             </div>
                           </div>
+                           <div class="py-2">
+                            <label for="price" class="block text-sm font-medium text-gray-700"> Enter Package Price </label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                              <input type="text" v-model="form.price" name="price" id="price" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Package Price" required />
+                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Kyats </span>
+                            </div>
+                          </div>
                           <div class="py-2">
                             <label for="speed" class="block text-sm font-medium text-gray-700"> Enter Bandwidth </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                               <input type="text" name="speed" v-model="form.speed" id="speed" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Bandwidth in Mbps" v-on:keypress="isNumber(event)" required />
                               <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Mbps </span>
+                            </div>
+                          </div>
+                          <div class="py-2">
+                            <label for="type" class="block text-sm font-medium text-gray-700"> Service Type </label>
+                            <div class="mt-1 flex">
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" checked name="type" v-model="form.type" value="ftth" /><span class="ml-2 text-gray-700">FTTH</span> </label>
+
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="type" v-model="form.type" value="sme" /><span class="ml-2 text-gray-700">SME</span> </label>
+
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-red-600" name="type" v-model="form.type" value="dia" /><span class="ml-2 text-gray-700">DIA</span> </label>
                             </div>
                           </div>
                           <div class="py-2">
@@ -103,20 +124,25 @@
                                 </button>
                               </div>
                             </div>
+                       
                           </div>
+                               <div class="py-2">
+                              <label for="type" class="block text-sm font-medium text-gray-700"> Status </label>
+                              <div class="mt-1 flex">
+                                <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded mt-1"  name="status" v-model="form.status" value="true" />
+                                <label class="flex-auto items-center ml-1" v-if="form.status == true">Enabled</label>
+                                <label class="flex-auto items-center ml-1" v-if="form.status== false">Disabled</label>
+                               
+                              </div>
+                            </div>
                         </div>
                         <div class="col-span-3 sm:col-span-1">
                           <div class="py-2">
                             <label for="company_website" class="block text-sm font-medium text-gray-700"> Bundle Equiptment </label>
-                            <div  v-if="form.bundleList.length === 0">
-                              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
+                            <div v-if="form.bundleList.length === 0">
+                              <label class="text-sm text-gray-700 flex-1">No Equiptment</label>
                             </div>
-                            <div class="mt-1 flex rounded-md shadow-sm max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-w-1 scrollbar-thumb-gray-400 scrollbar-track-gray-100 scrolling-touch" v-if="form.bundleList.length !== 0 ">
-                              
-
+                            <div class="mt-1 flex rounded-md shadow-sm max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-w-1 scrollbar-thumb-gray-400 scrollbar-track-gray-100 scrolling-touch" v-if="form.bundleList.length !== 0">
                               <ul class="px-0 w-full">
                                 <li class="border list-none rounded-sm px-3 py-3 flex" style="border-bottom-width: 0" v-for="row in form.bundleList" v-bind:key="row.id">
                                   <div class="text-sm text-gray-700 flex-1">{{ row[0].name }}</div>
@@ -180,7 +206,10 @@ export default {
     const form = reactive({
       id: null,
       name: null,
+      price: null,
       speed: null,
+      type: "ftth",
+      status: true,
       contract_period: 24,
       package_id: null,
       bundle_equiptment_id: null,
@@ -198,9 +227,12 @@ export default {
 
     function resetForm() {
       form.name = null;
+      form.price = null;
       form.speed = null;
       form.contract_period = 24;
       form.package_id = null;
+      form.status = true;
+      form.type = "ftth";
       form.qty = 1;
       form.bundle_equiptment = "No Bundle";
       form.bundleList = [];
@@ -245,11 +277,18 @@ export default {
     }
     function edit(data) {
       form.name = data.name;
+      form.price = data.price;
       form.speed = data.speed;
       form.contract_period = data.contract_period;
       form.package_id = data.package_id;
       form.qty = 1;
-      form.bundle_equiptment = "No Bundle";
+      if(data.status == 1){
+        form.status = true;
+      }else{
+        form.status = false;
+      }
+      
+      (form.type = data.type), (form.bundle_equiptment = "No Bundle");
       form.id = data.id;
       getBundleList(data).then((d) => {
         form.bundleList = d.map((x) => {
@@ -291,6 +330,7 @@ export default {
           filtered = [filtered, oQty].flat();
           form.bundleList.push(filtered);
         }
+        form.qty = 1;
       }
 
       //  console.log(props.bundle_equiptments);
@@ -369,5 +409,29 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 .noborder {
   border: none;
+}
+/* CHECKBOX TOGGLE SWITCH */
+/* @apply rules for documentation, these do not work as inline style */
+
+.toggle-checkbox:checked {
+  @apply: right-0 border-green-400;
+  right: 0;
+  border-color: #68d391;
+}
+.toggle-checkbox:checked + .toggle-label {
+  @apply: bg-green-400;
+  background-color: #68d391;
+}
+.toggle-checkbox:active,
+.toggle-checkbox:focus {
+  outline: 0px;
+  outline-offset: 0px;
+  --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(0 0 0 / 6%);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 </style>

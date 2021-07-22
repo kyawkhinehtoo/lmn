@@ -17,6 +17,7 @@ class Packages extends Migration
             $table->id();
             $table->string('name');
             $table->integer('speed');
+            $table->enum('type',['ftth','sme','dia']);
             $table->enum('contract_period',[6,12,24]);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));

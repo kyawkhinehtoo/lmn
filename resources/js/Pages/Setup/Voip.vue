@@ -57,7 +57,7 @@
                             <div class="">
                                   <div class="mb-4">
                                       <label for="voip_number" class="block text-gray-700 text-sm font-bold mb-2">Voip Name:</label>
-                                      <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="voip_number" placeholder="Enter Voip Name" v-model="form.voip_number">
+                                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="voip_number" placeholder="Enter Voip Name" v-model="form.voip_number">
                                       <div v-if="$page.props.errors.voip_number" class="text-red-500">{{ $page.props.errors.voip_number[0] }}</div>
                                
                                   </div>

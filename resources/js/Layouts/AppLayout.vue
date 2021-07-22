@@ -79,61 +79,72 @@
                                 class="border-0 px-3 py-2 h-12 border border-solid  border-blueGray-500 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-base leading-snug shadow-none outline-none focus:outline-none w-full font-normal" />
                         </div>
                     </form>
+                    <div v-if="$page.props.user.role == 0 || $page.props.user.role == 1 ">
                     <ul class="md:flex-col md:min-w-full flex flex-col list-none">
                         <li class="items-center">
                             <jet-nav-link :href="route('dashboard')" :active="route().current('dashboard')">
-                                   <i class="fas fa-tv  opacity-75 mr-2 text-sm"></i> Dashboard
+                                   <i class="fas fa-tv  opacity-75 mr-2 text-sm w-6"></i> Dashboard
                                 </jet-nav-link>
                         </li>
                     </ul>
                     <hr class="my-4 md:min-w-full" />
                     <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-                        Administrator 
+                        Admin Panel
                     </h6>
                       <ul class="md:flex-col md:min-w-full flex flex-col list-none">
+                           <li>
+                              <jet-nav-link :href="route('user.index')" :active="route().current('user.index')">
+                                   <i class="fas fa-user  opacity-75 mr-2 text-sm w-6"></i> User Setup
+                                </jet-nav-link>
+                        </li>
+                           <li>
+                              <jet-nav-link :href="route('role.index')" :active="route().current('role.index')">
+                                   <i class="fas fa-user-tag  opacity-75 mr-2 text-sm w-6"></i> Role Setup
+                                </jet-nav-link>
+                        </li>
                         <li>
                               <jet-nav-link :href="route('township.index')" :active="route().current('township.index')">
-                                   <i class="fas fa-city  opacity-75 mr-2 text-sm"></i> Township Setup
+                                   <i class="fas fa-city  opacity-75 mr-2 text-sm w-6"></i> Township Setup
                                 </jet-nav-link>
                         </li>
                         <li>
                               <jet-nav-link :href="route('equiptment.index')" :active="route().current('equiptment.index')">
-                                   <i class="fas fa-gamepad  opacity-75 mr-2 text-sm"></i> Bundle Setup
+                                   <i class="fas fa-gamepad  opacity-75 mr-2 text-sm w-6"></i> Bundle Setup
                                 </jet-nav-link>
                         </li>
                        
                         <li>
                               <jet-nav-link :href="route('package.index')" :active="route().current('package.index')">
-                                   <i class="fas fa-cube  opacity-75 mr-2 text-sm"></i> Package Setup
+                                   <i class="fas fa-cube  opacity-75 mr-2 text-sm w-6"></i> Package Setup
                                 </jet-nav-link>
                         </li>
                         <li>
                               <jet-nav-link :href="route('project.index')" :active="route().current('project.index')">
-                                   <i class="fas fa-handshake  opacity-75 mr-2 text-sm"></i> Project Setup
+                                   <i class="fas fa-handshake  opacity-75 mr-2 text-sm w-6"></i> Project Setup
                                 </jet-nav-link>
                         </li>
                         <li>
-                              <jet-nav-link :href="route('sale_person.index')" :active="route().current('sale_person.index')">
-                                   <i class="fas fa-user-tag  opacity-75 mr-2 text-sm"></i> Sale Person Setup
+                              <jet-nav-link :href="route('status.index')" :active="route().current('status.index')">
+                                   <i class="fas fa-user-tag  opacity-75 mr-2 text-sm w-6"></i> Customer Status Setup
                                 </jet-nav-link>
                         </li>
                         <li>
                               <jet-nav-link :href="route('voip.index')" :active="route().current('voip.index')">
-                                   <i class="fas fa-phone-square-alt  opacity-75 mr-2 text-sm"></i> VOIP Setup
+                                   <i class="fas fa-phone-square-alt  opacity-75 mr-2 text-sm w-6"></i> VOIP Setup
                                 </jet-nav-link>
                         </li>
                        
                     </ul>
                     <hr class="my-4 md:min-w-full" />
+                    </div>
                     <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-                        User
+                        User Panel
                     </h6>
                     <ul class="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
                         <li class="inline-flex">
-                            <a class="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                                href="#/documentation/styles"><i
-                                    class="fas fa-users mr-2 text-blueGray-400 text-base"></i>
-                                Customers</a>
+                            <jet-nav-link :href="route('customer.index')" :active="route().current('customer.index')">
+                                   <i class="fas fa-users  opacity-75 mr-2 text-sm w-6"></i> Customer
+                                </jet-nav-link>
                         </li>
                        
                     </ul>

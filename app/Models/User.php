@@ -17,7 +17,16 @@ class User extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
-
+    /**
+     * Role 
+     * 0 - super admin
+     * 1 - admin 
+     * 2 - technical 
+     * 3 - sale
+     * 4 - billing
+     * 5 - subcom
+     * 
+     **/
     /**
      * The attributes that are mass assignable.
      *
@@ -26,6 +35,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'role',
         'password',
     ];
 
@@ -58,4 +69,8 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
 }

@@ -31,7 +31,7 @@ export default {
           bundle.value += d.map((x) => {
             let badge ='';
             count++;
-            if(count % 4 === 0 ){
+            if(count % 3 === 0 ){
               badge = '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + x.bundle_name + ' x ' + x.qty + '</span><br />';
             }else{
               badge = '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + x.bundle_name + ' x ' + x.qty + '</span>'; 
