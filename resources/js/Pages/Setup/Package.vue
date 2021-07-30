@@ -90,6 +90,14 @@
                             </div>
                           </div>
                           <div class="py-2">
+                            <label for="contract_period" class="block text-sm font-medium text-gray-700"> Maximum SLA</label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                              <select id="sla_id" v-model="form.sla_id" name="sla_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                               <option v-for="row in slas" v-bind:key="row.id" :value="row.id">{{ row.percentage }}</option>
+                            </select>
+                            </div>
+                          </div>
+                          <div class="py-2">
                             <label for="contract_period" class="block text-sm font-medium text-gray-700"> Contract Term </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                               <select id="contract_period" v-model="form.contract_period" name="contract_period" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -199,6 +207,7 @@ export default {
   props: {
     packages: Object,
     bundle_equiptments: Object,
+    slas: Object,
     errors: Object,
     bundles: String,
   },
@@ -209,6 +218,7 @@ export default {
       price: null,
       speed: null,
       type: "ftth",
+      sla_id: null,
       status: true,
       contract_period: 24,
       package_id: null,
@@ -232,6 +242,7 @@ export default {
       form.contract_period = 24;
       form.package_id = null;
       form.status = true;
+      form.sla_id = null;
       form.type = "ftth";
       form.qty = 1;
       form.bundle_equiptment = "No Bundle";
@@ -281,6 +292,7 @@ export default {
       form.speed = data.speed;
       form.contract_period = data.contract_period;
       form.package_id = data.package_id;
+      form.sla_id = data.sla_id;
       form.qty = 1;
       if(data.status == 1){
         form.status = true;

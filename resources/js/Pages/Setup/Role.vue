@@ -40,14 +40,14 @@
             </tbody>
           </table>
 
-                <div ref="isOpen" class="fixed z-10 inset-0 overflow-y-auto ease-out duration-400" v-if="isOpen">
+          <div ref="isOpen" class="fixed z-10 inset-0 overflow-y-auto ease-out duration-400" v-if="isOpen">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
               <div class="fixed inset-0 transition-opacity">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
               ​
-              <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full " role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                   <form @submit.prevent="submit">
+              <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+                <form @submit.prevent="submit">
                   <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 min-h-screen">
                     <div class="">
                       <div class="mb-4">
@@ -162,9 +162,9 @@ export default {
     function edit(data) {
       form.id = data.id;
       form.name = data.name;
-      if(data.permission){
-      let permission_array = data.permission.split(",");
-      form.permission = props.col.filter((d) => permission_array.includes(d.name)); 
+      if (data.permission) {
+        let permission_array = data.permission.split(",");
+        form.permission = props.col.filter((d) => permission_array.includes(d.name));
       }
 
       editMode.value = true;
@@ -188,12 +188,12 @@ export default {
       if (d) {
         perm_array = d.split(",");
         perm_array.forEach((e) => {
-            count++;
-            if(count % 6 === 0 ){
-              perm += '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + e + '</span><br />';
-            }else{
-              perm += '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + e + '</span>'; 
-            }     
+          count++;
+          if (count % 6 === 0) {
+            perm += '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + e + "</span><br />";
+          } else {
+            perm += '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">' + e + "</span>";
+          }
         });
       }
       return perm;

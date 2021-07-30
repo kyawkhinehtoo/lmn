@@ -38,5 +38,10 @@ class AppServiceProvider extends ServiceProvider
                 'message' => Session::get('message'),
             ];
         });
+        Inertia::share('response', function () {
+            return [
+                'id' => Session::get('id'),
+            ];
+        });
     }
 }

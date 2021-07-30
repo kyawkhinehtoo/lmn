@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Package;
+use App\Models\Sla;
 use App\Models\PackageBundle;
 use App\Models\BundleEquiptment;
 use Inertia\Inertia;
@@ -24,7 +25,8 @@ class PackageController extends Controller
         //     echo $package->bundleEquiptment->name.', QTY :'. $package->qty.'<br />'; 
         // }
         $bundle_equiptments = BundleEquiptment::get();
-        return Inertia::render('Setup/Package', ['packages' => $packages, 'bundle_equiptments' => $bundle_equiptments]);
+        $slas = Sla::get();
+        return Inertia::render('Setup/Package', ['packages' => $packages, 'bundle_equiptments' => $bundle_equiptments,'slas'=>$slas]);
 
     }
 
@@ -46,6 +48,7 @@ class PackageController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'speed' => ['required'],
+            'sla_id' => ['required'],
             'type' => ['required', 'in:ftth,sme,dia'],
             'contract_period' => ['required', 'in:6,12,24'],
         ])->validate();
@@ -55,6 +58,7 @@ class PackageController extends Controller
         $package->speed = $request->speed;
         $package->type = $request->type;
         $package->status = $request->status;
+        $package->sla_id = $request->sla_id;
         $package->price = $request->price;
         $package->contract_period = (string)$request->contract_period;
         $package->save();
@@ -81,6 +85,7 @@ class PackageController extends Controller
             'name' => ['required'],
             'speed' => ['required'],
             'type' => ['required', 'in:ftth,sme,dia'],
+            'sla_id' => ['required'],
             'contract_period' => ['required', 'in:6,12,24'],
         ])->validate();
   
@@ -89,6 +94,7 @@ class PackageController extends Controller
             $package->name = $request->name;
             $package->speed = $request->speed;
             $package->type = $request->type;
+            $package->sla_id = $request->sla_id;
             $package->status = $request->status;
             $package->price = $request->price;
             $package->contract_period = (string)$request->contract_period;

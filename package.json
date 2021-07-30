@@ -27,7 +27,9 @@
         "vue-loader": "^16.1.2"
     },
     "dependencies": {
+        "@j-t-mcc/vue3-chartjs": "^1.1.2",
         "@suadelabs/vue3-multiselect": "^1.0.1",
+        "litepie-datepicker": "^1.0.14",
         "sweetalert2": "^11.0.12"
     }
 }

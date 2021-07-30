@@ -12,8 +12,8 @@ use App\Models\Township;
 use App\Models\Role;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
-use Auth;
-use DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -22,8 +22,21 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request){
+        return $this->show($request);
+    }
+    public function show(Request $request)
     {
+        
+        $packages = Package::get();
+        $townships = Township::get();
+        $projects = Project::get();
+        $status = Status::get();
+        $orderform = null;
+        if($request->orderform)
+        $orderform['status'] = ($request->orderform == 'signed')?1:0;
+
+        
         $customers =  DB::table('customers')
             ->join('packages', 'customers.package_id', '=', 'packages.id')
             ->join('townships', 'customers.township_id', '=', 'townships.id')
@@ -34,6 +47,42 @@ class CustomerController extends Controller
                     ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
                     ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
                     ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
+            })->when($request->general, function ($query, $general) {
+                $query->where(function ($query) use($general) {
+                    $query->where('customers.name','LIKE', '%'.$general.'%')
+                    ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
+                    ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
+                    ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
+                    ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
+                    ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                });
+            })
+            ->when($request->installation, function ($query, $installation) {
+                    $query->whereBetween('customers.installation_date', [$installation['from'], $installation['to']]);
+            })
+            ->when($request->order, function ($query, $order) {
+                $query->whereBetween('customers.order_date', [$order['from'], $order['to']]);
+            })
+            ->when($request->package, function ($query, $package) {
+                $query->where('customers.package_id','=',$package);
+            })
+            ->when($request->project, function ($query, $project) {
+                $query->where('customers.project_id','=',$project);
+            })
+            ->when($request->township, function ($query, $township) {
+                $query->where('customers.township_id','=',$township);
+            })
+            ->when($request->status, function ($query, $status) {
+                $query->where('customers.status_id','=',$status);
+            })
+            ->when($orderform, function ($query, $orderform) {
+                $query->where('customers.order_form_sign_status','=',$orderform['status']);
+            })
+            ->when($request->order, function ($query, $order) {
+                $query->whereBetween('customers.order_date',$order);
+            })
+            ->when($request->installation, function ($query, $installation) {
+                $query->whereBetween('customers.installation_date',$installation);
             })
             ->when($request->sort, function ($query, $sort = null) {
                 $sort_by = 'customers.id';
@@ -50,40 +99,22 @@ class CustomerController extends Controller
                 }
 
                 $query->orderBy($sort_by,'desc');
+            },function ($query){
+                $query->orderBy('customers.id','desc');
             })
             ->select('customers.id as id', 'customers.ftth_id as ftth_id', 'customers.name as name', 'customers.order_date as order_date', 'customers.phone_1 as phone', 'townships.name as township', 'packages.name as package', 'status.name as status', 'status.color as color')
             ->paginate(10);
-
-
-
-        // $customers = Customer::when($request->keyword, function($query, $search = null){
-        //     $query->where('name','LIKE','%'.$search.'%')
-        //     ->orWhere('ftth_id','LIKE','%'.$search.'%');
-        // })
-        // ->with(['Township','Package'])
-        // ->paginate(10);
-        // return Inertia::render('Client/Customer', ['customers' => $customers]);
-
-        // $customers = Customer::where('name', 'like', '%' . $request->keyword . '%')
-        // ->WhereHas('township', function($query, $search = null) {
-        //     $query->where('name','LIKE','%'.$search.'%');
-        // })
-        // ->with(['Township','Package'])
-        // ->paginate(10);
-
-
-        //     $products = Product::where('name', 'like', '%' . $request->keyword . '%')
-        // ->whereHas('metas', function($query) use ($request) {
-        //     $query->whereBetween('price', [$request->price_min, $request->price_max]);
-        // })
-        // ->with('metas')
-        // ->paginate(10);
-        return Inertia::render('Client/Customer', ['customers' => $customers]);
+      // dd($customers->toSQL(), $customers->getBindings());
+        $customers->appends($request->all())->links();
+        return Inertia::render('Client/Customer', [
+            'packages' => $packages,
+            'projects' => $projects,
+            'townships' => $townships,
+            'status' => $status,
+            'customers' => $customers
+            ]);
     }
-    public function show()
-    {
-        return redirect()->route('customer.index');
-    }
+  
     /**
      * Store a newly created resource in storage.
      *

@@ -11,7 +11,7 @@ window.Toast = Swal.mixin({
     toast: true,
     position: 'top-right',
     timer: 3500,
-    timerProgressBar: true
+    timerProgressBar: false
 });
 createApp({
     render: () =>

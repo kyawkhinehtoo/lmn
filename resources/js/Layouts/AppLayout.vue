@@ -5,9 +5,9 @@
                 <button class="cursor-pointer text-black opacity-50 md:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-solid border-transparent"
                     type="button" onclick="toggleNavbar('example-collapse-sidebar')">
                     <i class="fas fa-bars"></i></button>
-                <a class="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
+                <a class="md:min-w-full flex-start inline-flex items-center align-middle uppercase text-blueGray-400"
                     href="javascript:void(0)">
-                    Marga Global Telecom
+                  <i class="fas fa-cat fa-2x flex"></i> <span class="flex ml-2 mt-2 font-bold antialiased">ISP Manager</span>
                 </a>
                 <ul class="md:hidden items-center flex flex-wrap list-none">
                     <li class="inline-block relative">
@@ -232,7 +232,7 @@
                                 <ul class="flex flex-wrap list-none md:justify-end  justify-center">
                                    
                                     <li class="text-sm text-blueGray-500 font-semibold py-1">
-                                        Marga Global Telecom
+                                        ISP MANAGER
                                     </li>
                                 </ul>
                             </div>

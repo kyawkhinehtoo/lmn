@@ -28,6 +28,7 @@ class Incident extends Model
      */
     protected $fillable = [
         'code',
+        'priority',
         'incharge_id',
         'customer_id',
         'package_id',
@@ -63,6 +64,7 @@ class Incident extends Model
      */
     protected $casts = [
         'code'=> 'string',
+        'priority'=> 'string',
         'incharge_id'=> 'string',
         'customer_id'=> 'string',
         'package_id'=> 'string',

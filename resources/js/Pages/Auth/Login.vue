@@ -1,7 +1,10 @@
 <template>
     <jet-authentication-card>
         <template #logo>
-            <jet-authentication-card-logo />
+            <span class="flex flex-col items-center align-middle uppercase text-blueGray-400">
+           <i class="fas fa-cat fa-4x flex" ></i>
+           <h2 class="mt-2 font-bold antialiased flex">ISP Manager</h2>
+           </span>
         </template>
 
         <jet-validation-errors class="mb-4" />

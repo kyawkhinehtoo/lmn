@@ -15,7 +15,8 @@ class CreateIncidentsTable extends Migration
     {
         Schema::create('incidents', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
+            $table->string('code')->nullable();
+            $table->string('priority');
             $table->foreignId('incharge_id');
             $table->foreignId('customer_id');
             $table->string('type');

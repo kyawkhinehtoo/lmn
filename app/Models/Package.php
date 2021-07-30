@@ -31,7 +31,7 @@ class Package extends Model
      * @var array
      */
     protected $fillable = [
-        'name','speed','type','status','price', 'contract_period', 'created_at', 'updated_at'
+        'name','speed','type','status','sla_id','price', 'contract_period', 'created_at', 'updated_at'
     ];
 
     /**
