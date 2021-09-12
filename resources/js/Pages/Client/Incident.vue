@@ -2,7 +2,7 @@
   <app-layout>
     <div class="py-1">
       <div class="mx-auto sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-6 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-6 w-full" v-if="permission[0].read_incident ==1 || permission[0].write_incident ==1 ">
           <!--ticket list -->
           <div class="col-span-4 sm:col-span-4">
             <div class="py-2">
@@ -27,7 +27,7 @@
                   </select>
                 </div>
                 <div class="flex w-1/2 justify-end">
-                <button @click="newTicket()" class="text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">New Ticket<i class="fas fa-plus-circle opacity-75 lg:ml-1 text-sm"></i></button>
+                <button @click="newTicket()" class="text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1" v-if="permission[0].write_incident ==1">New Ticket<i class="fas fa-plus-circle opacity-75 lg:ml-1 text-sm"></i></button>
                </div>
               </div>
             </div>
@@ -48,7 +48,7 @@
                     <td class="px-6 py-3 whitespace-nowrap"><i :class="'fa fa-circle text-' + row.color"></i></td>
                     <td class="px-6 py-3 whitespace-nowrap">{{ row.date}} {{ row.time }}</td>
                     <td class="px-6 py-3 whitespace-nowrap">{{ row.code }}</td>
-                    <td class="px-6 py-3 whitespace-nowrap" v-if="row.ftth_id">{{ row.ftth_id.substring(0, 5) }}</td>
+                    <td class="px-6 py-3 whitespace-nowrap" v-if="row.ftth_id">{{ row.ftth_id }}</td>
                     <td class="px-6 py-3 whitespace-nowrap">{{ getStatus(row.status) }}</td>
                   </tr>
                 </tbody>
@@ -83,6 +83,12 @@
             <incident-alert />
           </div>
           <!--end of alarm panel -->
+        </div>
+        <div class="flex justify-center" v-else>
+          <span class="px-20 py-10 center bg-white inline-flex">
+            <i class="fa fas fa-exclamation-triangle fa-2x text-yellow-600 mr-2"></i>
+            <label class="font-bold mt-2 text-sm"> You Don't Have Permission To Access This Page</label>
+         </span>
         </div>
       </div>
     </div>
@@ -150,14 +156,15 @@
                         <div class="py-2 col-span-2 sm:col-span-2">
                           <div class="mt-1 flex rounded-md shadow-sm">
                             <input type="date" v-model="form.date" name="date" id="date" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
-                            <p v-if="$page.props.errors.date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.date }}</p>
+                           
                           </div>
+                           <p v-if="$page.props.errors.date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.date }}</p>
                         </div>
                         <div class="py-2 col-span-2 sm:col-span-2">
                           <div class="mt-1 flex rounded-md shadow-sm">
                             <input type="time" v-model="form.time" name="time" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
-                            <p v-if="$page.props.errors.time" class="mt-2 text-sm text-red-500">{{ $page.props.errors.time }}</p>
-                          </div>
+                           </div>
+                           <p v-if="$page.props.errors.time" class="mt-2 text-sm text-red-500">{{ $page.props.errors.time }}</p>
                         </div>
                         <!-- end of date -->
                         <!-- ticket id -->
@@ -178,10 +185,10 @@
                         </div>
                         <div class="py-2 col-span-4 sm:col-span-4">
                           <div class="mt-1 flex rounded-md shadow-sm" v-if="customers.length !== 0">
-                            <multiselect deselect-label="Selected already" :options="customers" track-by="id" label="ftth_id" v-model="form.customer" :allow-empty="false"></multiselect>
+                            <multiselect deselect-label="Selected already" :options="customers" track-by="id" label="ftth_id" v-model="form.customer_id" :allow-empty="false"></multiselect>
                           </div>
-                          <p v-if="$page.props.errors.customer" class="mt-2 text-sm text-red-500">{{ $page.props.errors.customer }}</p>
-                        </div>
+                           <p v-if="$page.props.errors.customer" class="mt-2 text-sm text-red-500">{{ $page.props.errors.customer }}</p>
+                          </div>
                         <!-- end of user id -->
                         <!-- person incharge  -->
                         <div class="py-2 col-span-1 sm:col-span-1">
@@ -191,7 +198,7 @@
                         </div>
                         <div class="py-2 col-span-4 sm:col-span-4">
                           <div class="mt-1 flex rounded-md shadow-sm" v-if="team.length !== 0">
-                            <multiselect deselect-label="Selected already" :options="team" track-by="id" label="name" v-model="form.incharge" :allow-empty="false" :disabled="true"></multiselect>
+                            <multiselect deselect-label="Selected already" :options="team" track-by="id" label="name" v-model="form.incharge_id" :allow-empty="false" :disabled="true"></multiselect>
                           </div>
                           <p v-if="$page.props.errors.incharge" class="mt-2 text-sm text-red-500">{{ $page.props.errors.incharge }}</p>
                         </div>
@@ -214,9 +221,9 @@
                               <option value="resume">Resume</option>
                               <option value="termination">Termination</option>
                             </select>
-                            <p v-if="$page.props.errors.type" class="mt-2 text-sm text-red-500">{{ $page.props.errors.type }}</p>
-                          </div>
-                        </div>
+                           </div>
+                          <p v-if="$page.props.errors.type" class="mt-2 text-sm text-red-500">{{ $page.props.errors.type }}</p>
+                       </div>
                         <!-- end of type -->
                         <!-- topic -->
                         <div class="py-2 col-span-1 sm:col-span-1" v-if="form.type == 'service_complaint'">
@@ -235,8 +242,8 @@
                               <option value="password_change">Password Changed</option>
                               <option value="other">Other</option>
                             </select>
+                           </div>
                             <p v-if="$page.props.errors.topic" class="mt-2 text-sm text-red-500">{{ $page.props.errors.topic }}</p>
-                          </div>
                         </div>
                         <!-- end of topic -->
                         <!-- status -->
@@ -253,8 +260,8 @@
                               <option value="3">Closed</option>
                               <option value="4">Deleted</option>
                             </select>
-                            <p v-if="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
                           </div>
+                           <p v-if="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
                         </div>
                         <!-- end of status -->
                         <!-- suspension -->
@@ -298,8 +305,8 @@
                               <i class="fas fa-play"></i>
                             </span>
                             <input type="date" v-model="form.resume" name="resume" id="resume" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
-                            <p v-if="$page.props.errors.resume" class="mt-2 text-sm text-red-500">{{ $page.props.errors.resume }}</p>
                           </div>
+                             <p v-if="$page.props.errors.resume" class="mt-2 text-sm text-red-500">{{ $page.props.errors.resume }}</p>
                         </div>
                         <!-- end of resume -->
                         <!-- termination -->
@@ -314,8 +321,8 @@
                               <i class="fas fa-stop"></i>
                             </span>
                             <input type="date" v-model="form.termination" name="termination" id="termination" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
-                            <p v-if="$page.props.errors.termination" class="mt-2 text-sm text-red-500">{{ $page.props.errors.termination }}</p>
-                          </div>
+                         </div>
+                          <p v-if="$page.props.errors.termination" class="mt-2 text-sm text-red-500">{{ $page.props.errors.termination }}</p>
                         </div>
                         <!-- end of termination -->
                         <!-- relocation address -->
@@ -327,8 +334,8 @@
                         <div class="py-2 col-span-4 sm:col-span-4" v-if="form.type == 'relocation'">
                           <div class="mt-1 flex">
                             <textarea v-model="form.new_address" name="new_address" id="new_address" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"> </textarea>
+                           </div>
                             <p v-if="$page.props.errors.new_address" class="mt-2 text-sm text-red-500">{{ $page.props.errors.new_address }}</p>
-                          </div>
                         </div>
                         <!-- end of relocation address -->
                         <!-- relocation latlong -->
@@ -368,7 +375,7 @@
                         </div>
                         <div class="py-2 col-span-4 sm:col-span-4" v-if="form.type == 'plan_change'">
                           <div class="mt-1 flex rounded-md shadow-sm" v-if="packages.length !== 0">
-                            <multiselect deselect-label="Selected already" :options="packages" track-by="id" label="item_data" v-model="form.package" :allow-empty="false"></multiselect>
+                            <multiselect deselect-label="Selected already" :options="packages" track-by="id" label="item_data" v-model="form.package_id" :allow-empty="false"></multiselect>
                           </div>
                           <p v-if="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
                         </div>
@@ -381,31 +388,30 @@
                         </div>
                         <div class="py-2 col-span-4 sm:col-span-4">
                           <div class="mt-1 flex">
-                            <textarea v-model="form.detail" name="detail" id="detail" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"> </textarea>
+                            <textarea v-model="form.description" name="detail" id="detail" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"> </textarea>
+                             </div>
                             <p v-if="$page.props.errors.detail" class="mt-2 text-sm text-red-500">{{ $page.props.errors.detail }}</p>
-                          </div>
-                        </div>
+                         </div>
                         <!-- end of detail -->
                       </div>
                     </div>
                     <!-- end of tab1 -->
-                    <div class="p-4" :class="[tab == 2 ? '' : 'hidden']"><task :data="selected_id" /></div>
-                    <div class="p-4" :class="[tab == 3 ? '' : 'hidden']"><file :data="selected_id"  /></div>
-                    <div class="p-4" :class="[tab == 4 ? '' : 'hidden']">Fourth tab</div>
-                    <div class="p-4" :class="[tab == 5 ? '' : 'hidden']">Fifth tab</div>
+                    <div class="p-4" :class="[tab == 2 ? '' : 'hidden']"><task :data="selected_id" :key="page_update" /></div>
+                    <div class="p-4" :class="[tab == 3 ? '' : 'hidden']"><file :data="selected_id"  :key="page_update"/></div>
+                    <div class="p-4" :class="[tab == 4 ? '' : 'hidden']"><history :data="selected_id" :key="page_update" /></div>
+                    <div class="p-4" :class="[tab == 5 ? '' : 'hidden']"><log :data="selected_id" :key="page_update" /></div>
                   </div>
                 </div>
               </div>
               <!-- end of ticket input panel -->
             </div>
-             <div class="bg-gray-50 px-3 py-3 sm:px-6 sm:flex sm:flex-row" :class="[tab==1? 'justify-between':'justify-end']">
-              <div class="flex" v-if="tab ==1">
-              <button class="inline-flex items-center px-4 py-3 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400 active:bg-gray-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1" @click="submit()"><span v-if="editMode">Update</span><span v-if="editMode == false">Save</span><i class="fas fa-save opacity-75 lg:ml-1 text-sm"></i></button>
-              <button class="inline-flex items-center px-4 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-400 active:bg-green-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Close<i class="fas fa-check-circle opacity-75 lg:ml-1 text-sm"></i></button>
-              <button class="inline-flex items-center px-4 py-3 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-400 active:bg-red-600 focus:outline-none focus:border-gray-500 disabled:opacity-25 transition mr-1">Delete<i class="lg:ml-1 fas fa-trash opacity-75 text-sm"></i></button>
+             <div class="bg-indigo-50 px-3 py-3 sm:px-6 sm:flex sm:flex-row" :class="[tab==1? 'justify-between':'justify-end']">
+              <div class="flex" v-if="tab ==1 &&  permission[0].write_incident ==1">
+              <button class="inline-flex items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-indigo-900 disabled:opacity-25 transition mr-1" @click="submit()"><span v-if="editMode">Update</span><span v-if="editMode == false">Save</span><i class="fas fa-save opacity-75 lg:ml-1 text-sm"></i></button>
+              <button @click="deleteIncident" class="inline-flex items-center px-4 py-3 bg-red-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-400 active:bg-red-600 focus:outline-none focus:border-gray-500 disabled:opacity-25 transition mr-1"  v-show="selected_id">Delete<i class="lg:ml-1 fas fa-trash opacity-75 text-sm"></i></button>
               </div>
               <div class="flex" >             
-              <button @click="closeModal" type="button" class="inline-flex items-center px-4 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:border-gray-500 disabled:opacity-25 transition">Cancel <i class="lg:ml-1 fas fa-times-circle opacity-75 text-sm"></i></button>
+              <button @click="closeModal" type="button" class="inline-flex items-center px-4 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:border-gray-500 disabled:opacity-25 transition">Close <i class="lg:ml-1 fas fa-times-circle opacity-75 text-sm"></i></button>
               </div>
             </div>
           </form>
@@ -419,6 +425,8 @@
 import AppLayout from "@/Layouts/AppLayout2";
 import IncidentAlert from "@/Components/IncidentAlert";
 import Task from "@/Components/Task";
+import Log from "@/Components/Log";
+import History from "@/Components/History";
 import File from "@/Components/File";
 import NoData from "@/Components/NoData";
 import Pagination from "@/Components/Pagination";
@@ -435,6 +443,8 @@ export default {
     Multiselect,
     Task,
     File,
+    Log,
+    History,
     NoData,
   },
   props: {
@@ -448,24 +458,27 @@ export default {
     high: Object,
     normal: Object,
     errors: Object,
+    permission: Object,
     user: Object,
   },
   setup(props) {
     const search = ref("");
     const sort = ref("");
+    const page_update = ref(1);
     let show = ref(false);
     let editMode = ref(false);
     let selected_id = ref("");
     let incidentStatus = ref(0);
     let isOpen = ref(false);
-    provide('noc', props.noc)
+    provide('noc', props.noc);
+    provide('permission', props.permission);
    
     const form = reactive({
       id: null,
       code: null,
       priority: "normal",
-      customer: null,
-      incharge: props.team.filter((d) => d.id == props.user.id)[0],
+      customer_id: null,
+      incharge_id: props.team.filter((d) => d.id == props.user.id)[0],
       type: "default",
       topic: null,
       status: 1,
@@ -476,8 +489,8 @@ export default {
       new_address: null,
       latitude: null,
       longitude: null,
-      package: null,
-      detail: null,
+      package_id: null,
+      description: null,
       date: null,
       time: null,
     });
@@ -487,6 +500,7 @@ export default {
       selection.value = type;
     }
     function tabClick(val) {
+      if(selected_id.value != null)
       tab.value = val;
     }
 
@@ -496,8 +510,8 @@ export default {
       form.id = "";
       form.code = "";
       form.priority = "normal";
-      form.customer = "";
-      form.incharge = props.team.filter((d) => d.id == props.user.id)[0];
+      form.customer_id = "";
+      form.incharge_id = props.team.filter((d) => d.id == props.user.id)[0];
       form.type = "default";
       form.topic = "";
       form.status = 1;
@@ -508,10 +522,11 @@ export default {
       form.new_address = "";
       form.latitude = "";
       form.longitude = "";
-      form.package = "";
-      form.detail = "";
+      form.package_id = "";
+      form.description = "";
       form.date = "";
       form.time = "";
+    
     }
     function openModal() {
       tab.value = 1;
@@ -520,6 +535,10 @@ export default {
     function closeModal() {
       selected_id.value = null;
       isOpen.value = false;
+      selected_id.value = null;
+      errors.map(function (x) {
+         console.log(x);
+      });
     }
     function newTicket() {
       clearform();
@@ -534,6 +553,7 @@ export default {
             selected_id.value = page.props.response.id;
             let response = props.incidents.data.filter((d) => d.id == selected_id.value)[0];
             edit(response);
+            page_update.value +=1;
             Toast.fire({
               icon: "success",
               title: page.props.flash.message,
@@ -548,6 +568,7 @@ export default {
         form._method = "PUT";
         Inertia.post("/incident/" + form.id, form, {
           onSuccess: (page) => {
+            page_update.value +=1;
             Toast.fire({
               icon: "success",
               title: page.props.flash.message,
@@ -573,8 +594,8 @@ export default {
       form.id = data.id;
       form.code = data.code;
       form.priority = data.priority;
-      form.customer = props.customers.filter((d) => d.id == data.customer_id)[0];
-      form.incharge = props.noc.filter((d) => d.id == data.incharge_id)[0];
+      form.customer_id = props.customers.filter((d) => d.id == data.customer_id)[0];
+      form.incharge_id = props.noc.filter((d) => d.id == data.incharge_id)[0];
       form.type = data.type;
       form.topic = data.topic;
       form.status = data.status;
@@ -583,8 +604,8 @@ export default {
       form.resume = data.resume;
       form.termination = data.termination;
       form.new_address = data.new_address;
-      form.package = props.packages.filter((d) => d.id == data.package_id)[0];
-      form.detail = data.description;
+      form.package_id = props.packages.filter((d) => d.id == data.package_id)[0];
+      form.description = data.description;
       form.date = data.date;
       form.time = data.time;
       openModal();
@@ -602,12 +623,23 @@ export default {
       }
       return status;
     }
-    function deleteRow(data) {
+    function deleteIncident(data) {
       if (!confirm("Are you sure want to remove?")) return;
-      data._method = "DELETE";
-      Inertia.post("/incident/" + data.id, data);
-      closeModal();
-      resetForm();
+      form._method = "PUT";
+      form.status = 4;
+        Inertia.post("/incident/" + form.id, form, {
+          onSuccess: (page) => {
+            page_update.value +=1;
+            Toast.fire({
+              icon: "success",
+              title: page.props.flash.message,
+            });
+            closeModal();
+          },
+          onError: (errors) => {
+            console.log("error ..".errors);
+          },
+        });
     }
     const searchIncident = () => {
 
@@ -656,15 +688,15 @@ export default {
     }
  
     onMounted(() => {
-      props.packages.map(function (x) {
-        return (x.item_data = `${x.name} - ${x.contract_period} Months`);
-      });
+      // props.packages.map(function (x) {
+      //   return (x.item_data = `${x.name} - ${x.contract_period} Months`);
+      // });
       priorityColor();
     });
     onUpdated(() => {
       priorityColor();
     });
-    return { openModal, closeModal, newTicket, isOpen, deleteRow, searchIncident, edit, sortBy, submit, getStatus, clearform, changeStatus,form, sort, search, show, tabClick, tab, selection, selected_id, editMode, typeChange,incidentStatus};
+    return { openModal, closeModal, newTicket, isOpen, deleteIncident, searchIncident, edit, sortBy, submit, getStatus, clearform, changeStatus,form, sort, search, show, tabClick, tab, selection, selected_id, editMode, typeChange,incidentStatus,page_update};
   },
 };
 </script>

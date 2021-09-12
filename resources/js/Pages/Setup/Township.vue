@@ -132,7 +132,7 @@
       const form = reactive({
           id : null,
           name: null,
-          city: 'Yangon',
+          city: 'Tachileik',
           short_code : null
         })
         const search = ref('')
@@ -141,7 +141,7 @@
 
         function resetForm(){
               form.name = null
-              form.city = 'Yangon'
+              form.city = 'Tachileik'
               form.short_code = null    
         }
         function submit() {

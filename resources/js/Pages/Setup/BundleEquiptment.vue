@@ -32,8 +32,8 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="row in equiptments.data " v-bind:key="row.id">
-                                <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
+                            <tr v-for="(row,index) in equiptments.data " v-bind:key="row.id">
+                                <td class="px-6 py-3 whitespace-nowrap">{{ index + 1 }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.detail }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">

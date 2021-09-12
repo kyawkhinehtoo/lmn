@@ -7,6 +7,7 @@ use App\Models\Incident;
 use App\Models\Township;
 use App\Models\Customer;
 use App\Models\Package;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\IncidentHistory;
 use App\Models\Task;
@@ -15,26 +16,33 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
+use Auth;
+
 class IncidentController extends Controller
 {
     public function index(Request $request)
     {   
-
+        //Auth::id();
+        $permission =  DB::table('roles')
+        ->join('users', 'users.role', '=', 'roles.id')
+        ->where('users.role','=',Auth::id())
+        ->select('roles.write_incident', 'roles.read_incident')
+        ->get();
         $townships = Township::get();
         $packages = Package::get();
-        $critical = Incident::where('priority','=','critical')->where('status','!=',0)->where('status','!=',2)->count();
-        $high = Incident::where('priority','=','high')->where('status','!=',0)->where('status','!=',2)->count();
-        $normal = Incident::where('priority','=','normal')->where('status','!=',0)->where('status','!=',2)->count();
+        $critical = Incident::where('priority','=','critical')->where('status','!=',3)->where('status','!=',4)->count();
+        $high = Incident::where('priority','=','high')->where('status','!=',3)->where('status','!=',4)->count();
+        $normal = Incident::where('priority','=','normal')->where('status','!=',3)->where('status','!=',4)->count();
         $noc = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
-            ->where('roles.name', 'LIKE', '%noc%')
+          //  ->where('roles.name', 'LIKE', '%noc%')
             ->select('users.name as name', 'users.id as id')
             ->get();
         $team = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
             ->select('users.name as name', 'users.id as id')
             ->get();
-        $customers = Customer::get();
+        $customers = Customer::select('id','ftth_id')->get();
         $orderby = null;
         if($request->sort && $request->order){
             $orderby = $request->sort .' '.$request->order;
@@ -75,7 +83,8 @@ class IncidentController extends Controller
              'customers' => $customers,
              'critical' => $critical,
              'high' => $high,
-             'normal' => $normal
+             'normal' => $normal,
+             'permission' => $permission
          ]);
 
     }
@@ -91,13 +100,52 @@ class IncidentController extends Controller
         }
 
     }
-    public function getFile($id){
+    public function getLog($id){
         if($id){
-        $tasks = DB::table('file_uploads')
-        ->where('file_uploads.incident_id', '=', $id)
-        ->orderBy('file_uploads.id','DESC')
+        $tasks = DB::table('incident_histories')
+        ->where('incident_histories.incident_id', '=', $id)
+        ->join('users','incident_histories.actor_id','=','users.id')
+        ->orderBy('incident_histories.id','DESC')
+        ->select('users.name as name','incident_histories.*')
         ->get();
         return response()->json($tasks,200);
+        }
+
+    }
+    public function getHistory($id){
+        if($id){
+            $incident =  Incident::find($id);
+            if($incident){
+                $tasks = DB::table('incidents')
+                ->join('users','incidents.incharge_id','=','users.id')
+                ->join('customers','customers.id','=','incidents.customer_id')
+                ->where('customers.id','=',$incident->customer_id)
+                ->orderBy('incidents.id','DESC')
+                ->select('users.name','incidents.date','incidents.time','incidents.code', 'customers.ftth_id','incidents.status','incidents.type','incidents.topic')
+                ->get();
+                return response()->json($tasks,200);
+                }                 
+        }
+    }
+    public function getFile($id){
+        if($id){
+       
+                $files = DB::table('file_uploads')
+                ->where('file_uploads.incident_id', '=', $id)
+                ->orderBy('file_uploads.id','DESC')
+                ->get();
+                return response()->json($files,200);
+        }
+
+    }
+    public function getCustomerFile($id){
+        if($id){
+       
+                $files = DB::table('file_uploads')
+                ->where('file_uploads.customer_id', '=', $id)
+                ->orderBy('file_uploads.id','DESC')
+                ->get();
+                return response()->json($files,200);
         }
 
     }
@@ -106,6 +154,15 @@ class IncidentController extends Controller
         if ($request->has('id')) {
             File::delete(public_path($request->input('path')));
             FileUpload::find($request->input('id'))->delete();
+            if(isset($request->incident_id)){
+                $data = array();
+                $data['incident_id'] = $request->incident_id;
+                $data['action'] = 'File Deleted:'.$request->name;
+                $data['datetime'] = date('Y-m-j h:m:s');
+                $data['actor_id'] = Auth::id();
+                $this->insertHistory($data);
+            }
+           
             return redirect()->back();
         }
     }
@@ -125,6 +182,12 @@ class IncidentController extends Controller
         $task->description = $request->description;
         $task->status = $request->status;
         $task->save();
+            $data = array();
+            $data['incident_id'] = $request->incident_id;
+            $data['action'] = 'Task Created:'.$request->description;
+            $data['datetime'] = date('Y-m-j h:m:s');
+            $data['actor_id'] = Auth::id();
+            $this->insertHistory($data);
         return redirect()->back()->with('message', 'Task Created Successfully.');
     }
     public function editTask(Request $request, $id){
@@ -144,7 +207,12 @@ class IncidentController extends Controller
         $task->description = $request->description;
         $task->status = $request->status;
         $task->update();
-        
+        $data = array();
+            $data['incident_id'] = $request->incident_id;
+            $data['action'] = 'Task Updated:'.$request->description;
+            $data['datetime'] = date('Y-m-j h:m:s');
+            $data['actor_id'] = Auth::id();
+            $this->insertHistory($data);
         return redirect()->back()->with('message', 'Task Updated Successfully.');
         }
 
@@ -169,16 +237,16 @@ class IncidentController extends Controller
             'date' => ['required'],
             'priority' => ['required'],
             'time' => ['required'],
-            'incharge' => ['required'],
+            'incharge_id' => ['required'],
             'type' => ['required'],
             'status' => ['required'],
-            'detail' => ['required'],
-            'customer' => ['required'],
+            'description' => ['required'],
+            'customer_id' => ['required'],
         ])->validate();
         $incident = new Incident();
        // $incident->code = $request->code;
-        $incident->customer_id = $request->customer['id'];
-        $incident->incharge_id = $request->incharge['id'];
+        $incident->customer_id = $request->customer_id['id'];
+        $incident->incharge_id = $request->incharge_id['id'];
         $incident->type = $request->type;
         $incident->priority = $request->priority;
         $incident->topic = $request->topic;
@@ -191,16 +259,36 @@ class IncidentController extends Controller
         if(!empty($request->latitude) && !empty($request->longitude))
         $incident->location = $request->latitude.','.$request->longitude;
         if(!empty($request->package)){
-            $incident->package_id = $request->package['id'];
+            $incident->package_id = $request->package_id['id'];
         }
         $incident->date = $request->date;
         $incident->time = $request->time;
-        $incident->description = $request->detail;
+        $incident->description = $request->description;
         $incident->save();
         $incident->code = 'T-'.str_pad($incident->id,4,"0",STR_PAD_LEFT);
         $incident->update();
+        
+      
+            $data = array();
+            $data['incident_id'] = $incident->id;
+            $data['action'] = 'Incident Created';
+            $data['datetime'] = date('Y-m-j h:m:s');
+            $data['actor_id'] = Auth::id();
+            $this->insertHistory($data);
+        
+        
         return redirect()->route('incident.index')->with('message', 'Incident Created Successfully.')
         ->with('id',$incident->id);
+    }
+
+
+    function console_log($output, $with_script_tags = true) {
+        $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . 
+    ');';
+        if ($with_script_tags) {
+            $js_code = '<script>' . $js_code . '</script>';
+        }
+        echo $js_code;
     }
     public function update(Request $request, $id)
     {
@@ -209,37 +297,129 @@ class IncidentController extends Controller
             'priority' => ['required'],
             'date' => ['required'],
             'time' => ['required'],
-            'incharge' => ['required'],
+            'incharge_id' => ['required'],
             'type' => ['required'],
             'status' => ['required'],
-            'detail' => ['required'],
+            'description' => ['required'],
         ])->validate();
-  
+            
         if ($request->has('id')) {
-            $incident = Incident::find($request->input('id'));
-            $incident->code = $request->code;
-            $incident->customer_id = $request->customer['id'];
-            $incident->incharge_id = $request->incharge['id'];
-            $incident->type = $request->type;
-            $incident->priority = $request->priority;
-            $incident->topic = $request->topic;
-            $incident->status = $request->status;
-            $incident->suspense_from = $request->suspense_from;
-            $incident->suspense_to = $request->suspense_to;
-            $incident->resume = $request->resume;
-            $incident->termination = $request->termination;
-            $incident->new_address = $request->new_address;
-            if(!empty($request->latitude) && !empty($request->longitude))
-            $incident->location = $request->latitude.','.$request->longitude;
-            if(!empty($request->package)){
-                $incident->package_id = $request->package['id'];
+            $old_incident = Incident::find($request->input('id'));
+            
+            $update = $this->checkUpdate($old_incident, $request->request);
+ 
+            if($update){
+                $data = array();
+                $data['incident_id'] = $request->input('id');
+                $data['action'] = 'Incident Update :'.$update;
+                $data['datetime'] = date('Y-m-j h:m:s');
+                $data['actor_id'] = Auth::id();
+                $this->insertHistory($data);
             }
-            $incident->date = $request->date;
-            $incident->time = $request->time;
-            $incident->description = $request->detail;
-            $incident->update();
+           
+       
+            if($update){
+                $incident = Incident::find($request->input('id'));
+                $incident->code = $request->code;
+                $incident->customer_id = $request->customer_id['id'];
+                $incident->incharge_id = $request->incharge_id['id'];
+                $incident->type = $request->type;
+                $incident->priority = $request->priority;
+                $incident->topic = $request->topic;
+                $incident->status = $request->status;
+                $incident->suspense_from = $request->suspense_from;
+                $incident->suspense_to = $request->suspense_to;
+                $incident->resume = $request->resume;
+                $incident->termination = $request->termination;
+                $incident->new_address = $request->new_address;
+                if(!empty($request->latitude) && !empty($request->longitude))
+                $incident->location = $request->latitude.','.$request->longitude;
+                if(!empty($request->package)){
+                    $incident->package_id = $request->package_['id'];
+                }
+                $incident->date = $request->date;
+                $incident->time = $request->time;
+                $incident->description = $request->description;
+
+            
+                $incident->update();
+            }
+            
             return redirect()->route('incident.index')->with('message', 'Incident Updated Successfully.');
         }
+    }
+    public function getStatus($data) {
+        $status = "WIP";
+        if ($data == 1) {
+          $status = "WIP";
+        } else if ($data == 2) {
+          $status = "Escalated";
+        } else if ($data == 3){
+          $status = "Closed";
+        } else if ( $data == 4){
+          $status = "Deleted";
+        }
+        return $status;
+    }
+    public function insertHistory($data){
+        $ih = new IncidentHistory();
+
+        $ih->incident_id = $data['incident_id']; 
+        $ih->action  = $data['action'];
+        $ih->datetime = $data['datetime'];
+        $ih->actor_id = $data['actor_id'];
+        $ih->created_at = date("Y-m-j h:m:s");
+        $ih->save();
+
+    }
+    public function checkInsertData($data){
+        $insert = null;
+        foreach ($data as $key => $value) {
+            if(!empty($value)){
+                if($key == "customer_id"){
+                    $insert .=$key.':'.$value["name"].',';
+                }
+                else if($key == "incharge_id"){
+                    $insert .= $key.':'.$value["name"].',';
+                }else if($key == "resume" || $key== "date" || $key== "suspense_from" || $key== "suspense_to"){
+                    $insert .= $key.':'.ucwords($value).',';
+                }else  if( $key == "time"){
+                    $insert .=  $key.':'.ucwords($value).',';
+                }else if($key == "status"){
+                    dd($this->getStatus($value));
+                    $insert .=  $key.':'.$this->getStatus($value).',';
+                }else{
+                    $insert .=  $key.':'.ucwords($value).',';
+                }
+            }
+        }
+        return $insert;
+    }
+    public function checkUpdate($old,$new){
+   
+        $update =null;
+        foreach ($new as $key => $value) {
+            if(isset($old->$key) && !empty($key) ){
+    
+                if($key == "customer_id"){
+                    $update .=($old->customer_id != $value['id'])? $key.':'.$value["name"].',':'';
+                }
+                else if($key == "incharge_id"){
+                    $update .=($old->incharge_id != $value['id'])? $key.':'.$value["name"].',':'';
+                }else if($key == "resume" || $key== "date" || $key== "suspense_from" || $key== "suspense_to"){
+                    $update .= (date("Y-m-j",$old->$key) != $value)? $key.':'.ucwords($value).',':'';
+                }else  if( $key == "time"){
+                    $update .= ($old->$key != strtotime($value))? $key.':'.ucwords($value).',':'';
+                }else if($key == "status"){
+                    $update .=  ($old->$key != $value)? $key.':'.$this->getStatus($value).',':'';
+                }else{
+                    $update .= ($old->$key != $value)? $key.':'.ucwords($value).',':'';
+                }
+                
+            }
+           
+        }
+        return $update;
     }
     public function destroy(Request $request, $id)
     {

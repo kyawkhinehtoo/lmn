@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\Status;
 use App\Models\Township;
 use App\Models\Role;
+use App\Models\SnPorts;
+use App\Models\DnPorts;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +34,9 @@ class CustomerController extends Controller
         $townships = Township::get();
         $projects = Project::get();
         $status = Status::get();
+    
+
+
         $orderform = null;
         if($request->orderform)
         $orderform['status'] = ($request->orderform == 'signed')?1:0;
@@ -40,8 +45,9 @@ class CustomerController extends Controller
         $customers =  DB::table('customers')
             ->join('packages', 'customers.package_id', '=', 'packages.id')
             ->join('townships', 'customers.township_id', '=', 'townships.id')
-            ->join('users', 'customers.sale_person_id', '=', 'users.id')
+            ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
             ->join('status', 'customers.status_id', '=', 'status.id')
+            ->where('customers.deleted', '=', 0)
             ->when($request->keyword, function ($query, $search = null) {
                 $query->where('customers.name', 'LIKE', '%' . $search . '%')
                     ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
@@ -52,9 +58,7 @@ class CustomerController extends Controller
                     $query->where('customers.name','LIKE', '%'.$general.'%')
                     ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                     ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                    ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                    ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
-                    ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                    ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
                 });
             })
             ->when($request->installation, function ($query, $installation) {
@@ -66,17 +70,11 @@ class CustomerController extends Controller
             ->when($request->package, function ($query, $package) {
                 $query->where('customers.package_id','=',$package);
             })
-            ->when($request->project, function ($query, $project) {
-                $query->where('customers.project_id','=',$project);
-            })
             ->when($request->township, function ($query, $township) {
                 $query->where('customers.township_id','=',$township);
             })
             ->when($request->status, function ($query, $status) {
                 $query->where('customers.status_id','=',$status);
-            })
-            ->when($orderform, function ($query, $orderform) {
-                $query->where('customers.order_form_sign_status','=',$orderform['status']);
             })
             ->when($request->order, function ($query, $order) {
                 $query->whereBetween('customers.order_date',$order);
@@ -108,10 +106,9 @@ class CustomerController extends Controller
         $customers->appends($request->all())->links();
         return Inertia::render('Client/Customer', [
             'packages' => $packages,
-            'projects' => $projects,
             'townships' => $townships,
             'status' => $status,
-            'customers' => $customers
+            'customers' => $customers,
             ]);
     }
   
@@ -124,15 +121,19 @@ class CustomerController extends Controller
     public function create()
     {
         $packages = Package::get();
-        $projects = Project::get();
+        $sn = SnPorts::get();
+        $dn = DB::table('dn_ports')
+        ->select(DB::raw('name, count(port) as ports'))
+        ->groupBy(['name'])
+        ->get();
         $sale_persons = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
-            ->where('roles.name', 'LIKE', '%sale%')
+            ->where('roles.name', 'LIKE', '%marketing%')
             ->select('users.name as name', 'users.id as id')
             ->get();
         $subcoms = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
-            ->where('roles.name', 'LIKE', '%subcom%')
+            ->where('roles.name', 'LIKE', '%transmission%')
             ->select('users.name as name', 'users.id as id')
             ->get();
         $townships = Township::get();
@@ -143,13 +144,14 @@ class CustomerController extends Controller
             'Client/AddCustomer',
             [
                 'packages' => $packages,
-                'projects' => $projects,
                 'sale_persons' => $sale_persons,
                 'townships' => $townships,
                 'status_list' => $status_list,
                 'subcoms' => $subcoms,
                 'roles' => $roles,
                 'users' => $users,
+                'sn' => $sn,
+                'dn' => $dn,
             ]
         );
     }
@@ -162,9 +164,7 @@ class CustomerController extends Controller
 
         Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'nrc' => 'required|max:255',
             'phone_1' => 'required|max:255',
-            'email' => 'email:rfc,dns|max:255',
             'address' => 'required',
             'latitude' => 'required|max:255',
             'longitude' => 'required|max:255',
@@ -176,8 +176,6 @@ class CustomerController extends Controller
             'status' => 'required',
             'order_date' => 'date',
             'installation_date' => 'nullable|date',
-            'deposit_receive_date' => 'nullable|date',
-            'bill_start_date' => 'nullable|date',
 
         ])->validate();
        
@@ -230,11 +228,12 @@ class CustomerController extends Controller
                 if (!empty($request->subcom))
                     $customer->$value = $request->subcom['id'];
             }
-            if ($value == 'project_id') {
-                if (!empty($request->project))
-                    $customer->$value = $request->project['id'];
+            if ($value == 'sn_id') {
+                if (!empty($request->sn_id))
+                    $customer->$value = $request->sn_id['id'];
             }
         }
+        $customer->deleted = 0;
         $customer->save();
         return redirect()->route('customer.index')->with('message', 'Customer Created Successfully.');
     }
@@ -252,18 +251,25 @@ class CustomerController extends Controller
         if ($id) {
             $customer =  DB::table('customers')
                 ->where('customers.id', '=', $id)
+                ->where('customers.deleted', '<>', 1)
                 ->first();
-
+            $sn = DB::table('sn_ports')
+                    ->join('dn_ports','sn_ports.dn_id','=','dn_ports.id')
+                    ->select('sn_ports.*','dn_ports.name as dn_name')
+                    ->get();
+            $dn = DB::table('dn_ports')
+                ->select(DB::raw('name, count(port) as ports'))
+                ->groupBy(['name'])
+                ->get();
             $packages = Package::get();
-            $projects = Project::get();
             $sale_persons = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
-                ->where('roles.name', 'LIKE', '%sale%')
+                ->where('roles.name', 'LIKE', '%marketing%')
                 ->select('users.name as name', 'users.id as id')
                 ->get();
             $subcoms = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
-                ->where('roles.name', 'LIKE', '%subcom%')
+                ->where('roles.name', 'LIKE', '%transmission%')
                 ->select('users.name as name', 'users.id as id')
                 ->get();
             $townships = Township::get();
@@ -275,13 +281,14 @@ class CustomerController extends Controller
                 [
                     'customer' => $customer,
                     'packages' => $packages,
-                    'projects' => $projects,
                     'sale_persons' => $sale_persons,
                     'townships' => $townships,
                     'status_list' => $status_list,
                     'subcoms' => $subcoms,
                     'roles' => $roles,
                     'users' => $users,
+                    'sn' => $sn,
+                    'dn' => $dn,
                 ]
             );
         }
@@ -303,9 +310,7 @@ class CustomerController extends Controller
 
         Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'nrc' => 'required|max:255',
             'phone_1' => 'required|max:255',
-            'email' => 'email|max:255',
             'address' => 'required',
             'latitude' => 'required|max:255',
             'longitude' => 'required|max:255',
@@ -317,11 +322,9 @@ class CustomerController extends Controller
             'order_date' => 'date',
             'status' => 'required',
             'installation_date' => 'nullable|date',
-            'deposit_receive_date' => 'nullable|date',
-            'bill_start_date' => 'nullable|date',
 
         ])->validate();
-        if ($request->has('id')) {
+        if ($request->has('id') && !$roles->read_customer) {
              $customer = Customer::find($request->input('id'));
             foreach ($user_perm as $key => $value) {
                 if ($value != 'id')
@@ -341,66 +344,11 @@ class CustomerController extends Controller
                     if (!empty($request->subcom))
                         $customer->$value = $request->subcom['id'];
                 }
-                if ($value == 'project_id') {
-                    if (!empty($request->project))
-                        $customer->$value = $request->project['id'];
+                if ($value == 'sn_id') {
+                    if (!empty($request->sn_id))
+                        $customer->$value = $request->sn_id['id'];
                 }
             }
-            // if(in_array('ftth_id',$user_perm))
-            // $customer->ftth_id = $request->ftth_id;
-            // if(in_array('name',$user_perm))
-            // $customer->name = $request->name;
-            // if(in_array('nrc',$user_perm))
-            // $customer->nrc = $request->nrc;
-            // if(in_array('dob',$user_perm))
-            // $customer->dob = $request->dob;
-            // if(in_array('phone_1',$user_perm))
-            // $customer->phone_1 = $request->phone_1;
-            // if(in_array('phone_2',$user_perm))
-            // $customer->phone_2 = $request->phone_2;
-            // if(in_array('email',$user_perm))
-            // $customer->email = $request->email;
-            // if(in_array('address',$user_perm))
-            // $customer->address = $request->address;
-            // if(in_array('location',$user_perm))
-            // $customer->location = $request->latitude . ',' . $request->longitude;
-            // if(in_array('order_date',$user_perm))
-            // $customer->order_date = $request->order_date;
-            // if(in_array('installation_date',$user_perm))
-            // $customer->installation_date = $request->installation_date;
-            // if(in_array('deposit_receive_date',$user_perm))
-            // $customer->deposit_receive_date = $request->deposit_receive_date;
-            // if(in_array('bill_start_date',$user_perm))
-            // $customer->bill_start_date = $request->bill_start_date;
-            // if(in_array('deposit_status',$user_perm))
-            // $customer->deposit_status = $request->deposit_status;
-            // if(in_array('deposit_receive_from',$user_perm))
-            // $customer->deposit_receive_from = $request->deposit_receive_from;
-            // if(in_array('deposit_receive_amount',$user_perm))
-            // $customer->deposit_receive_amount = $request->deposit_receive_amount;
-            // if(in_array('order_form_sign_status',$user_perm))
-            // $customer->order_form_sign_status = $request->order_form_sign_status;
-            // if(in_array('sale_channel',$user_perm))
-            // $customer->sale_channel = $request->sale_channel;
-            // if(in_array('remark',$user_perm))
-            // $customer->remark = $request->remark;
-            // if(in_array('status_id',$user_perm))
-            // $customer->status_id = $request->status['id'];
-            // if(in_array('township_id',$user_perm))
-            // $customer->township_id = $request->township['id'];
-            // if(in_array('package_id',$user_perm))
-            // $customer->package_id = $request->package['id'];
-            // if(in_array('ftth_id',$user_perm))
-            // $customer->sale_person_id = $request->sale_person['id'];
-            // if(in_array('subcom_id',$user_perm)){
-            //     if(!empty($request->subcom ))
-            //     $customer->subcom_id = $request->subcom['id'];
-            // }
-            // if(in_array('project_id',$user_perm)){
-            //     if(!empty($request->project ))
-            //     $customer->project_id = $request->project['id'];
-            // }
-
             $customer->update();
         }
 
@@ -417,7 +365,9 @@ class CustomerController extends Controller
     public function destroy(Request $request, $id)
     {
         if ($request->has('id')) {
-            Customer::find($request->input('id'))->delete();
+            $customer = Customer::find($request->input('id'));
+            $customer->deleted = 1;
+            $customer->update();
             return redirect()->back();
         }
     }

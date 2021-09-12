@@ -5,19 +5,24 @@
         <div class="min-h-screen bg-gray-100">
             <nav class="bg-white border-b border-gray-100">
                 <!-- Primary Navigation Menu -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex-shrink-0 flex items-center">
-                             
+                              <jet-application-logo class="block h-12 w-auto" />
+                              <label class="p2 ml-4 mt-2 text-md">(Incident Panel)</label>
                             </div>
-
                            
-                            
-                        </div>
-
+                         </div>
+                      
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
+                              <!-- Navigation Links -->
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <jet-nav-link :href="route('dashboard')" :active="route().current('dashboard')">
+                                    Dashboard
+                                </jet-nav-link>
+                            </div>
                             <div class="ml-3 relative">
                                 <!-- Teams Dropdown -->
                                 <jet-dropdown align="right" width="60" v-if="$page.props.jetstream.hasTeamFeatures">
@@ -225,6 +230,7 @@
 
 <script>
     import JetApplicationMark from '@/Jetstream/ApplicationMark'
+    import JetApplicationLogo from '@/Jetstream/ApplicationLogo'
     import JetBanner from '@/Jetstream/Banner'
     import JetDropdown from '@/Jetstream/Dropdown'
     import JetDropdownLink from '@/Jetstream/DropdownLink'
@@ -239,6 +245,7 @@
             JetDropdownLink,
             JetNavLink,
             JetResponsiveNavLink,
+            JetApplicationLogo
         },
 
         data() {

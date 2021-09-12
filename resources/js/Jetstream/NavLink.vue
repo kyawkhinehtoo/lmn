@@ -1,5 +1,5 @@
 <template>
-    <inertia-link :href="href" :class="classes">
+    <inertia-link :href="href" :class="classes" >
         <slot></slot>
     </inertia-link>
 </template>
@@ -10,8 +10,8 @@
         computed: {
             classes() {
                 return this.active
-                            ? 'text-blue-500 hover:text-blue-600 text-xs uppercase py-3 font-bold block'
-                            : 'text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block'
+                            ? 'text-blue-600 hover:text-blue-500 text-xs uppercase py-3 font-bold block px-4 rounded-md bg-blueGray-100 shadow-inner'
+                            : 'text-blueGray-700 text-xs uppercase py-3 font-bold block px-4 rounded-md hover:bg-gray-100'
             }
         }
     }

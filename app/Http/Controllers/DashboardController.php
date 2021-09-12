@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
     public function show(Request $request){
-        $projects = Project::get();
+    
         $total = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', '<>', 'Terminate')
@@ -27,10 +27,10 @@ class DashboardController extends Controller
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', '=', 'Installation Request')
         ->count();
-        $customers = Customer::groupBy('project_id')->count();
+     
        return Inertia::render("Dashboard",[
-            'projects' => $projects,
-            'customers' => $customers,
+       
+          
             'total' => $total,
             'to_install' => $to_install,
         ]);

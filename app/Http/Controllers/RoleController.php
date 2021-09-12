@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Role;
 use App\Models\Customer;
+use App\Models\Menu;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
 use DB;
@@ -16,9 +17,10 @@ class RoleController extends Controller
              $query->where('name','LIKE','%'.$pkg.'%');
          })
         ->paginate(10);
+        $menus = Menu::all();
         $customer = new Customer();
         $col = $customer->getTableColumns();
-        return Inertia::render('Setup/Role', ['roles' => $roles, 'col' => $col]);
+        return Inertia::render('Setup/Role', ['roles' => $roles, 'col' => $col, 'menus'=>$menus]);
 
     }
 
@@ -40,6 +42,9 @@ class RoleController extends Controller
             }
             
         }
+        $role->read_customer = $request->read_customer;
+        $role->read_incident = $request->read_incident;
+        $role->write_incident = $request->write_incident;
         
         $role->save();
          return redirect()->route('role.index')->with('message', 'Role Created Successfully.');
@@ -63,6 +68,19 @@ class RoleController extends Controller
                 }
                 
             }
+            // if(!empty($request->menu_id)){
+            //     foreach ($request->menu_id as $key => $value) {
+            //         if($key !== array_key_last($request->menu_id))
+            //         $role->menu_id .= $value['id'].',';
+            //         else
+            //         $role->menu_id .= $value['id'];
+            //     }
+                
+            // }
+            $role->read_customer = $request->read_customer;
+            $role->read_incident = $request->read_incident;
+            $role->write_incident = $request->write_incident;
+            
             $role->update();
             return redirect()->back()
                     ->with('message', 'Role Updated Successfully.');

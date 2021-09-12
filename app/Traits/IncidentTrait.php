@@ -14,8 +14,8 @@ trait IncidentTrait {
        ->join('customers', 'incidents.customer_id', '=', 'customers.id')
        ->join('packages','customers.package_id','=','packages.id')
        ->join('sla','packages.sla_id','=','sla.id')
-       ->where('incidents.status','<>',0)
-       ->where('incidents.status','<>',2)
+       ->where('incidents.status','<>',3)
+       ->where('incidents.status','<>',4)
        ->select(
            'incidents.id',
            'incidents.code',

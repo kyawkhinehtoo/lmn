@@ -108,6 +108,16 @@
                                 </jet-nav-link>
                         </li>
                         <li>
+                              <jet-nav-link :href="route('port.index')" :active="route().current('port.index')">
+                                   <i class="fas fa-network-wired  opacity-75 mr-2 text-sm w-6"></i> DN Setup
+                                </jet-nav-link>
+                        </li>
+                        <li>
+                              <jet-nav-link :href="route('snport.index')" :active="route().current('snport.index')">
+                                   <i class="fas fa-network-wired  opacity-75 mr-2 text-sm w-6"></i> SN Setup
+                                </jet-nav-link>
+                        </li>
+                        <li>
                               <jet-nav-link :href="route('equiptment.index')" :active="route().current('equiptment.index')">
                                    <i class="fas fa-gamepad  opacity-75 mr-2 text-sm w-6"></i> Bundle Setup
                                 </jet-nav-link>
@@ -118,21 +128,13 @@
                                    <i class="fas fa-cube  opacity-75 mr-2 text-sm w-6"></i> Package Setup
                                 </jet-nav-link>
                         </li>
-                        <li>
-                              <jet-nav-link :href="route('project.index')" :active="route().current('project.index')">
-                                   <i class="fas fa-handshake  opacity-75 mr-2 text-sm w-6"></i> Project Setup
-                                </jet-nav-link>
-                        </li>
+           
                         <li>
                               <jet-nav-link :href="route('status.index')" :active="route().current('status.index')">
-                                   <i class="fas fa-user-tag  opacity-75 mr-2 text-sm w-6"></i> Customer Status Setup
+                                   <i class="fas fa-user-tag  opacity-75 mr-2 text-sm w-6"></i> Customer Status
                                 </jet-nav-link>
                         </li>
-                        <li>
-                              <jet-nav-link :href="route('voip.index')" :active="route().current('voip.index')">
-                                   <i class="fas fa-phone-square-alt  opacity-75 mr-2 text-sm w-6"></i> VOIP Setup
-                                </jet-nav-link>
-                        </li>
+                       
                        
                     </ul>
                     <hr class="my-4 md:min-w-full" />
@@ -140,11 +142,14 @@
                     <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
                         User Panel
                     </h6>
-                    <ul class="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
-                        <li class="inline-flex">
-                            <jet-nav-link :href="route('customer.index')" :active="route().current('customer.index')">
+                    <ul class="md:flex-col md:min-w-full flex flex-col list-none">
+                        <li>
+                            <jet-nav-link :href="route('customer.index')" :active="route().current('customer.*') ">
                                    <i class="fas fa-users  opacity-75 mr-2 text-sm w-6"></i> Customer
                                 </jet-nav-link>
+                            <jet-nav-link :href="route('incident.index')" :active="route().current('incident.*') ">
+                                   <i class="fas fa-users  opacity-75 mr-2 text-sm w-6"></i> Incident Panel
+                            </jet-nav-link>
                         </li>
                        
                     </ul>
@@ -152,7 +157,7 @@
             </div>
         </nav>
       
-      <div class="relative md:ml-64 bg-blueGray-50"> <!--Body Start -->
+      <div class="relative md:ml-64 bg-blueGray-50 scrollbar-thin scrollbar-thumb-blue-900 scrollbar-track-gray-200 block overflow-auto max-h-screen"> <!--Body Start -->
               <!-- Page Heading -->
             <header class="relative w-full bg-blue-900 md:flex-row md:flex-nowrap md:justify-start flex items-center py-4" v-if="$slots.header">
                 <div class="px-4 md:px-10 mx-auto w-full my-4">
@@ -161,6 +166,7 @@
                     </slot>
                     
                 </div>
+                
                 <div class="ml-3 absolute absolute top-8 right-8">
                                 <jet-dropdown align="right" width="48">
                                     <template #trigger>
@@ -204,10 +210,10 @@
                                     </template>
                                 </jet-dropdown>
                 </div>
-            </header>
             
-
-          
+           
+            
+          </header>
 
             <!-- Page Content -->
   

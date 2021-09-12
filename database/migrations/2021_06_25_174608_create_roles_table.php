@@ -17,6 +17,7 @@ class CreateRolesTable extends Migration
             $table->id();
             $table->string('name');
             $table->longText('permission')->nullable();
+            $table->foreignId('menu_id')->nullable();
             $table->timestamps();
         });
     }

@@ -9,17 +9,17 @@
           <form @submit.prevent="submit">
             <div class="shadow sm:rounded-md sm:overflow-hidden">
               <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Customer Information</h6>
+                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Customer Basic Information</h6>
                 <div class="grid grid-cols-4 gap-2">
                   <div class="col-span-1 sm:col-span-1">
-                    <label for="name" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Contact Person Name </label>
+                    <label for="name" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Customer Name </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
                         <i class="fas fa-user"></i>
                       </span>
                       <input type="text" v-model="form.name" name="name" id="name" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Customer Name" required :disabled="checkPerm('name')" />
                     </div>
-                    <p v-if="$page.props.errors.name" class="mt-2 text-sm text-red-500">{{ $page.props.errors.name }}</p>
+                    <p v-show="$page.props.errors.name" class="mt-2 text-sm text-red-500">{{ $page.props.errors.name }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="nrc" class="block text-sm font-medium text-gray-700"> NRC/Passport </label>
@@ -29,7 +29,7 @@
                       </span>
                       <input type="text" v-model="form.nrc" name="nrc" id="nrc" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g 12/AaBbCc(N)123456" :disabled="checkPerm('nrc')" />
                     </div>
-                    <p v-if="$page.props.errors.nrc" class="mt-2 text-sm text-red-500">{{ $page.props.errors.nrc }}</p>
+                    <p v-show="$page.props.errors.nrc" class="mt-2 text-sm text-red-500">{{ $page.props.errors.nrc }}</p>
                   </div>
 
                   <div class="col-span-1 sm:col-span-1">
@@ -40,7 +40,7 @@
                       </span>
                       <input type="number" v-model="form.phone_1" name="phone_1" id="phone_1" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g 0945000111" v-on:keypress="isNumber(event)" required :disabled="checkPerm('phone_1')" />
                     </div>
-                    <p v-if="$page.props.errors.phone_1" class="mt-2 text-sm text-red-500">{{ $page.props.errors.phone_1 }}</p>
+                    <p v-show="$page.props.errors.phone_1" class="mt-2 text-sm text-red-500">{{ $page.props.errors.phone_1 }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="phone_2" class="block text-sm font-medium text-gray-700"> Secondary Phone Number </label>
@@ -50,37 +50,18 @@
                       </span>
                       <input type="number" v-model="form.phone_2" name="phone_2" id="phone_2" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g 0945000111" v-on:keypress="isNumber(event)" :disabled="checkPerm('phone_2')" />
                     </div>
-                    <p v-if="$page.props.errors.phone_2" class="mt-2 text-sm text-red-500">{{ $page.props.errors.phone_2 }}</p>
+                    <p v-show="$page.props.errors.phone_2" class="mt-2 text-sm text-red-500">{{ $page.props.errors.phone_2 }}</p>
                   </div>
                 </div>
                 <div class="grid grid-cols-4 gap-2">
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="dob" class="block text-sm font-medium text-gray-700"> Date of Birth </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <input type="date" v-model="form.dob" name="dob" id="dob" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('dob')" />
-                    </div>
-                    <p v-if="$page.props.errors.dob" class="mt-2 text-sm text-red-500">{{ $page.props.errors.dob }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="email" class="block text-sm font-medium text-gray-700"> Email Address </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-envelope"></i>
-                      </span>
-                      <input type="email" v-model="form.email" name="email" id="email" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g johndoe@abc.com" :disabled="checkPerm('email')" />
-                    </div>
-                    <p v-if="$page.props.errors.email" class="mt-2 text-sm text-red-500">{{ $page.props.errors.email }}</p>
-                  </div>
+                  
                   <div class="col-span-2 sm:col-span-2">
                     <label for="township" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Township </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="townships.length !== 0">
                       <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.township" :allow-empty="false" :disabled="checkPerm('township_id')"></multiselect>
                     </div>
-                    <p v-if="$page.props.errors.township" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township }}</p>
+                    <p v-show="$page.props.errors.township" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township }}</p>
                   </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
                   <div class="col-span-1 sm:col-span-1">
                     <label for="latitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Latitude </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
@@ -89,7 +70,7 @@
                       </span>
                       <input type="text" v-model="form.latitude" name="latitude" id="latitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
                     </div>
-                    <p v-if="$page.props.errors.latitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.latitude }}</p>
+                    <p v-show="$page.props.errors.latitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.latitude }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="longitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Longitude </label>
@@ -99,9 +80,12 @@
                       </span>
                       <input type="text" v-model="form.longitude" name="longitude" id="longitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
                     </div>
-                    <p v-if="$page.props.errors.longitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.longitude }}</p>
+                    <p v-show="$page.props.errors.longitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.longitude }}</p>
                   </div>
-                  <div class="col-span-2 sm:col-span-2">
+                </div>
+
+                <div class="grid grid-cols-4 gap-2">
+                  <div class="col-span-4 sm:col-span-4">
                     <label for="address" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Full Address </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
@@ -109,90 +93,32 @@
                       </span>
                       <textarea v-model="form.address" name="address" id="address" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" required :disabled="checkPerm('address')" />
                     </div>
-                    <p v-if="$page.props.errors.address" class="mt-2 text-sm text-red-500">{{ $page.props.errors.address }}</p>
+                    <p v-show="$page.props.errors.address" class="mt-2 text-sm text-red-500">{{ $page.props.errors.address }}</p>
                   </div>
                 </div>
-                <hr class="my-4 md:min-w-full" />
-                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Company Information (if required)</h6>
-
-                <div class="grid grid-cols-4 gap-2">
-                  <div class="col-span-2 sm:col-span-2">
-                    <label for="company_name" class="block text-sm font-medium text-gray-700"> Company Name </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-building"></i>
-                      </span>
-                      <input type="text" v-model="form.company_name" name="company_name" id="company_name" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('company_name')" />
-                    </div>
-                    <p v-if="$page.props.errors.company_name" class="mt-2 text-sm text-red-500">{{ $page.props.errors.company_name }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="company_registration" class="block text-sm font-medium text-gray-700"> Company Registration No. </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-registered"></i>
-                      </span>
-                      <input type="text" v-model="form.company_registration" name="company_registration" id="company_registration" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('company_registration')" />
-                    </div>
-                    <p v-if="$page.props.errors.company_registration" class="mt-2 text-sm text-red-500">{{ $page.props.errors.company_registration }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="typeof_business" class="block text-sm font-medium text-gray-700"> Type of Business </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-briefcase"></i>
-                      </span>
-                      <input type="text" v-model="form.typeof_business" name="typeof_business" id="typeof_business" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('typeof_business')" />
-                    </div>
-                    <p v-if="$page.props.errors.typeof_business" class="mt-2 text-sm text-red-500">{{ $page.props.errors.typeof_business }}</p>
-                  </div>
-                </div>
-
                 <hr class="my-4 md:min-w-full" />
                 <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Sale Information</h6>
                 <div class="grid grid-cols-4 gap-2">
                   <div class="col-span-1 sm:col-span-1">
-                    <div class="flex items-start">
-                      <div class="flex items-center h-5">
-                        <input id="order_form_sign_status" name="order_form_sign_status" v-model="form.order_form_sign_status" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" />
-                      </div>
-                      <div class="ml-3 text-sm">
-                        <label for="order_form_sign_status" class="font-medium text-gray-700">Order Form Status</label>
-                        <p class="text-gray-500">Check and save once customer has signed the order form.</p>
-                      </div>
+                    <label for="order_date" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Order Date </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <input type="date" v-model="form.order_date" name="order_date" id="order_date" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" required :disabled="checkPerm('order_date')" />
                     </div>
+                    <p v-show="$page.props.errors.order_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.order_date }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="status" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Customer Status </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="status_list.length !== 0">
                       <multiselect deselect-label="Selected already" :options="status_list" track-by="id" label="name" v-model="form.status" :allow-empty="false" :disabled="checkPerm('status_id')"></multiselect>
                     </div>
-                    <p v-if="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
-                  </div>
-
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="order_date" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Order Date </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <input type="date" v-model="form.order_date" name="order_date" id="order_date" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" required :disabled="checkPerm('order_date')" />
-                    </div>
-                    <p v-if="$page.props.errors.order_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.order_date }}</p>
+                    <p v-show="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="sale_person" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Sale Person </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="sale_persons.length !== 0">
                       <multiselect deselect-label="Selected already" :options="sale_persons" track-by="id" label="name" v-model="form.sale_person" :allow-empty="false" :disabled="checkPerm('sale_person_id')"></multiselect>
                     </div>
-                    <p v-if="$page.props.errors.sale_person" class="mt-2 text-sm text-red-500">{{ $page.props.errors.sale_person }}</p>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="package" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Package </label>
-                    <div class="mt-1 flex rounded-md shadow-sm" v-if="packages.length !== 0">
-                      <multiselect deselect-label="Selected already" :options="packages" track-by="id" label="item_data" v-model="form.package" :allow-empty="false" :disabled="checkPerm('package_id')"></multiselect>
-                    </div>
-                    <p v-if="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
+                    <p v-show="$page.props.errors.sale_person" class="mt-2 text-sm text-red-500">{{ $page.props.errors.sale_person }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="sale_channel" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Sale Channel </label>
@@ -202,24 +128,108 @@
                       </span>
                       <input type="text" v-model="form.sale_channel" name="sale_channel" id="sale_channel" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g Facebook/ Person Name" required :disabled="checkPerm('sale_channel')" />
                     </div>
-                    <p v-if="$page.props.errors.sale_channel" class="mt-2 text-sm text-red-500">{{ $page.props.errors.sale_channel }}</p>
+                    <p v-show="$page.props.errors.sale_channel" class="mt-2 text-sm text-red-500">{{ $page.props.errors.sale_channel }}</p>
                   </div>
+                </div>
 
-                  <div class="col-span-2 sm:col-span-2">
-                    <label for="remark" class="block text-sm font-medium text-gray-700"> Remark </label>
+                <div class="grid grid-cols-4 gap-2">
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="package" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Package </label>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="packages.length !== 0">
+                      <multiselect deselect-label="Selected already" :options="packages" track-by="id" label="name" v-model="form.package" :allow-empty="false" :disabled="checkPerm('package_id')"></multiselect>
+                    </div>
+                    <p v-show="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="package" class="block text-sm font-medium text-gray-700"> Extra Bandwidth </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <input type="number" v-model="form.extra_bandwidth" name="extra_bandwidth" id="extra_bandwidth" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Only for bonus bandwidth" :disabled="checkPerm('extra_bandwidth')"  v-on:keypress="isNumber(event)" />
+                      <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm" > Mbps </span>
+                    </div>
+                    <p v-show="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
+                  </div>
+                 <div class="col-span-1 sm:col-span-1">
+                    <label for="contract_term" class="block text-sm font-medium text-gray-700"> Contract Term </label>
+                    <div class="mt-1 flex rounded-md" >
+                     <select name="contract_term" id="contract_term" v-model="form.contract_term"  class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
+                       <option value="">-No Contract-</option>
+                       <option value="3">3 Months</option>
+                       <option value="6">6 Months</option>
+                       <option value="12">12 Months</option>
+                       <option value="24">24 Months</option>
+                     </select>
+                    </div>
+                     
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="foc_period" class="block text-sm font-medium text-gray-700"><input type="checkbox" class="rounded-sm" v-model="form.foc" id="foc" /> FOC (Free of Charge)  </label>
+                    <div class="mt-1 flex rounded-md" >
+                     <select name="foc_period" id="foc_period" v-model="form.foc_period"  class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" :disabled="!form.foc">
+                       <option value="" selected>Please Choose Period</option>
+                       <option value="1">1 Month</option>
+                       <option value="2">2 Months</option>
+                       <option value="3">3 Months</option>
+                       <option value="4">4 Months</option>
+                       <option value="5">5 Months</option>
+                       <option value="7">7 Months</option>
+                       <option value="8">8 Months</option>
+                       <option value="9">9 Months</option>
+                       <option value="10">10 Months</option>
+                       <option value="11">11 Months</option>
+                       <option value="12">12 Months</option>
+                       <option value="0">Unlimited</option>
+                     </select>
+                    </div>
+                     
+                  </div>
+                </div> 
+                <div class="grid grid-cols-4 gap-2">
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="advance_payment" class="block text-sm font-medium text-gray-700"> Advance Payment </label>
+                    <div class="mt-1 flex rounded-md" >
+                     <select name="advance_payment" id="advance_payment" v-model="form.advance_payment"  class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
+                       <option value="">-No Advance Payment-</option>
+                       <option value="1">1 Month</option>
+                       <option value="2">2 Months</option>
+                       <option value="3">3 Months</option>
+                       <option value="4">4 Months</option>
+                       <option value="5">5 Months</option>
+                       <option value="7">7 Months</option>
+                       <option value="8">8 Months</option>
+                       <option value="9">9 Months</option>
+                       <option value="10">10 Months</option>
+                       <option value="11">11 Months</option>
+                       <option value="12">12 Months</option>
+                       <option value="24">24 Months</option>
+                     </select>
+                    </div>
+                     
+                  </div>
+                  <div class="col-span-3 sm:col-span-3">
+                    <label for="sale_remark" class="block text-sm font-medium text-gray-700"> Sale Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
                         <i class="fas fa-comment"></i>
                       </span>
-                      <textarea name="remark" v-model="form.remark" id="remark" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('remark')" />
+                      <textarea name="sale_remark" v-model="form.sale_remark" id="sale_remark" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('sale_remark')" />
                     </div>
-                    <p v-if="$page.props.errors.remark" class="mt-2 text-sm text-red-500">{{ $page.props.errors.remark }}</p>
+                    <p v-show="$page.props.errors.sale_remark" class="mt-2 text-sm text-red-500">{{ $page.props.errors.sale_remark }}</p>
                   </div>
                 </div>
 
                 <hr class="my-4 md:min-w-full" />
                 <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Installation Information</h6>
                 <div class="grid grid-cols-4 gap-2">
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="ftth_id" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Customer ID </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                        <i class="fas fa-id-badge"></i>
+                      </span>
+                      <input v-model="form.ftth_id" type="text" name="ftth_id" id="ftth_id" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" required :disabled="checkPerm('ftth_id')" />
+                    </div>
+                     <p v-show="$page.props.errors.ftth_id" class="mt-2 text-sm text-red-500">{{ $page.props.errors.ftth_id }}</p>
+                  </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="prefer_install_date" class="block text-sm font-medium text-gray-700"> Prefer Installation Date </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
@@ -238,117 +248,122 @@
                       <input v-model="form.installation_date" type="date" name="installation_date" id="installation_date" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('installation_date')" />
                     </div>
                   </div>
-                  <p v-if="$page.props.errors.installation_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.installation_date }}</p>
+                  <p v-show="$page.props.errors.installation_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.installation_date }}</p>
+                  
                   <div class="col-span-1 sm:col-span-1">
-                    <label for="project_id" class="block text-sm font-medium text-gray-700"> Project/ Partner </label>
-                    <div class="mt-1 flex rounded-md shadow-sm" v-if="projects.length !== 0">
-                      <multiselect deselect-label="Selected already" :options="projects" track-by="id" label="name" v-model="form.project" :allow-empty="true" :disabled="checkPerm('project_id')"></multiselect>
-                    </div>
-                    <p v-if="$page.props.errors.project" class="mt-2 text-sm text-red-500">{{ $page.props.errors.project }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="subcom" class="block text-sm font-medium text-gray-700"> Subcom </label>
+                    <label for="subcom" class="block text-sm font-medium text-gray-700"> Installation Team </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="subcoms.length !== 0">
                       <multiselect deselect-label="Selected already" :options="subcoms" track-by="id" label="name" v-model="form.subcom" :allow-empty="true" :disabled="checkPerm('subcom_id')"></multiselect>
                     </div>
-                    <p v-if="$page.props.errors.subcom" class="mt-2 text-sm text-red-500">{{ $page.props.errors.subcom }}</p>
+                    <p v-show="$page.props.errors.subcom" class="mt-2 text-sm text-red-500">{{ $page.props.errors.subcom }}</p>
+                  </div>
+                 
+                </div>
+                 <div class="grid grid-cols-4 gap-2">
+                   <div class="col-span-1 sm:col-span-1">
+                    <label for="fiber_distance" class="block text-sm font-medium text-gray-700"> Please Choose DN </label>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="dn.length !== 0">
+                      <multiselect deselect-label="Selected already" :options="dn" track-by="name" label="name" v-model="form.dn_id" :allow-empty="false" @select="DNSelect"></multiselect>
+                    </div>
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="fiber_distance" class="block text-sm font-medium text-gray-700"> Please Choose SN </label>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="res_sn">
+                      <multiselect deselect-label="Selected already" :options="res_sn" track-by="id" label="item_data" v-model="form.sn_id" :allow-empty="true" :disabled="checkPerm('sn_id')"></multiselect>
+                    </div>
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="splitter_no" class="block text-sm font-medium text-gray-700"> Splitter Name </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                        <i class="fas fa-tools"></i>
+                      </span>
+                      <input v-model="form.splitter_no" type="text" name="splitter_no" id="splitter_no" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Optional.." :disabled="checkPerm('splitter_no')" />
+                       <p v-show="$page.props.errors.splitter_no" class="mt-2 text-sm text-red-500">{{ $page.props.errors.splitter_no }}</p>
+                    </div>
+                  </div>
+                 
+                   <div class="col-span-1 sm:col-span-1">
+                    <label for="fiber_distance" class="block text-sm font-medium text-gray-700"> Actual Fiber Distance </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <input v-model="form.fiber_distance" type="number" name="fiber_distance" id="fiber_distance" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" :disabled="checkPerm('fiber_distance')" />
+                      <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm" > Meter </span>
+                      <p v-show="$page.props.errors.fiber_distance" class="mt-2 text-sm text-red-500">{{ $page.props.errors.fiber_distance }}</p>
+                    </div>
                   </div>
                 </div>
-
-                <hr class="my-5 md:min-w-full" />
-                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Billing Information</h6>
                 <div class="grid grid-cols-4 gap-2">
                   <div class="col-span-1 sm:col-span-1">
-                    <label for="ftth_id" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Customer ID </label>
+                    <label for="onu_serial" class="block text-sm font-medium text-gray-700"> ONU Serial </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                        <i class="fas fa-tools"></i>
+                      </span>
+                      <input v-model="form.onu_serial" type="text" name="onu_serial" id="onu_serial" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"  :disabled="checkPerm('onu_serial')" />
+                    </div>
+                     <p v-show="$page.props.errors.onu_serial" class="mt-2 text-sm text-red-500">{{ $page.props.errors.onu_serial }}</p>
+                 
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="onu_power" class="block text-sm font-medium text-gray-700"> ONU Power </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                       <input type="number" v-model="form.onu_power" name="onu_power" id="onu_power" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" :disabled="checkPerm('onu_power')"  />
+                      <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm" > dBi </span>
+                    </div>
+                  </div>
+                  <p v-show="$page.props.errors.onu_power" class="mt-2 text-sm text-red-500">{{ $page.props.errors.onu_power }}</p>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="fc_used" class="block text-sm font-medium text-gray-700"> Used FC </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                        <i class="fas fa-tools"></i>
+                      </span>
+                      <input v-model="form.fc_used" type="number" name="fc_used" id="fc_used" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"  :disabled="checkPerm('fc_used')" />
+                    </div>
+                  </div>
+                  <p v-show="$page.props.errors.fc_used" class="mt-2 text-sm text-red-500">{{ $page.props.errors.fc_used }}</p>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="fc_damaged" class="block text-sm font-medium text-gray-700"> Damanged FC </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                        <i class="fas fa-tools"></i>
+                      </span>
+                      <input v-model="form.fc_damaged" type="number" name="fc_damaged" id="fc_damaged" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('fc_damaged')" />
+                    </div>
+                     <p v-show="$page.props.errors.splitter_no" class="mt-2 text-sm text-red-500">{{ $page.props.errors.fc_damaged }}</p>
+                  </div>
+                 
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                   <div class="col-span-1 sm:col-span-1">
+                    <label for="pppoe_account" class="block text-sm font-medium text-gray-700"> PPPoE ID </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                        <i class="fas fa-tools"></i>
+                      </span>
+                      <input v-model="form.pppoe_account" type="text" name="pppoe_account" id="pppoe_account" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('pppoe_account')" />
+                    </div>
+                     <p v-show="$page.props.errors.splitter_no" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_account }}</p>
+                  </div>
+                   <div class="col-span-1 sm:col-span-1">
+                    <label for="pppoe_password" class="block text-sm font-medium text-gray-700"> PPPoE Password </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
                         <i class="fas fa-key"></i>
                       </span>
-                      <input type="text" v-model="form.ftth_id" name="ftth_id" id="ftth_id" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('ftth_id')" required />
+                      <input v-model="form.pppoe_password" type="text" name="pppoe_password" id="pppoe_password" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('pppoe_password')" />
                     </div>
-                    <p v-if="$page.props.errors.ftth_id" class="mt-2 text-sm text-red-500">{{ $page.props.errors.ftth_id }}</p>
+                     <p v-show="$page.props.errors.splitter_no" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_password }}</p>
                   </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="billing_attention" class="block text-sm font-medium text-gray-700">Billing Attention </label>
+                <div class="col-span-2 sm:col-span-2">
+                    <label for="sale_remark" class="block text-sm font-medium text-gray-700"> Installation Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-user"></i>
+                        <i class="fas fa-comment"></i>
                       </span>
-                      <input type="text" v-model="form.billing_attention" name="billing_attention" id="billing_attention" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Billing Attention Name" required :disabled="checkPerm('billing_attention')" />
+                      <textarea name="installation_remark" v-model="form.installation_remark" id="installation_remark" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('installation_remark')" />
                     </div>
-                    <p v-if="$page.props.errors.billing_attention" class="mt-2 text-sm text-red-500">{{ $page.props.errors.billing_attention }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="billing_phone" class="block text-sm font-medium text-gray-700"> Billing Phone </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-mobile"></i>
-                      </span>
-                      <input type="text" v-model="form.billing_phone" name="billing_phone" id="billing_phone" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g 09123456" :disabled="checkPerm('billing_phone')" />
-                    </div>
-                    <p v-if="$page.props.errors.billing_phone" class="mt-2 text-sm text-red-500">{{ $page.props.errors.billing_phone }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="billing_email" class="block text-sm font-medium text-gray-700"> Billing Email </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-at"></i>
-                      </span>
-                      <input type="text" v-model="form.billing_email" name="billing_email" id="billing_email" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g johndoe@abc.com" :disabled="checkPerm('billing_email')" />
-                    </div>
-                    <p v-if="$page.props.errors.billing_email" class="mt-2 text-sm text-red-500">{{ $page.props.errors.billing_email }}</p>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                  <div class="col-span-2 sm:col-span-2">
-                    <label for="billing_address" class="block text-sm font-medium text-gray-700">Billing Address </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-map-marker-alt"></i>
-                      </span>
-                      <textarea v-model="form.billing_address" name="billing_address" id="billing_address" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" required :disabled="checkPerm('billing_address')" />
-                    </div>
-                    <p v-if="$page.props.errors.billing_address" class="mt-2 text-sm text-red-500">{{ $page.props.errors.billing_address }}</p>
-                  </div>
-
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="bill_start_date" class="block text-sm font-medium text-gray-700"> Billing Start Date </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <input type="date" v-model="form.bill_start_date" name="bill_start_date" id="bill_start_date" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('bill_start_date')" />
-                    </div>
-                    <p v-if="$page.props.errors.bill_start_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.bill_start_date }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="deposit_receive_date" class="block text-sm font-medium text-gray-700"> Deposit Received Date </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <input type="date" v-model="form.deposit_receive_date" name="deposit_receive_date" id="deposit_receive_date" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('deposit_receive_date')" />
-                    </div>
-                    <p v-if="$page.props.errors.deposit_receive_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.deposit_receive_date }}</p>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="deposit_receive_from" class="block text-sm font-medium text-gray-700"> Deposit Received From </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                      </span>
-                      <input type="text" v-model="form.deposit_receive_from" name="deposit_receive_from" id="deposit_receive_from" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="e.g Kpay, WaveMoney" :disabled="checkPerm('deposit_receive_from')" />
-                    </div>
-                    <p v-if="$page.props.errors.deposit_receive_from" class="mt-2 text-sm text-red-500">{{ $page.props.errors.deposit_receive_from }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="deposit_receive_amount" class="block text-sm font-medium text-gray-700"> Deposit Amount </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-money-bill"></i>
-                      </span>
-                      <input type="number" v-model="form.deposit_receive_amount" name="deposit_receive_amount" id="deposit_receive_amount" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Amount in MMK" v-on:keypress="isNumber(event)" :disabled="checkPerm('deposit_receive_amount')" />
-                      <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Kyats </span>
-                    </div>
-                    <p v-if="$page.props.errors.deposit_receive_amount" class="mt-2 text-sm text-red-500">{{ $page.props.errors.deposit_receive_amount }}</p>
+                    <p v-show="$page.props.errors.installation_remark" class="mt-2 text-sm text-red-500">{{ $page.props.errors.installation_remark }}</p>
                   </div>
                 </div>
               </div>
@@ -357,7 +372,7 @@
 
                 <button @click="resetForm" type="button" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150">Reset</button>
 
-                <button wire:click.prevent="submit" type="submit" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" v-show="!editMode">Save</button>
+                <button wire:click.prevent="submit" type="submit" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" >Save</button>
               </div>
             </div>
           </form>
@@ -371,7 +386,7 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import Multiselect from "@suadelabs/vue3-multiselect";
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, onMounted, watch } from "vue";
 import { Inertia } from "@inertiajs/inertia";
 export default {
   name: "AddCustomer",
@@ -381,87 +396,90 @@ export default {
   },
   props: {
     packages: Object,
-    projects: Object,
     sale_persons: Object,
     townships: Object,
     status_list: Object,
     subcoms: Object,
     roles: Object,
     users: Object,
+    dn:Object,
     errors: Object,
   },
   setup(props) {
+    let res_sn = ref("");
     const form = reactive({
       id: null,
       name: "",
       nrc: "",
-      dob: "",
       phone_1: "",
       phone_2: "",
-      email: "",
       address: "",
       latitude: "",
       longitude: "",
-      order_form_sign_status: "",
       order_date: "",
       sale_channel: "",
-      remark: "",
+      sale_remark: "",
       installation_date: "",
       ftth_id: "",
-      bill_start_date: "",
-      deposit_receive_date: "",
-      deposit_receive_from: "",
-      deposit_receive_amount: "",
       sale_person: "",
       package: "",
-      project: "",
       status: "",
       subcom: "",
       township: "",
-      company_name: "",
-      company_registration: "",
-      typeof_business: "",
       prefer_install_date: "",
-      billing_attention: "",
-      billing_phone: "",
-      billing_email: "",
-      billing_address: "",
-          });
+      dn_id: "",
+      sn_id: "",
+      splitter_no: "",
+      installation_remark: "",
+      fc_used: "",
+      fc_damaged: "",
+      onu_serial:"",
+      onu_power:"",
+      contract_term:"",
+      foc:"",
+      foc_period:"",
+      advance_payment:"",
+      extra_bandwidth:"",
+      fiber_distance:"",
+      pppoe_account:"",
+      pppoe_password:"",
+    });
 
     function resetForm() {
       form.name = "";
       form.nrc = "";
-      form.dob = "";
       form.phone_1 = "";
       form.phone_2 = "";
-      form.email = "";
       form.address = "";
       form.township = "";
       form.latitude = "";
       form.longitude = "";
-      form.order_form_sign_status = "";
       form.order_date = "";
       form.package = "";
       form.sale_channel = "";
-      form.remark = "";
+      form.sale_remark = "";
       form.installation_date = "";
-      form.project = "";
       form.ftth_id = "";
-      form.bill_start_date = "";
-      form.deposit_receive_date = "";
-      form.deposit_receive_from = "";
-      form.deposit_receive_amount = "";
       form.status = "";
       form.subcom = "";
       form.sale_person = "";
-      form.company_name= "";
-      form.company_registration= "";
-      form.typeof_business= "";
       form.prefer_install_date= "";
-      form.billing_attention= "";
-      form.billing_phone= "";
-      form.billing_email= "";
-      form.billing_address= "";
+      form.dn_id= "";
+      form.sn_id= "";
+      form.splitter_no= "";
+      form.installation_remark= "";
+      form.fc_used= "";
+      form.fc_damaged= "";
+      form.onu_serial="";
+      form.onu_power="";
+      form.contract_term="";
+      form.foc="";
+      form.foc_period="";
+      form.advance_payment="";
+      form.extra_bandwidth="";
+      form.fiber_distance="";
+      form.pppoe_account="";
+      form.pppoe_password="";
     }
     function submit() {
       form._method = "POST";
@@ -495,18 +513,45 @@ export default {
       let disable = role_arr.includes(data);
       return !disable;
     }
-    onMounted(() => {
-      (form.township = props.townships.filter((d) => d.id == 1)[0]),
-        (form.sale_person = props.sale_persons[0]),
-        (form.package = props.packages[0]),
-        (form.status = props.status_list[0]),
-        // form.subcom = props.subcoms[0],
-        // form.project = props.projects[0],
-        props.packages.map(function (x) {
-          return (x.item_data = `${x.name} - ${x.contract_period} Months`);
+
+    
+    function DNSelect(dn){
+      getSN(dn.name).then((d) => {
+        console.log(d)
+        if(d){
+           d.map(function (x) {
+           (x.item_data = `${x.name} / ${x.port}`);
         });
+        form.sn_id=null;
+        res_sn.value = d;
+        }else{
+          form.sn_id=null;
+          res_sn.value = null;
+        }
+        
+       });
+    }
+    const getSN = async (dn_name) => {
+      let url = "/getDnId/"+dn_name;
+      console.log(url);
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        console.error(err);
+      }
+      
+    }
+
+    
+    onMounted(() => {
+      form.township = props.townships.filter((d) => d.id == 1)[0];
+        form.sale_person = props.sale_persons[0];
+        form.package = props.packages[0];
+        form.status = props.status_list[0];
     });
-    return { form, submit, resetForm, isNumber, checkPerm };
+    return { form, submit, resetForm, isNumber, checkPerm,res_sn,DNSelect };
   },
 };
 </script>

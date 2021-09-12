@@ -62,12 +62,12 @@
           <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Projects</h4>
             <div style="display: flex;flex-direction:column;">
-    <vue3-chart-js
+    <!-- <vue3-chart-js
         :id="doughnutChart.id"
         ref="chartRef"
         :type="doughnutChart.type"
         :data="doughnutChart.data"
-    ></vue3-chart-js>
+    ></vue3-chart-js> -->
 
 
   </div>
@@ -108,17 +108,13 @@ export default {
   },
   name: "Dashboard",
   props: {
-    projects: Object,
     total: Object,
-    to_install: Object,
-    customers: Object,
+    to_install: Object
   },
   setup(props) {
     const chartRef = ref(null);
     let proj_name = ref([]);
-    props.projects.map(function (x) {
-        proj_name.value.push(x.name)
-    });
+
     const doughnutChart = {
       id: "doughnut",
       type: "doughnut",
@@ -146,7 +142,6 @@ export default {
     };
 
     return {
-      doughnutChart,
       chartRef,
       proj_name
     };

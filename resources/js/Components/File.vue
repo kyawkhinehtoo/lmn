@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full justify-end">
-    <a v-if="!add" href="#" @click="addFile()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Add File<i class="fas fa-plus-circle opacity-75 lg:ml-1 text-sm"></i></a>
+    <a v-if="!add  &&  permission[0].write_incident ==1" href="#" @click="addFile()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Add File<i class="fas fa-plus-circle opacity-75 lg:ml-1 text-sm"></i></a>
     <a v-if="add" href="#" @click="closeFile()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Close<i class="fas fa-times-circle opacity-75 lg:ml-1 text-sm"></i></a>
   </div>
   <div v-if="file_list && !add">
@@ -13,11 +13,12 @@
           <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12"> Action</th>
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64  w-full overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white block text-left">
+      <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64  w-full overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white block text-left">
         <tr v-for="(row,index) in file_list" v-bind:key="row.id"  class="flex">
           <td class="px-6 py-3 whitespace-nowrap tracking-wider w-1/12">{{ index+1 }}</td>
-          <td class="px-6 py-3 whitespace-nowrap tracking-wider w-full"><a :href="row.path" target="_blank"><i class="fas fa-paperclip text-indigo-600"></i></a> {{ row.name }} </td>
-          <td class="px-6 py-3 whitespace-nowrap tracking-wider text-right w-1/12 mr-4"><a href="#" @click="deleteFile(row)" class="text-red-600"><i class="fa fa-trash"></i></a></td>
+          <td class="px-6 py-3 whitespace-nowrap tracking-wider w-full"> {{ row.name }} </td>
+          <td class="px-6 py-3 whitespace-nowrap tracking-wider text-right w-1/12 mr-4" v-if="permission[0].write_incident == 1"><a :href="row.path" target="_blank"><i class="fas fa-eye text-indigo-600"></i></a> | <a href="#" @click="deleteFile(row)" class="text-red-600"><i class="fa fa-trash"></i></a></td>
+          <td class="px-6 py-3 whitespace-nowrap tracking-wider text-right w-1/12 mr-4" v-else><a :href="row.path" target="_blank"><i class="fas fa-eye text-indigo-600"></i></a> </td>
         </tr>
       </tbody>
     </table>
@@ -28,7 +29,7 @@
 </template>
 
 <script>
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive,inject } from "vue";
 import Upload from "@/Components/Upload";
 import { Inertia } from "@inertiajs/inertia";
 export default {
@@ -39,6 +40,7 @@ export default {
   props: ["data"],
   setup(props) {
     let file_list = ref("Loading ..");
+    const permission = inject("permission");
     let add = ref(false);
 
      let incident_id = ref("");
@@ -113,7 +115,7 @@ export default {
     onMounted(() => {
      calculate();
     });
-    return { file_list,add, deleteFile, addFile,closeFile,checkUpload, incident_id };
+    return { file_list,add, deleteFile, addFile,closeFile,checkUpload, incident_id,permission };
   },
 };
 </script>

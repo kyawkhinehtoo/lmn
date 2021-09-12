@@ -28,6 +28,7 @@ module.exports = {
         extend: {
             opacity: ['disabled'],
             backgroundColor: ['active'],
+            backgroundColor: ['hover'],
            
         },
         scrollbar: ['rounded'],

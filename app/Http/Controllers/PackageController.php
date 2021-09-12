@@ -56,6 +56,7 @@ class PackageController extends Controller
         $package = new Package();
         $package->name = $request->name;
         $package->speed = $request->speed;
+        $package->currency = $request->currency;
         $package->type = $request->type;
         $package->status = $request->status;
         $package->sla_id = $request->sla_id;
@@ -93,6 +94,7 @@ class PackageController extends Controller
             $package = Package::find($request->input('id'));
             $package->name = $request->name;
             $package->speed = $request->speed;
+            $package->currency = $request->currency;
             $package->type = $request->type;
             $package->sla_id = $request->sla_id;
             $package->status = $request->status;

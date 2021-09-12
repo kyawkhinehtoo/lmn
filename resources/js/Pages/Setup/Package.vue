@@ -26,7 +26,7 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package Name</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bundle Equiptment</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MRC (MMK)</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MRC </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Terms</th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
               </tr>
@@ -37,7 +37,7 @@
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.name }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap"><Bundle :data="row.id" :key="form.componentKey" /></td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.price }}</td>
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.price }} <span class="uppercase">{{row.currency}}</span> </td>
                 <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.contract_period }} Months</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap text-right">
                   <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
@@ -65,11 +65,21 @@
                               <input type="text" v-model="form.name" name="name" id="name" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Package Name" required />
                             </div>
                           </div>
+                          <div class="py-2">
+                            <label for="currency" class="block text-sm font-medium text-gray-700"> Currency Type </label>
+                            <div class="mt-1 flex">
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" checked name="currency" v-model="form.currency" value="baht" /><span class="ml-2 text-gray-700">Thai Baht</span> </label>
+
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="currency" v-model="form.currency" value="usd" /><span class="ml-2 text-gray-700">USD</span> </label>
+
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-red-600" name="currency" v-model="form.currency" value="mmk" /><span class="ml-2 text-gray-700">MMK</span> </label>
+                            </div>
+                          </div>
                            <div class="py-2">
                             <label for="price" class="block text-sm font-medium text-gray-700"> Enter Package Price </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                               <input type="text" v-model="form.price" name="price" id="price" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Package Price" required />
-                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Kyats </span>
+                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm uppercase"> {{ form.currency }} </span>
                             </div>
                           </div>
                           <div class="py-2">
@@ -84,7 +94,7 @@
                             <div class="mt-1 flex">
                               <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" checked name="type" v-model="form.type" value="ftth" /><span class="ml-2 text-gray-700">FTTH</span> </label>
 
-                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="type" v-model="form.type" value="sme" /><span class="ml-2 text-gray-700">SME</span> </label>
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="type" v-model="form.type" value="b2b" /><span class="ml-2 text-gray-700">B2B</span> </label>
 
                               <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-red-600" name="type" v-model="form.type" value="dia" /><span class="ml-2 text-gray-700">DIA</span> </label>
                             </div>
@@ -220,6 +230,7 @@ export default {
       type: "ftth",
       sla_id: null,
       status: true,
+      currency:"baht",
       contract_period: 24,
       package_id: null,
       bundle_equiptment_id: null,
@@ -239,6 +250,7 @@ export default {
       form.name = null;
       form.price = null;
       form.speed = null;
+      form.currency = "baht";
       form.contract_period = 24;
       form.package_id = null;
       form.status = true;

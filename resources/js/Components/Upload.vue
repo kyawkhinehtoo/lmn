@@ -70,7 +70,7 @@ export default {
       form.file = null;
     }
     function submit() {
-      form.post("/upload",{
+      form.post("/uploadData",{
          onSuccess: (page) => {
            clearForm();
           context.emit('status',true);

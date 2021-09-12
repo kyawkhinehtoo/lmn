@@ -25,23 +25,35 @@ use Inertia\Inertia;
 //     ]);
 // });
 
-
+Route::redirect('/', '/dashboard');
 
 Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/dashboard', 'DashboardController@show')->name('dashboard');
 	Route::resource('/user', UserController::class);
 	Route::resource('/sla', SlaController::class);
+	Route::resource('/port', PortController::class);
+	Route::resource('/snport', SNPortController::class);
+	Route::get('/generateSN', 'SNPortController@generateSN');
+	Route::delete('/snport/group/{id}', 'SNPortController@deleteGroup');
+	Route::delete('/port/group/{id}', 'PortController@deleteGroup');
 	Route::resource('/township', TownshipController::class);
 	Route::resource('/equiptment', EquiptmentController::class);
+	Route::resource('/menu', MenuController::class);
 	Route::get('/getpackage/{id}', 'PackageController@getBundle');
 	Route::get('/incidentOverdue', 'IncidentAlertController@getOverdue');
 	Route::get('/incidentRemain', 'IncidentAlertController@getRemain');
 	Route::get('/getTask/{id}', 'IncidentController@getTask');
+	Route::get('/getLog/{id}', 'IncidentController@getLog');
+	Route::get('/getHistory/{id}', 'IncidentController@getHistory');
 	Route::get('/getFile/{id}', 'IncidentController@getFile');
+	Route::get('/getCustomerFile/{id}', 'IncidentController@getCustomerFile');
 	Route::delete('/deleteFile/{id}', 'IncidentController@deleteFile');
 	Route::post('/addTask', 'IncidentController@addTask');
 	Route::put('/editTask/{id}', 'IncidentController@editTask');
-	Route::post('/upload', 'FileController@upload')->name('upload');
+	Route::post('/uploadData', 'FileController@upload')->name('upload');
+	Route::post('/getMenu', 'MenuController@getMenu');
+	Route::get('/getDnId/{name}', 'PortController@getIdByName');
+	
 	Route::resource('/package', PackageController::class);
 	Route::resource('/project', ProjectController::class);
 	Route::resource('/status', StatusController::class);

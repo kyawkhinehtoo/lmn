@@ -82,40 +82,11 @@
                       
                 </div>
             </div>
-            <div class="col-span-1 sm:col-span-1">
-              <div class="py-2">
-                       <label for="sh_partner" class="block text-sm font-medium text-gray-700">Project </label>
-                      <div class="mt-1 flex rounded-md shadow-sm">
-                        <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                          <i class="fas fa-user"></i>
-                        </span>
-                        <select id="sh_partner" v-model="sh_partner" name="sh_partner" class="pl-10 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="4">
-                            <option value="0"> -Choose Project/Partner -</option>
-                               <option v-for="row in projects" v-bind:key="row.id" :value="row.id">{{ row.name }}</option>
-                        </select>
-                      
-                      </div>
-                      
-                </div>
-                <div class="py-2">
-                      <label for="sh_orderform" class="block text-sm font-medium text-gray-700">OrderForm Status </label>
-                      <div class="mt-1 flex rounded-md shadow-sm">
-                        <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                          <i class="fas fa-user"></i>
-                        </span>
-                       <select id="sh_orderform" v-model="sh_orderform" name="sh_orderform" class="pl-10 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="8">
-                            <option value="0"> -Choose Status -</option>
-                            <option value="signed">Signed Order Form</option>
-                             <option value="unsigned">Unsigned Order Form</option>
-                             
-                        </select>
-                      
-                      </div>
-                      
-                </div>
-              <a @click="doSearch" class="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Search <i class="ml-1 fa fa-search text-white" tabindex="9"></i></a>
-              <a @click="clearSearch" class="ml-2 cursor-pointer inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400 active:bg-gray-500 focus:outline-none focus:border-gray-500 focus:ring focus:ring-gray-200 disabled:opacity-25 transition">Reset <i class="ml-1 fa fa-undo-alt text-white" tabindex="10"></i></a>  
-        
+            <div class="col-span-1 sm:col-span-1 flex place-content-center">
+            
+              <a @click="doSearch" class="self-center cursor-pointer inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Search <i class="ml-1 fa fa-search text-white" tabindex="9"></i></a>
+              <a @click="clearSearch" class="self-center ml-2 cursor-pointer inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400 active:bg-gray-500 focus:outline-none focus:border-gray-500 focus:ring focus:ring-gray-200 disabled:opacity-25 transition">Reset <i class="ml-1 fa fa-undo-alt text-white" tabindex="10"></i></a>  
+               
             </div>
           </div>
         </div>

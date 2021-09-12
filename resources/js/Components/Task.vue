@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full justify-end">
-    <a v-if="!edit" href="#" @click="newTask()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Add Task<i class="fas fa-plus-circle opacity-75 lg:ml-1 text-sm"></i></a>
-    <a v-if="edit" href="#" @click="saveTask()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-green-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-400 active:bg-green-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1"><span v-if="!editMode">Save Task</span><span v-if="editMode">Update Task</span><i class="fas fa-save opacity-75 lg:ml-1 text-sm"></i></a>
+    <a v-if="!edit &&  permission[0].write_incident ==1" href="#" @click="newTask()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Add Task<i class="fas fa-plus-circle opacity-75 lg:ml-1 text-sm"></i></a>
+    <a v-if="edit &&  permission[0].write_incident ==1" href="#" @click="saveTask()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-green-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-400 active:bg-green-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1"><span v-if="!editMode">Save Task</span><span v-if="editMode">Update Task</span><i class="fas fa-save opacity-75 lg:ml-1 text-sm"></i></a>
     <a v-if="edit" href="#" @click="cancelTask()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-gray-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400 active:bg-gray-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Cancel<i class="fas fa-save opacity-75 lg:ml-1 text-sm"></i></a>
   </div>
   <div v-if="task_list && !edit">
@@ -18,12 +18,13 @@
       </thead>
       <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64  w-full overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white  flex flex-col justify-between text-left">
         <tr v-for="row in task_list" v-bind:key="row.id"  class="flex">
-          <td class="px-6 py-3 whitespace-nowrap w-1/12"><input type="checkbox" name="status"  :checked="row.status==2" @click="completeTask(row)" /></td>
+          <td class="px-6 py-3 whitespace-nowrap w-1/12"><input type="checkbox" name="status"  :checked="row.status==2" @click="completeTask(row)" :disabled="!permission[0].write_incident" /></td>
           <td class="px-6 py-3 whitespace-nowrap w-3/5">{{ row.description }}</td>
           <td class="px-6 py-3 whitespace-nowrap w-1/4 ">{{ getName(row.assigned) }}</td>
           <td class="px-6 py-3 whitespace-nowrap w-1/6 ">{{ row.target }}</td>
           <td class="px-6 py-3 whitespace-nowrap w-1/12">{{ getStatus(row.status) }}</td>
-          <td class="px-6 py-3 whitespace-nowrap w-1/12 "><a href="#" @click="editTask(row)" class="text-blue-600"><i class="fa fa-edit"></i></a> | <a href="#" @click="deleteTask(row)" class="text-red-600"><i class="fa fa-trash"></i></a></td>
+          <td class="px-6 py-3 whitespace-nowrap w-1/12 " v-if="permission[0].write_incident ==1"><a href="#" @click="editTask(row)" class="text-blue-600"><i class="fa fa-edit"></i></a> | <a href="#" @click="deleteTask(row)" class="text-red-600"><i class="fa fa-trash"></i></a></td>
+          <td class="px-6 py-3 whitespace-nowrap w-1/12 " v-else><a href="#" @click="editTask(row)" class="text-blue-600"><i class="fa fa-eye"></i></a> </td>
         </tr>
       </tbody>
     </table>
@@ -51,8 +52,9 @@
       <div class="py-2 col-span-3 sm:col-span-3">
         <div class="flex rounded-md shadow-sm">
           <input type="date" v-model="form.target" name="target" id="target" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
-          <p v-if="$page.props.errors.target" class="mt-2 text-sm text-red-500">{{ $page.props.errors.target }}</p>
+          
         </div>
+        <p v-if="$page.props.errors.target" class="mt-2 text-sm text-red-500">{{ $page.props.errors.target }}</p>
       </div>
       <div class="py-2 col-span-1 sm:col-span-1">
         <div class="flex">
@@ -62,8 +64,9 @@
       <div class="py-2 col-span-3 sm:col-span-3">
         <div class="flex rounded-md shadow-sm">
           <textarea v-model="form.description" name="description" id="description" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"></textarea>
-          <p v-if="$page.props.errors.description" class="mt-2 text-sm text-red-500">{{ $page.props.errors.description }}</p>
+          
         </div>
+        <p v-if="$page.props.errors.description" class="mt-2 text-sm text-red-500">{{ $page.props.errors.description }}</p>
       </div>
       <div class="py-2 col-span-1 sm:col-span-1">
         <div class="flex">
@@ -77,8 +80,9 @@
             <option value="2">Completed</option>
             <option value="0">Deleted</option>
           </select>
-          <p v-if="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
+         
         </div>
+         <p v-if="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
       </div>
     </div>
   </div>
@@ -96,6 +100,7 @@ export default {
   props: ["data"],
   setup(props) {
     const noc = inject("noc");
+    const permission = inject("permission");
     let task_list = ref("Loading ..");
     let edit = ref(false);
     let editMode = ref(false);
@@ -274,7 +279,7 @@ export default {
     onMounted(() => {
      calculate();
     });
-    return { task_list, edit,editMode, newTask, saveTask, cancelTask,getName,getStatus,editTask,deleteTask,completeTask, form, noc };
+    return { task_list, edit,editMode, newTask, saveTask, cancelTask,getName,getStatus,editTask,deleteTask,completeTask, form, noc,permission };
   },
 };
 </script>

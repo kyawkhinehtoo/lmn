@@ -1,63 +1,36 @@
 <template>
-<div class="w-full flex justify-end text-sm px-2">
-<label class="text-sm mt-5"> Reload Alarm List</label> 
-<button @click="getList()" class="my-2 ml-2 align-right text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1"> <i class="fas fa-sync opacity-75 text-sm"></i></button>
+<div class="w-full flex justify-between text-sm px-2">
+<label class="mt-5 uppercase text-md"> Ticket Overdue Hours Chart</label> 
+<button @click="getList()" class="my-2 ml-2 align-right text-center items-center px-3 py-2 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1"> <i class="fas fa-sync opacity-75 text-sm"></i></button>
 </div>
-<div class="grid grid-cols-2 gap-2">
 
-  <div v-if="bundle" class="col-span-1">
+
+  <div v-if="bundle">
   
+    <h2 class="m-2 uppercase text-md"></h2>
+    <div class="min-w-full divide-y divide-gray-200 mt-1 shadow-xl">
+                <div class="bg-gray-50 text-center inline-grid grid-cols-4 gap-2rounded-t-lg w-full">
+               
+                    <div  class="px-2 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider col-span-1">Ticket ID</div>
+                    <div  class="px-2 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider col-span-1">SLA Overdue</div>
+                    <div  class="px-2 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider col-span-1">Actual Hrs</div>
+                    <div  class="px-2 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider col-span-1">Based  SLA</div>
+                  
              
-    <table class="min-w-full divide-y divide-gray-200 mt-1 shadow-xl  ">
-                <thead class="bg-gray-50 rounded-t-lg block  ">
-                  <tr>
-                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
-                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Overdue</th>
-                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SLA</th>
-                  
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200 text-sm text-center max-h-96 overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white">
-                  <tr v-for="row in bundle" v-bind:key="row.id" class="cursor-pointer" >
-                   <td class="px-2 py-2 whitespace-nowrap">{{ row.code }}</td>
-                   <td class="px-2 py-2 whitespace-nowrap tooltip">
-                     <span class="tooltiptext text-xs">
-                       Time after Incident <br />
-                       {{getDay(row.diff)}}</span>
-                       {{getDay(row.over)}}
-                   </td>
-                   <td class="px-2 py-2 whitespace-nowrap">{{ row.percentage }}</td>
+                </div>
+                <div class="bg-white rounded-b-lg  divide-y divide-gray-200 text-sm text-center max-h-96 overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white w-full">
+                  <div v-for="row in bundle" v-bind:key="row.id" class="cursor-pointer inline-grid grid-cols-4 gap-2 w-full" >
+                   <div class="px-2 py-2 whitespace-nowrap col-span-1" >{{ row.code }}</div>
+                   <div class="px-2 py-2 whitespace-nowrap col-span-1">{{getDay(row.over)}}</div>
+                   <div class="px-2 py-2 whitespace-nowrap col-span-1"> {{getDay(row.diff)}}</div>
+                   <div class="px-2 py-2 whitespace-nowrap col-span-1">{{ row.percentage }}</div>
                     
-                  </tr>
-                </tbody>
-    </table>
+                  </div>
+                </div>
+    </div>
   </div>
-  <div v-if="remain.length > 0" class="col-span-1">
- 
-    <table class="min-w-full divide-y divide-gray-200 mt-1 shadow-xl">
-                <thead class="bg-gray-50 rounded-t-lg block  ">
-                  <tr>
-                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
-                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remain</th>
-                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SLA</th>
-                  
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200 text-sm text-center  max-h-96 overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white">
-                  <tr v-for="row in remain" v-bind:key="row.id" class="cursor-pointer" >
-                   <td class="px-2 py-2 whitespace-nowrap">{{ row.code }}</td>
-                   <td class="px-2 py-2 whitespace-nowrap tooltip" >
-                    
-                     {{ getDay(row.diff) }}
-                     
-                   </td>
-                   <td class="px-2 py-2 whitespace-nowrap">{{ row.percentage }}</td>
-                    
-                  </tr>
-                </tbody>
-    </table>
-  </div>
-</div>
+  
+
 </template>
 
 <script>

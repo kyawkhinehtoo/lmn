@@ -12,7 +12,7 @@ class IncidentHistory extends Model
      *
      * @var string
      */
-    protected $table = 'incident_history';
+    protected $table = 'incident_histories';
 
     /**
      * The primary key for the model.

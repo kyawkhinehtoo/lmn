@@ -36,7 +36,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 text-sm">
               <tr v-for="row in customers.data" v-bind:key="row.id" :class='" text-"+row.color'>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.ftth_id.substring(0,5) }}</td>
+                <td class="px-6 py-3 whitespace-nowrap">{{ row.ftth_id.substring(0,7) }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.order_date }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.package }}</td>
@@ -91,10 +91,10 @@ export default {
      const sort = ref("");
      let show_search = ref(false);
     const searchTsp = () => {
-      Inertia.post("/customer/search/", { keyword: search.value }, { preserveState: true });
+      Inertia.post("/customer/search", { keyword: search.value }, { preserveState: true });
     };
     const goSearch = (parm) =>{
-       let url = "/customer/search/";
+       let url = "/customer/search";
       Inertia.post(url,parm, { preserveState: true });
     }
     const toggleAdv =()=>{
@@ -110,7 +110,9 @@ export default {
     //   Inertia.post('/customer/all/',{sort: sort.value, order:sort.order},{ preserveState: true });
     // };
     const deleteRow =(data)=>{
-
+       if (!confirm("Are you sure want to Delete?")) return;
+      data._method = "DELETE";
+      Inertia.post("/customer/" + data.id, data);
     }
    return {  deleteRow, searchTsp,toggleAdv,goSearch,sort, search,show_search };
   },

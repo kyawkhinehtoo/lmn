@@ -31,7 +31,7 @@ class Role extends Model
      * @var array
      */
     protected $fillable = [
-        'name','permission', 'created_at', 'updated_at'
+        'name','permission','read_customer','read_incident','write_incident', 'created_at', 'updated_at'
     ];
 
     /**
@@ -49,7 +49,7 @@ class Role extends Model
      * @var array
      */
     protected $casts = [
-        'name' => 'string','permission' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp'
+        'name' => 'string','permission' => 'string','read_customer'=>'integer','read_incident' => 'integer','write_incident' => 'integer','created_at' => 'timestamp', 'updated_at' => 'timestamp'
     ];
 
     /**
@@ -77,4 +77,5 @@ class Role extends Model
     {
         return $this->hasOne(User::class);
     }
+    
 }

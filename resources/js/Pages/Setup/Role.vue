@@ -56,6 +56,10 @@
                         <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name[0] }}</div>
                       </div>
                       <div class="mb-4">
+                        <label for="read_customer" class="text-sm font-medium text-gray-700">
+                        <input type="checkbox" class="rounded-sm" id="read_customer" v-model="form.read_customer" /> Read Only Customer Data </label>
+                      </div>
+                      <div class="mb-4">
                         <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission :</label>
                         <!-- <select multiple>
                           <option v-for="row in col" v-bind:key="row.id" class="capitalize"> {{ row.name.replace(/_/g, " ") }}</option>
@@ -64,6 +68,17 @@
                           <multiselect deselect-label="Selected already" :options="col" track-by="id" label="name" v-model="form.permission" :allow-empty="true" :multiple="true" :taggable="true"> </multiselect>
                         </div>
                       </div>
+                       <div class="mb-4">
+                        <label  class="block text-gray-700 text-sm font-bold mb-2">Incident Access :</label>
+                        
+                         <label for="read_incident" class="text-sm font-medium text-gray-700">
+                        <input type="checkbox" class="rounded-sm" id="read_incident" v-model="form.read_incident" /> Incident Read Permission </label>
+                        <label for="write_incident" class="ml-4 text-sm font-medium text-gray-700">
+                        <input type="checkbox" class="rounded-sm" id="write_incident" v-model="form.write_incident" />
+                        Incident Write Permission </label>
+                      
+                      </div>
+                
                     </div>
                   </div>
                   <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -106,6 +121,7 @@ export default {
   props: {
     roles: Object,
     col: Object,
+    menus: Object,
     errors: Object,
   },
   setup(props) {
@@ -113,6 +129,9 @@ export default {
       id: null,
       name: null,
       permission: null,
+      read_customer: null,
+      read_incident: null,
+      write_incident: null,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -121,6 +140,9 @@ export default {
     function resetForm() {
       form.name = null;
       form.permission = null;
+      form.read_customer = null;
+      form.read_incident = null;
+      form.write_incident = null;
     }
     function submit() {
       if (!editMode.value) {
@@ -166,6 +188,9 @@ export default {
         let permission_array = data.permission.split(",");
         form.permission = props.col.filter((d) => permission_array.includes(d.name));
       }
+      form.read_customer =(data.read_customer)?true:false;
+      form.read_incident =(data.read_incident)?true:false;
+      form.write_incident = (data.write_incident)?true:false;
 
       editMode.value = true;
       openModal();
@@ -198,6 +223,7 @@ export default {
       }
       return perm;
     }
+  
     const closeModal = () => {
       isOpen.value = false;
       resetForm();
@@ -213,6 +239,7 @@ export default {
       props.col.map(function (x) {
         return (x.col_data = "<label :class='capitalize'>" + x.name + "</label>");
       });
+   
     });
     return { form, submit, getPerm, editMode, isOpen, openModal, closeModal, edit, deleteRow, searchTsp, search };
   },
