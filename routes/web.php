@@ -67,7 +67,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/incidentlist', 'IncidentController@getIncident');
 	Route::get('importExportView', 'ExcelController@importExportView')->name('importExportView');
 	// Route for export/download tabledata to .csv, .xls or .xlsx
-	Route::get('exportExcel/{type}', 'ExcelController@exportExcel')->name('exportExcel');
+	Route::post('/exportExcel', 'ExcelController@exportExcel')->name('exportExcel');
 	// Route for import excel data to database.
 	Route::post('importExcel', 'ExcelController@importExcel')->name('importExcel');
 	

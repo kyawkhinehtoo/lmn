@@ -44,6 +44,7 @@ class DashboardController extends Controller
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
         ->where('customers.deleted', '<>', '1')
+        ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'ftth')
         ->count();
 
@@ -51,6 +52,7 @@ class DashboardController extends Controller
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
         ->where('customers.deleted', '<>', '1')
+        ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'b2b')
         ->count();
         
@@ -58,6 +60,7 @@ class DashboardController extends Controller
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
         ->where('customers.deleted', '<>', '1')
+        ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'dia')
         ->count();
         //SELECT p.name,COUNT(c.ftth_id) AS customers FROM packages p JOIN customers c ON c.package_id=p.id  WHERE p.`type`='ftth' GROUP BY p.name;
@@ -65,6 +68,7 @@ class DashboardController extends Controller
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
         ->where('customers.deleted', '<>', '1')
+        ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'ftth')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
         ->groupBy('packages.name')
@@ -75,6 +79,7 @@ class DashboardController extends Controller
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
         ->where('customers.deleted', '<>', '1')
+        ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'b2b')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
         ->groupBy('packages.name')
@@ -85,6 +90,7 @@ class DashboardController extends Controller
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
         ->where('customers.deleted', '<>', '1')
+        ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'dia')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
         ->groupBy('packages.name')

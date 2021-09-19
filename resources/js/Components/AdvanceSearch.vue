@@ -1,7 +1,7 @@
 <template>
     <!-- Advance Search -->
-        <div class="bg-white shadow-xl sm:rounded-lg flex justify-between space-x-2 items-end mb-2 py-2 px-2 md:px-2">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
+        <div class="bg-white shadow sm:rounded-t-lg flex justify-between space-x-2 items-end py-2 px-2 md:px-2">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <div class="col-span-1 sm:col-span-1">
               <div class="py-2">
                       <label for="sh_general" class="block text-sm font-medium text-gray-700">General </label>
@@ -82,12 +82,17 @@
                       
                 </div>
             </div>
-            <div class="col-span-1 sm:col-span-1 flex place-content-center">
             
-              <a @click="doSearch" class="self-center cursor-pointer inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Search <i class="ml-1 fa fa-search text-white" tabindex="9"></i></a>
-              <a @click="clearSearch" class="self-center ml-2 cursor-pointer inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400 active:bg-gray-500 focus:outline-none focus:border-gray-500 focus:ring focus:ring-gray-200 disabled:opacity-25 transition">Reset <i class="ml-1 fa fa-undo-alt text-white" tabindex="10"></i></a>  
-               
-            </div>
+          </div>
+         
+        </div>
+         <div class="mb-2 py-2 px-2 md:px-2 bg-white shadow rounded-b-lg flex justify-between">
+          <div class="flex">
+          <a @click="doSearch" class="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Search <i class="ml-1 fa fa-search text-white" tabindex="9"></i></a>
+          <a @click="clearSearch" class="ml-2 cursor-pointer inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400 active:bg-gray-500 focus:outline-none focus:border-gray-500 focus:ring focus:ring-gray-200 disabled:opacity-25 transition">Reset <i class="ml-1 fa fa-undo-alt text-white" tabindex="10"></i></a>  
+          </div>
+          <div class="flex">
+          <a @click="doExcel" class="cursor-pointer inline-flex items-center px-4 py-2 bg-green-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">Export Excel <i class="ml-1 fa fa-download text-white" tabindex="11"></i></a>
           </div>
         </div>
         <!-- End of Advance Search -->
@@ -139,6 +144,50 @@ export default {
 
         context.emit('search_parameter',myurl);
     }
+    const doExcel = () =>{
+        let myurl = Object.create( {} ); 
+   
+        if(sh_general.value != ""){
+            myurl.general = sh_general.value;
+        }
+        if(sh_package.value != 0){
+            myurl.package=sh_package.value;
+        }
+        if(sh_township.value != 0){
+            myurl.township=sh_township.value;
+        }
+        if(sh_partner.value != 0){
+            myurl.project=sh_partner.value;
+        }
+        if(sh_orderform.value != 0){
+            myurl.orderform=sh_orderform.value;
+        }
+        if(sh_status.value != 0){
+            myurl.status=sh_status.value;
+        }
+        if(sh_installation.value.from != "" && sh_installation.value.to != "" ){
+            myurl.installation = sh_installation.value;
+        }
+        if(sh_order.value.from != "" && sh_order.value.to != "" ){
+            myurl.order = sh_order.value;
+        } 
+       axios.post("/exportExcel", 
+          myurl)
+          .then(response => {
+            console.log(response)
+             var a = document.createElement("a");
+              document.body.appendChild(a);
+              a.style = "display: none";
+            let blob = new Blob([response.data], { type: 'text/csv' }),
+              url = window.URL.createObjectURL(blob)
+              a.href = url;
+              a.download = 'customers.csv';
+              a.click();
+              window.URL.revokeObjectURL(url);
+           })
+
+     
+    }
     const doSearch = () => {
         
         let myurl = Object.create( {} ); 
@@ -176,7 +225,7 @@ export default {
         }
     
         return {
-            formatter,sh_general,sh_general,sh_installation,sh_order,sh_package,sh_township,sh_status,sh_partner,sh_orderform, packages,projects,townships,status,doSearch,clearSearch
+            doExcel,formatter,sh_general,sh_general,sh_installation,sh_order,sh_package,sh_township,sh_status,sh_partner,sh_orderform, packages,projects,townships,status,doSearch,clearSearch
         }
     }
 }

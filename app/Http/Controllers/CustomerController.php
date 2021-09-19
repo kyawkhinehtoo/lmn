@@ -49,10 +49,12 @@ class CustomerController extends Controller
             ->join('status', 'customers.status_id', '=', 'status.id')
             ->where('customers.deleted', '=', 0)
             ->when($request->keyword, function ($query, $search = null) {
-                $query->where('customers.name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
-                    ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
+            $query->where(function ($query) use ($search) {
+                    $query->where('customers.name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
+                        ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
+                    });
             })->when($request->general, function ($query, $general) {
                 $query->where(function ($query) use($general) {
                     $query->where('customers.name','LIKE', '%'.$general.'%')
@@ -100,7 +102,7 @@ class CustomerController extends Controller
             },function ($query){
                 $query->orderBy('customers.id','desc');
             })
-            ->select('customers.id as id', 'customers.ftth_id as ftth_id', 'customers.name as name', 'customers.order_date as order_date', 'customers.phone_1 as phone', 'townships.name as township', 'packages.name as package', 'status.name as status', 'status.color as color')
+            ->select('customers.id as id', 'customers.ftth_id as ftth_id', 'customers.name as name', 'customers.prefer_install_date as prefer_install_date','customers.order_date as order_date', 'customers.phone_1 as phone', 'townships.name as township', 'packages.name as package', 'status.name as status', 'status.color as color')
             ->paginate(10);
       // dd($customers->toSQL(), $customers->getBindings());
         $customers->appends($request->all())->links();

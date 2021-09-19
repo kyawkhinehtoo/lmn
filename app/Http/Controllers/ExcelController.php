@@ -18,10 +18,12 @@ class ExcelController extends Controller
     /**
     * @return \Illuminate\Support\Collection
     */
-    public function exportExcel($type) 
+    public function exportExcel(Request $request) 
     {
         //$type = xlsx, xls etc.
-        return Excel::download(new CustomersExport, 'customers.'.$type);
+     //   return (new CustomersExport(($request)));
+     return (new CustomersExport($request))->download('customers.csv');
+       // return Excel::download(new CustomersExport($request), 'customers.csv');
     }
    
     /**

@@ -134,12 +134,12 @@ export default {
     });
 
      let b2b_number = ref([]);
-    props.ftth_total.map(function (x) {
+    props.b2b_total.map(function (x) {
         b2b_number.value.push(x.customers)
     });
 
      let dia_number = ref([]);
-    props.ftth_total.map(function (x) {
+    props.dia_total.map(function (x) {
         dia_number.value.push(x.customers)
     });
 

@@ -239,6 +239,8 @@
                               <option value="no_internet">No Internet</option>
                               <option value="los_redlight">LOS Redlight</option>
                               <option value="slow_performance">Slow Performance</option>
+                              <option value="game_issue">Game Issue</option>
+                              <option value="website_issue">Website Issue</option>
                               <option value="wifi_issue">Wifi Issue</option>
                               <option value="onu_issue">ONU Issue</option>
                               <option value="password_change">Password Changed</option>

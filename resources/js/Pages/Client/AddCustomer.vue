@@ -62,30 +62,8 @@
                     </div>
                     <p v-show="$page.props.errors.township" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township }}</p>
                   </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="latitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Latitude </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
-                        <i class="fas fa-location-arrow"></i>
-                      </span>
-                      <input type="text" v-model="form.latitude" name="latitude" id="latitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
-                    </div>
-                    <p v-show="$page.props.errors.latitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.latitude }}</p>
-                  </div>
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="longitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Longitude </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
-                        <i class="fas fa-location-arrow"></i>
-                      </span>
-                      <input type="text" v-model="form.longitude" name="longitude" id="longitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
-                    </div>
-                    <p v-show="$page.props.errors.longitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.longitude }}</p>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                  <div class="col-span-4 sm:col-span-4">
+                   
+                  <div class="col-span-2 sm:col-span-2">
                     <label for="address" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Full Address </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
@@ -95,7 +73,12 @@
                     </div>
                     <p v-show="$page.props.errors.address" class="mt-2 text-sm text-red-500">{{ $page.props.errors.address }}</p>
                   </div>
+              
                 </div>
+
+               
+
+              
                 <hr class="my-4 md:min-w-full" />
                 <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Sale Information</h6>
                 <div class="grid grid-cols-4 gap-2">
@@ -187,21 +170,14 @@
                   <div class="col-span-1 sm:col-span-1">
                     <label for="advance_payment" class="block text-sm font-medium text-gray-700"> Advance Payment </label>
                     <div class="mt-1 flex rounded-md" >
-                     <select name="advance_payment" id="advance_payment" v-model="form.advance_payment"  class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
-                       <option value="">-No Advance Payment-</option>
-                       <option value="1">1 Month</option>
-                       <option value="2">2 Months</option>
-                       <option value="3">3 Months</option>
-                       <option value="4">4 Months</option>
-                       <option value="5">5 Months</option>
-                       <option value="7">7 Months</option>
-                       <option value="8">8 Months</option>
-                       <option value="9">9 Months</option>
-                       <option value="10">10 Months</option>
-                       <option value="11">11 Months</option>
-                       <option value="12">12 Months</option>
-                       <option value="24">24 Months</option>
-                     </select>
+                     <div class="mt-1 flex rounded-md shadow-sm">
+                              <input type="number" v-model="form.advance_payment" name="advance_payment" id="advance_payment" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Month" :disabled="checkPerm('advance_payment')" />
+                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> M </span>
+                            </div>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                              <input type="number" v-model="form.advance_payment_day" name="advance_payment_day" id="advance_payment_day" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Day" :disabled="checkPerm('advance_payment_day')" />
+                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Day </span>
+                            </div>
                     </div>
                      
                   </div>
@@ -355,8 +331,31 @@
                     </div>
                      <p v-show="$page.props.errors.splitter_no" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_password }}</p>
                   </div>
-                <div class="col-span-2 sm:col-span-2">
-                    <label for="sale_remark" class="block text-sm font-medium text-gray-700"> Installation Remark </label>
+                    <div class="col-span-1 sm:col-span-1">
+                    <label for="latitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Latitude </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
+                        <i class="fas fa-location-arrow"></i>
+                      </span>
+                      <input type="text" v-model="form.latitude" name="latitude" id="latitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
+                    </div>
+                    <p v-show="$page.props.errors.latitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.latitude }}</p>
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="longitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Longitude </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
+                        <i class="fas fa-location-arrow"></i>
+                      </span>
+                      <input type="text" v-model="form.longitude" name="longitude" id="longitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
+                    </div>
+                    <p v-show="$page.props.errors.longitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.longitude }}</p>
+                  </div>
+               
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                   <div class="col-span-4 sm:col-span-4">
+                    <label for="installation_remark" class="block text-sm font-medium text-gray-700"> Installation Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
                         <i class="fas fa-comment"></i>
@@ -439,6 +438,7 @@ export default {
       foc:"",
       foc_period:"",
       advance_payment:"",
+      advance_payment_day:"",
       extra_bandwidth:"",
       fiber_distance:"",
       pppoe_account:"",
@@ -476,6 +476,7 @@ export default {
       form.foc="";
       form.foc_period="";
       form.advance_payment="";
+      form.advance_payment_day="";
       form.extra_bandwidth="";
       form.fiber_distance="";
       form.pppoe_account="";

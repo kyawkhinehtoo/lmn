@@ -48,6 +48,7 @@ class Customers extends Migration
             $table->integer('foc')->nullable();
             $table->integer('foc_period')->nullable();
             $table->string('advance_payment')->nullable();
+            $table->string('advance_payment_day')->nullable();
             $table->string('extra_bandwidth')->nullable();
             $table->string('pppoe_account')->nullable();
             $table->string('pppoe_password')->nullable();

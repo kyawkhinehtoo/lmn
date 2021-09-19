@@ -27,6 +27,7 @@
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Customer ID</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Order Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Prefer Install Date</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Name</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Township</th>
@@ -36,12 +37,13 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 text-sm">
               <tr v-for="row in customers.data" v-bind:key="row.id" :class='" text-"+row.color'>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.ftth_id.substring(0,7) }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.order_date }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.package }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.township }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.status }}</td>
+                <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.ftth_id.substring(0,7) }}</td>
+                <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.order_date }}</td>
+                <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.prefer_install_date }}</td>
+                <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.name }}</td>
+                <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.package }}</td>
+                <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.township }}</td>
+                <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.status }}</td>
 
                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                   <inertia-link :href="route('customer.edit', row.id)" class="text-indigo-600 hover:text-indigo-900">Edit</inertia-link> |
@@ -53,6 +55,9 @@
 
          
         </div>
+         <span v-if="customers.total" class="w-full block mt-4">
+            <label class="text-xs text-gray-600">{{ customers.data.length }} Customers in Current Page. Total Number of Customers :  {{ customers.total }}</label>
+        </span>
         <span v-if="customers.links">
           <pagination class="mt-6" :links="customers.links" />
         </span>
