@@ -39,6 +39,7 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"  @click="sortBy('date')">Date <i class="fas fa-sort text-gray-400"></i></th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @click="sortBy('code')">Ticket <i class="fas fa-sort text-gray-400"></i></th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @click="sortBy('ftth_id')">User <i class="fas fa-sort text-gray-400"></i> </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @click="sortBy('type')">Type <i class="fas fa-sort text-gray-400"></i> </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
 
                   </tr>
@@ -49,6 +50,7 @@
                     <td class="px-6 py-3 whitespace-nowrap">{{ row.date}} {{ row.time }}</td>
                     <td class="px-6 py-3 whitespace-nowrap">{{ row.code }}</td>
                     <td class="px-6 py-3 whitespace-nowrap" v-if="row.ftth_id">{{ row.ftth_id }}</td>
+                    <td class="px-6 py-3 whitespace-nowrap capitalize">{{ row.type.replace("_", " ") }}</td>
                     <td class="px-6 py-3 whitespace-nowrap">{{ getStatus(row.status) }}</td>
                   </tr>
                 </tbody>
@@ -396,10 +398,10 @@
                       </div>
                     </div>
                     <!-- end of tab1 -->
-                    <div class="p-4" :class="[tab == 2 ? '' : 'hidden']"><task :data="selected_id" :key="page_update" /></div>
-                    <div class="p-4" :class="[tab == 3 ? '' : 'hidden']"><file :data="selected_id"  :key="page_update"/></div>
-                    <div class="p-4" :class="[tab == 4 ? '' : 'hidden']"><history :data="selected_id" :key="page_update" /></div>
-                    <div class="p-4" :class="[tab == 5 ? '' : 'hidden']"><log :data="selected_id" :key="page_update" /></div>
+                    <div class="p-4" :class="[tab == 2 ? '' : 'hidden']"><keep-alive><task :data="selected_id" :key="page_update" v-if="tab == 2" /></keep-alive></div>
+                    <div class="p-4" :class="[tab == 3 ? '' : 'hidden']"><keep-alive><file :data="selected_id"  :key="page_update" v-if="tab == 3"/></keep-alive></div>
+                    <div class="p-4" :class="[tab == 4 ? '' : 'hidden']"><keep-alive><history :data="selected_id" :key="page_update" v-if="tab == 4"/></keep-alive></div>
+                    <div class="p-4" :class="[tab == 5 ? '' : 'hidden']"><keep-alive><log :data="selected_id" :key="page_update" v-if="tab == 5" /></keep-alive></div>
                   </div>
                 </div>
               </div>
@@ -418,6 +420,11 @@
         </div>
       </div>
     </div>
+    <div v-if="loading" wire:loading class="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+              <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+              <h2 class="text-center text-white text-xl font-semibold">Loading...</h2>
+              <p class="w-1/3 text-center text-white">This may take a few seconds, please don't close this page.</p>
+    </div>
   </app-layout>
 </template>
 
@@ -433,6 +440,7 @@ import Pagination from "@/Components/Pagination";
 import { reactive, ref, onMounted, onUpdated,provide,auth  } from "vue";
 import Multiselect from "@suadelabs/vue3-multiselect";
 import { Inertia } from "@inertiajs/inertia";
+import { useForm } from '@inertiajs/inertia-vue3';
 
 export default {
   name: "Incident",
@@ -470,10 +478,11 @@ export default {
     let selected_id = ref("");
     let incidentStatus = ref(0);
     let isOpen = ref(false);
+    let loading = ref(false);
     provide('noc', props.noc);
     provide('permission', props.permission);
    
-    const form = reactive({
+    const form = useForm({
       id: null,
       code: null,
       priority: "normal",
@@ -546,10 +555,11 @@ export default {
     }
     function submit() {
       if (editMode.value != true) {
-        form._method = "POST";
-        Inertia.post("/incident", form, {
+       
+        form.post("/incident", {
           preserveState: true,
           onSuccess: (page) => {
+            loading.value = false;
             selected_id.value = page.props.response.id;
             let response = props.incidents.data.filter((d) => d.id == selected_id.value)[0];
             edit(response);
@@ -561,13 +571,19 @@ export default {
            
           },
           onError: (errors) => {
-            console.log("error ..".errors);
+            loading.value = false;
+            console.log("error ..");
+          },
+          onStart:(pending) =>{
+            console.log("Loading .." + pending);
+               loading.value = true;
           },
         });
       } else {
         form._method = "PUT";
-        Inertia.post("/incident/" + form.id, form, {
+        form.put("incident/" + form.id, {
           onSuccess: (page) => {
+             loading.value = false;
             page_update.value +=1;
             Toast.fire({
               icon: "success",
@@ -576,7 +592,12 @@ export default {
             closeModal();
           },
           onError: (errors) => {
+             loading.value = false;
             console.log("error ..".errors);
+          },
+          onStart:(pending) =>{
+            console.log("Loading .." + pending);
+               loading.value = true;
           },
         });
       }
@@ -688,15 +709,15 @@ export default {
     }
  
     onMounted(() => {
-      // props.packages.map(function (x) {
-      //   return (x.item_data = `${x.name} - ${x.contract_period} Months`);
-      // });
+      props.packages.map(function (x) {
+        return (x.item_data = `${x.name} - ${x.contract_period} Months`);
+      });
       priorityColor();
     });
     onUpdated(() => {
       priorityColor();
     });
-    return { openModal, closeModal, newTicket, isOpen, deleteIncident, searchIncident, edit, sortBy, submit, getStatus, clearform, changeStatus,form, sort, search, show, tabClick, tab, selection, selected_id, editMode, typeChange,incidentStatus,page_update};
+    return { loading,openModal, closeModal, newTicket, isOpen, deleteIncident, searchIncident, edit, sortBy, submit, getStatus, clearform, changeStatus,form, sort, search, show, tabClick, tab, selection, selected_id, editMode, typeChange,incidentStatus,page_update};
   },
 };
 </script>

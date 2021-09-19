@@ -16,16 +16,14 @@
               </svg>
             </div>
             <div>
-              <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Total clients</p>
+              <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Total Active Clients</p>
               <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">{{total}}</p>
             </div>
           </div>
           <!-- End Card -->
           <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-            <div class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-              </svg>
+            <div class="px-3 py-2 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
+              <i class="fa fa-chart-line "></i>
             </div>
             <div>
               <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Installation Request</p>
@@ -34,14 +32,12 @@
           </div>
           <!-- Card -->
           <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-            <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
-              </svg>
+            <div class="px-3 py-2 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
+              <i class="fa fa-check-double "></i>
             </div>
             <div>
-              <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">New sales</p>
-              <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">376</p>
+              <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Site Installed this Week</p>
+              <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">{{install_week}}</p>
             </div>
           </div>
           <!-- Card -->
@@ -52,23 +48,37 @@
               </svg>
             </div>
             <div>
-              <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Pending contacts</p>
-              <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">35</p>
+              <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Pending Site</p>
+              <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">{{pending}}</p>
             </div>
           </div>
         </div>
         <!--End All Card-->
         <div class="grid gap-6 mb-8 md:grid-cols-2">
           <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-            <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Projects</h4>
+            <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Service Ratio</h4>
             <div style="display: flex;flex-direction:column;">
-    <!-- <vue3-chart-js
+    <vue3-chart-js
         :id="doughnutChart.id"
         ref="chartRef"
         :type="doughnutChart.type"
         :data="doughnutChart.data"
-    ></vue3-chart-js> -->
-
+    ></vue3-chart-js>
+ <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
+              <!-- Chart legend -->
+              <div class="flex items-center">
+                <span class="inline-block w-3 h-3 mr-1 rounded-full" style="background:#00D8FF"></span>
+                <span>{{ftth}}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="inline-block w-3 h-3 mr-1 rounded-full" style="background:#41B883"></span>
+                <span>{{b2b}}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="inline-block w-3 h-3 mr-1 rounded-full" style="background:#E46651"></span>
+                <span>{{dia}}</span>
+              </div>
+            </div>
 
   </div>
           </div>
@@ -77,19 +87,11 @@
               <div class="chartjs-size-monitor-expand"><div class=""></div></div>
               <div class="chartjs-size-monitor-shrink"><div class=""></div></div>
             </div>
-            <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Traffic</h4>
-            <canvas id="line" style="display: block; height: 281px; width: 563px" width="703" height="351" class="chartjs-render-monitor"></canvas>
-            <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
-              <!-- Chart legend -->
-              <div class="flex items-center">
-                <span class="inline-block w-3 h-3 mr-1 bg-teal-600 rounded-full"></span>
-                <span>Organic</span>
-              </div>
-              <div class="flex items-center">
-                <span class="inline-block w-3 h-3 mr-1 bg-purple-600 rounded-full"></span>
-                <span>Paid</span>
-              </div>
-            </div>
+            <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Total Service Graph</h4>
+            <vue3-chart-js v-bind="{ ...barChartFTTH }" />
+            <vue3-chart-js v-bind="{ ...barChartB2B }" />
+            <vue3-chart-js v-bind="{ ...barChartDIA }" />
+            
           </div>
         </div>
       </div>
@@ -108,13 +110,48 @@ export default {
   },
   name: "Dashboard",
   props: {
+    ftth:Object,
+    b2b:Object,
+    dia:Object,
+    ftth_total:Object,
+    b2b_total:Object,
+    dia_total:Object,
     total: Object,
-    to_install: Object
+    to_install: Object,
+    pending: Object,
+    install_week: Object,
   },
   setup(props) {
     const chartRef = ref(null);
-    let proj_name = ref([]);
+    let proj_name = ref(['FTTH','B2B','DIA']);
+    let ftth_name = ref([]);
+    let b2b_name = ref([]);
+    let dia_name = ref([]);
 
+    let ftth_number = ref([]);
+    props.ftth_total.map(function (x) {
+        ftth_number.value.push(x.customers)
+    });
+
+     let b2b_number = ref([]);
+    props.ftth_total.map(function (x) {
+        b2b_number.value.push(x.customers)
+    });
+
+     let dia_number = ref([]);
+    props.ftth_total.map(function (x) {
+        dia_number.value.push(x.customers)
+    });
+
+    props.ftth_total.map(function (x) {
+        ftth_name.value.push(x.name)
+    });
+    props.b2b_total.map(function (x) {
+        b2b_name.value.push(x.name)
+    });
+    props.dia_total.map(function (x) {
+        dia_name.value.push(x.name)
+    });
     const doughnutChart = {
       id: "doughnut",
       type: "doughnut",
@@ -122,13 +159,117 @@ export default {
         labels: proj_name.value,
         datasets: [
           {
-            backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16","#D32B39","#B003d3","#42D381"],
-            data: [40, 20, 80, 10,20,20,90],
+            backgroundColor: ["#00D8FF","#41B883", "#E46651" ],
+            data: [props.ftth, props.b2b, props.dia],
           },
         ],
       },
     };
-
+    const barChartFTTH = {
+      type: "bar",
+      options: {
+        min: 0,
+        max: 100,
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+        scales: {
+          y: {
+            min: 0,
+            max: Math.max(ftth_number),
+            ticks: {
+              callback: function (value) {
+                return `${value}`;
+              },
+            },
+          },
+        },
+      },
+      data: {
+        labels: ftth_name.value,
+        datasets: [
+          {
+            label: "FTTH User Chart",
+            backgroundColor: ["#1abc9c", "#f1c40f", "#2980b9", "#34495e","#34495e","#34495e"],
+            data: [props.ftth_total[0].customers, props.ftth_total[1].customers, props.ftth_total[2].customers, props.ftth_total[3].customers,props.ftth_total[4].customers,props.ftth_total[5].customers],
+          },
+       
+        ],
+      },
+    };
+    const barChartB2B = {
+      type: "bar",
+      options: {
+        min: 0,
+        max: 100,
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+        scales: {
+          y: {
+            min: 0,
+            max: Math.max(b2b_number),
+            ticks: {
+              callback: function (value) {
+                return `${value}`;
+              },
+            },
+          },
+        },
+      },
+      data: {
+        labels: b2b_name.value,
+        datasets: [
+          {
+            label: "B2B User Chart",
+            backgroundColor: ["#1abc9c", "#f1c40f", "#2980b9", "#34495e","#34495e"],
+            data: [props.b2b_total[0].customers, props.b2b_total[1].customers, props.b2b_total[2].customers, props.b2b_total[3].customers,props.b2b_total[4].customers],
+          },
+       
+        ],
+      },
+    };
+    const barChartDIA = {
+      type: "bar",
+      options: {
+        min: 0,
+        max: 20,
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+        scales: {
+          y: {
+            min: 0,
+            max: Math.max(dia_number),
+            ticks: {
+              callback: function (value) {
+                return `${value}`;
+              },
+            },
+          },
+        },
+      },
+      data: {
+        labels: dia_name.value,
+        datasets: [
+          {
+            label: "DIA User Chart",
+            backgroundColor: ["#1abc9c", "#f1c40f"],
+            data: [props.dia_total[0].customers, props.dia_total[1].customers],
+          },
+       
+        ],
+      },
+    };
     const updateChart = () => {
       doughnutChart.data.labels = ["Cats", "Dogs", "Hamsters", "Dragons"];
       doughnutChart.data.datasets = [
@@ -140,10 +281,16 @@ export default {
 
       chartRef.value.update();
     };
+    const getMax = (data) => {
 
+    }
     return {
+      doughnutChart,
       chartRef,
-      proj_name
+      proj_name,
+      barChartFTTH,
+      barChartB2B,
+      barChartDIA
     };
   },
 };

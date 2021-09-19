@@ -25,9 +25,10 @@ class IncidentController extends Controller
         //Auth::id();
         $permission =  DB::table('roles')
         ->join('users', 'users.role', '=', 'roles.id')
-        ->where('users.role','=',Auth::id())
+        ->where('users.id','=',Auth::id())
         ->select('roles.write_incident', 'roles.read_incident')
         ->get();
+     
         $townships = Township::get();
         $packages = Package::get();
         $critical = Incident::where('priority','=','critical')->where('status','!=',3)->where('status','!=',4)->count();

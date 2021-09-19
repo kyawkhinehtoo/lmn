@@ -29,7 +29,10 @@
     "dependencies": {
         "@j-t-mcc/vue3-chartjs": "^1.1.2",
         "@suadelabs/vue3-multiselect": "^1.0.1",
+        "chart.js": "^3.5.1",
+        "dayjs": "^1.10.7",
         "litepie-datepicker": "^1.0.14",
+        "ng2-charts": "^2.4.3",
         "sweetalert2": "^11.0.12"
     }
 }

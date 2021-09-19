@@ -27,8 +27,8 @@ use Inertia\Inertia;
 
 Route::redirect('/', '/dashboard');
 
-Route::group(['middleware'=> 'auth'], function(){
-	Route::get('/dashboard', 'DashboardController@show')->name('dashboard');
+Route::group(['middleware'=> ['auth','role']], function(){
+	
 	Route::resource('/user', UserController::class);
 	Route::resource('/sla', SlaController::class);
 	Route::resource('/port', PortController::class);
@@ -39,6 +39,13 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::resource('/township', TownshipController::class);
 	Route::resource('/equiptment', EquiptmentController::class);
 	Route::resource('/menu', MenuController::class);
+	Route::resource('/package', PackageController::class);
+	Route::resource('/project', ProjectController::class);
+	Route::resource('/status', StatusController::class);
+	Route::resource('/role', RoleController::class);
+	Route::resource('/voip', VoipController::class);
+});
+Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/getpackage/{id}', 'PackageController@getBundle');
 	Route::get('/incidentOverdue', 'IncidentAlertController@getOverdue');
 	Route::get('/incidentRemain', 'IncidentAlertController@getRemain');
@@ -53,15 +60,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/uploadData', 'FileController@upload')->name('upload');
 	Route::post('/getMenu', 'MenuController@getMenu');
 	Route::get('/getDnId/{name}', 'PortController@getIdByName');
-	
-	Route::resource('/package', PackageController::class);
-	Route::resource('/project', ProjectController::class);
-	Route::resource('/status', StatusController::class);
-	Route::resource('/role', RoleController::class);
-	Route::resource('/voip', VoipController::class);
-});
-Route::group(['middleware'=> 'auth'], function(){
-
+	Route::get('/dashboard', 'DashboardController@show')->name('dashboard');
 	Route::resource('/customer', CustomerController::class);
 	Route::post('/customer/search/', 'CustomerController@show');
 	Route::resource('/incident', IncidentController::class);

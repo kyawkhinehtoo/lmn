@@ -1,4 +1,9 @@
 <template>
+  <div v-if="!logs" wire:loading class=" w-full flex flex-col items-center justify-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+              <h2 class="text-center text-gray-600 text-sm font-semibold mt-2">Loading...</h2>
+  </div>
+  <div v-if="logs">
   <table class="min-w-full divide-y divide-gray-200 table-auto">
     <thead class="bg-gray-50 w-full flex block table text-left">
       <tr>
@@ -24,6 +29,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 </template>
 
 <script>
@@ -32,7 +38,7 @@ export default {
   name: "History",
   props: ["data"],
   setup(props) {
-    const logs = ref("");
+    const logs = ref();
     const getLog = async () => {
       let url = "/getHistory/" + props.data;
       try {

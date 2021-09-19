@@ -1,7 +1,7 @@
 <template>
   <app-layout>
     <template #header>
-      <h2 class="font-semibold text-xl text-white leading-tight">Project Setup</h2>
+      <h2 class="font-semibold text-xl text-white leading-tight">Customer List</h2>
     </template>
 
     <div class="py-2">

@@ -79,7 +79,7 @@
                                 class="border-0 px-3 py-2 h-12 border border-solid  border-blueGray-500 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-base leading-snug shadow-none outline-none focus:outline-none w-full font-normal" />
                         </div>
                     </form>
-                    <div v-if="$page.props.user.role == 0 || $page.props.user.role == 1 ">
+                   
                     <ul class="md:flex-col md:min-w-full flex flex-col list-none">
                         <li class="items-center">
                             <jet-nav-link :href="route('dashboard')" :active="route().current('dashboard')">
@@ -87,6 +87,7 @@
                                 </jet-nav-link>
                         </li>
                     </ul>
+                     <div v-if="$page.props.user.role == 1 || $page.props.user.role == 2 ">
                     <hr class="my-4 md:min-w-full" />
                     <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
                         Admin Panel
@@ -97,6 +98,7 @@
                                    <i class="fas fa-user  opacity-75 mr-2 text-sm w-6"></i> User Setup
                                 </jet-nav-link>
                         </li>
+                        
                            <li>
                               <jet-nav-link :href="route('role.index')" :active="route().current('role.index')">
                                    <i class="fas fa-user-tag  opacity-75 mr-2 text-sm w-6"></i> Role Setup
@@ -122,7 +124,11 @@
                                    <i class="fas fa-gamepad  opacity-75 mr-2 text-sm w-6"></i> Bundle Setup
                                 </jet-nav-link>
                         </li>
-                       
+                       <li>
+                              <jet-nav-link :href="route('sla.index')" :active="route().current('sla.index')">
+                                   <i class="fas fa-percentage  opacity-75 mr-2 text-sm w-6"></i> SLA Setup
+                                </jet-nav-link>
+                        </li>
                         <li>
                               <jet-nav-link :href="route('package.index')" :active="route().current('package.index')">
                                    <i class="fas fa-cube  opacity-75 mr-2 text-sm w-6"></i> Package Setup

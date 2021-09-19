@@ -3,6 +3,10 @@
     <a v-if="!add  &&  permission[0].write_incident ==1" href="#" @click="addFile()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Add File<i class="fas fa-plus-circle opacity-75 lg:ml-1 text-sm"></i></a>
     <a v-if="add" href="#" @click="closeFile()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-indigo-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-400 active:bg-indigo-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Close<i class="fas fa-times-circle opacity-75 lg:ml-1 text-sm"></i></a>
   </div>
+  <div v-if="!file_list" wire:loading class=" w-full flex flex-col items-center justify-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+              <h2 class="text-center text-gray-600 text-sm font-semibold mt-2">Loading...</h2>
+  </div>
   <div v-if="file_list && !add">
     <table class="min-w-full divide-y divide-gray-200 table-auto">
       <thead class="bg-gray-50 w-full flex block table text-left">
@@ -26,6 +30,7 @@
   <div v-if="add">
     <upload :data="incident_id" @status="checkUpload" />
   </div>
+
 </template>
 
 <script>
@@ -39,7 +44,8 @@ export default {
   },
   props: ["data"],
   setup(props) {
-    let file_list = ref("Loading ..");
+    let loading = ref(false);
+    let file_list = ref();
     const permission = inject("permission");
     let add = ref(false);
 
@@ -115,7 +121,7 @@ export default {
     onMounted(() => {
      calculate();
     });
-    return { file_list,add, deleteFile, addFile,closeFile,checkUpload, incident_id,permission };
+    return { file_list,add, deleteFile, addFile,closeFile,checkUpload, incident_id,permission,loading };
   },
 };
 </script>

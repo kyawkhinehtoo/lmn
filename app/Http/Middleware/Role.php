@@ -16,17 +16,13 @@ class Role
      */
         /**
      * Role 
-     * 0 - super admin
-     * 1 - admin 
-     * 2 - technical 
-     * 3 - sale
-     * 4 - billing
-     * 5 - subcom
+     * 1 - super admin
+     * 2 - admin 
      * 
      **/
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user()->role == 0 || Auth::user()->role == 1) { // if the current role is Administrator
+        if (Auth::user()->role == 1 || Auth::user()->role == 2) { // if the current role is Administrator
             return $next($request);
         }
         abort(403, "Cannot access to restricted page");

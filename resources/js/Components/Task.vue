@@ -4,6 +4,10 @@
     <a v-if="edit &&  permission[0].write_incident ==1" href="#" @click="saveTask()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-green-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-400 active:bg-green-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1"><span v-if="!editMode">Save Task</span><span v-if="editMode">Update Task</span><i class="fas fa-save opacity-75 lg:ml-1 text-sm"></i></a>
     <a v-if="edit" href="#" @click="cancelTask()" class="-mt-2 mb-2 text-center items-center px-4 py-3 bg-gray-500 border border-transparent rounded-sm font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400 active:bg-gray-600 focus:outline-none focus:border-gray-900 disabled:opacity-25 transition mr-1">Cancel<i class="fas fa-save opacity-75 lg:ml-1 text-sm"></i></a>
   </div>
+   <div v-if="!task_list" wire:loading class=" w-full flex flex-col items-center justify-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+              <h2 class="text-center text-gray-600 text-sm font-semibold mt-2">Loading...</h2>
+    </div>
   <div v-if="task_list && !edit">
     <table class="min-w-full divide-y divide-gray-200 table-auto">
       <thead class="bg-gray-50 w-full flex flex-col">
@@ -86,6 +90,7 @@
       </div>
     </div>
   </div>
+  
 </template>
 
 <script>
@@ -101,7 +106,8 @@ export default {
   setup(props) {
     const noc = inject("noc");
     const permission = inject("permission");
-    let task_list = ref("Loading ..");
+    let task_list = ref();
+    let loading = ref(false);
     let edit = ref(false);
     let editMode = ref(false);
     const form = reactive({
@@ -277,9 +283,10 @@ export default {
       });
     }
     onMounted(() => {
+    console.log(task_list.value);
      calculate();
     });
-    return { task_list, edit,editMode, newTask, saveTask, cancelTask,getName,getStatus,editTask,deleteTask,completeTask, form, noc,permission };
+    return { loading,task_list, edit,editMode, newTask, saveTask, cancelTask,getName,getStatus,editTask,deleteTask,completeTask, form, noc,permission };
   },
 };
 </script>
