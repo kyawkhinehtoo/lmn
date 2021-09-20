@@ -558,7 +558,7 @@ export default {
     function submit() {
       if (editMode.value != true) {
        
-        form.post("/incident", {
+        Inertia.post("/incident",form, {
           preserveState: true,
           onSuccess: (page) => {
             loading.value = false;
@@ -583,7 +583,7 @@ export default {
         });
       } else {
         form._method = "PUT";
-        form.put("incident/" + form.id, {
+        Inertia.put("incident/" + form.id,form, {
           onSuccess: (page) => {
              loading.value = false;
             page_update.value +=1;
