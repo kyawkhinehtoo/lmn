@@ -583,7 +583,7 @@ export default {
         });
       } else {
         form._method = "PUT";
-        form.headers = "";
+        
         Inertia.post("incident/" + form.id,form, {
           onSuccess: (page) => {
              loading.value = false;
