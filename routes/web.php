@@ -70,6 +70,11 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/exportExcel', 'ExcelController@exportExcel')->name('exportExcel');
 	// Route for import excel data to database.
 	Route::post('importExcel', 'ExcelController@importExcel')->name('importExcel');
+	Route::resource('/port', PortController::class);
+	Route::resource('/snport', SNPortController::class);
+	Route::get('/generateSN', 'SNPortController@generateSN');
+	Route::delete('/snport/group/{id}', 'SNPortController@deleteGroup');
+	Route::delete('/port/group/{id}', 'PortController@deleteGroup');
 	
 });
 

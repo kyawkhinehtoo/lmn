@@ -135,7 +135,7 @@ class CustomerController extends Controller
             ->get();
         $subcoms = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
-            ->where('roles.name', 'LIKE', '%transmission%')
+            ->where('roles.name', 'LIKE', '%installation%')
             ->select('users.name as name', 'users.id as id')
             ->get();
         $townships = Township::get();
@@ -271,7 +271,7 @@ class CustomerController extends Controller
                 ->get();
             $subcoms = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
-                ->where('roles.name', 'LIKE', '%transmission%')
+                ->where('roles.name', 'LIKE', '%installation%')
                 ->select('users.name as name', 'users.id as id')
                 ->get();
             $townships = Township::get();
