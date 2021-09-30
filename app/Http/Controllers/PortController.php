@@ -20,9 +20,16 @@ class PortController extends Controller
         ->paginate(10);
         $dns_all = DnPorts::get();
         $overall = DB::table('dn_ports')
-                        ->select(DB::raw('name, count(port) as ports'))
-                        ->groupBy(['name'])
-                        ->get();
+                        ->leftjoin('sn_ports','sn_ports.dn_id','=','dn_ports.id')
+                       // ->select(DB::raw('dn_ports.name,dn_ports.description, count(sn_ports.port) as ports'))
+                        ->select('dn_ports.id','dn_ports.name','dn_ports.description', DB::raw('count(sn_ports.id) as ports'))
+                        ->when($request->keyword, function ($query, $keyword){
+                            $query->where('dn_ports.name','LIKE','%'.$keyword.'%');
+                            $query->orwhere('dn_ports.description','LIKE','%'.$keyword.'%');
+                        })
+                        ->groupBy('dn_ports.id','dn_ports.name','dn_ports.description')
+                        ->orderBy('dn_ports.id')
+                        ->paginate(10);
         $dns->appends($request->all())->links();
         return Inertia::render('Setup/Ports',
          ['dns' => $dns,'overall'=>$overall,'dns_all'=>$dns_all]);
@@ -45,49 +52,44 @@ class PortController extends Controller
     {
         Validator::make($request->all(), [
             'name' => ['required'],
-            'port' => ['required'],
         ])->validate();
 
-        if($request->tab == 2){  
-            $check_dup = DnPorts::where('name',$request->dn['name'])
-                        ->where('port',$request->port)
+        
+            $check_dup = DnPorts::where('name',$request->name)
                         ->exists();
             if($check_dup)
             {
-                return redirect()->back()->withErrors('DN Port Number Already Exist!');
+                return redirect()->back()->withErrors('DN Already Exist!');
                
             }else{
                 $dnport = new DnPorts();
-                $dnport->name = $request->dn['name'];
-                $dnport->port = $request->port;
+                $dnport->name = $request->name;
                 $dnport->description = $request->description;
                 $dnport->save();
                 return redirect()->back()->with('message', 'DN Port Created Successfully.');
             }
-            
-        }else{
-        for($n=1; $n <=$request->port ; $n++ ){
-            $dnport = new DnPorts();
-            $dnport->name = $request->name;
-            $dnport->port = $n;
-            $dnport->description = $request->description;
-            $dnport->save();
-        }
         
-         return redirect()->back()->with('message', 'DN Created Successfully.');
-        }
+        // }else{
+        // for($n=1; $n <=$request->port ; $n++ ){
+        //     $dnport = new DnPorts();
+        //     $dnport->name = $request->name;
+        //     $dnport->port = $n;
+        //     $dnport->description = $request->description;
+        //     $dnport->save();
+        // }
+        
+        //  return redirect()->back()->with('message', 'DN Created Successfully.');
+        // }
     }
     public function update(Request $request, $id)
     {
         Validator::make($request->all(), [
             'name' => ['required'],
-            'port' => ['required'],
         ])->validate();
   
         if ($request->has('id')) {
             $dnport = DnPorts::find($request->input('id'));
             $dnport->name = $request->name;
-            $dnport->port = $request->port;
             $dnport->description = $request->description;
             $dnport->update();
             return redirect()->back()

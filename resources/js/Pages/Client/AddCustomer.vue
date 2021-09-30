@@ -245,7 +245,7 @@
                   <div class="col-span-1 sm:col-span-1">
                     <label for="fiber_distance" class="block text-sm font-medium text-gray-700"> Please Choose SN </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="res_sn">
-                      <multiselect deselect-label="Selected already" :options="res_sn" track-by="id" label="item_data" v-model="form.sn_id" :allow-empty="true" :disabled="checkPerm('sn_id')"></multiselect>
+                      <multiselect deselect-label="Selected already" :options="res_sn" track-by="id" label="name" v-model="form.sn_id" :allow-empty="true" :disabled="checkPerm('sn_id')"></multiselect>
                     </div>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
@@ -520,9 +520,6 @@ export default {
       getSN(dn.name).then((d) => {
         console.log(d)
         if(d){
-           d.map(function (x) {
-           (x.item_data = `${x.name} / ${x.port}`);
-        });
         form.sn_id=null;
         res_sn.value = d;
         }else{

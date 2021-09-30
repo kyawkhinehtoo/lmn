@@ -9,7 +9,9 @@ use App\Models\Package;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Status;
-
+use App\Models\DnPorts;
+use App\Models\SnPorts;
+use Illuminate\Support\Facades\Storage;
 class CustomersImport implements ToModel
 {
     /**
@@ -19,94 +21,105 @@ class CustomersImport implements ToModel
     */
     public function model(array $row)
     {
-        if($row[0] != 'No.' && !empty($row[1])){
+        if(!empty($row[0]) && trim($row[0]!="Customer ID")){
+            //for DN Import
+            // $dn = DnPorts::where('name','=',$row[0])->first();
+            // if(!$dn){
+            //     return new DnPorts([
+            //         'name'=>trim($row[0])
+            //     ]);
+            // }
             
-            // $type = "ftth";
-            // if($row['2'] == "DIA"){
-            //     $type="dia";
-            // }else if($row['2'] == "B2B"){
-            //     $type="b2b";
+            //for SN Import Original
+            // $dn = DnPorts::where('name','=',$row[0])->first();
+            // if($dn){
+            //       $j = 16;
+            //     for ($i=1; $i <= $j; $i++) { 
+            //     $sn =  new SnPorts();
+            //         $sn->name= trim($row[1]);
+            //         $sn->port   = $i;
+            //         $sn->dn_id = $dn->id;
+            //         $sn->save();
+                
+            //     }
             // }
-            // $phone = '';
-            // $phone_1=$row[13];
-            // $phone_2='';
-            // if(trim($row[13]) != null){
-            //   $phone = explode(',',$row[13]);
+
+            // for SN Import New Method
+            // $dn = DnPorts::where('name','=',$row[0])->first();
+            // if($dn){
+            //     return new SnPorts([
+            //         'name'=>trim($row[1]),
+            //         'dn_id'=>$dn->id
+            //     ]);
             // }
-            // if(isset($phone[0])){
-            //     $phone_1 = $phone[0];
-            // }
-            // if(isset($phone[1])){
-            //     $phone_2 = $phone[1];
-            // }
-           
-            // $package = Package::where('speed','=',$row[3])
-            //             ->where('type','=',$type)
-            //             ->first();
-            // $project = Project::where('name','LIKE','%'.$row[11].'%')->first();
-            // $subcom = User::where('name','LIKE','%'.$row[12].'%')->first();
-            // $sale_person = User::where('name','LIKE','%'.$row[13].'%')->first();  
-            // $status = Status::where('name','LIKE','%'.$row[23].'%')->first();  
-         
-        // return new Customer([
-        //     'ftth_id'=> trim($row[1]),
-        //     'name'=> (trim($row[9]) != '')?trim($row[9]):'Unknown',              
-        //     'phone_1'=> (trim($phone_1) != '')?trim($phone_1):'',                   
-        //     'phone_2'=> (trim($phone_2))?trim($phone_2):'',                   
-        //     'address'=> (trim($row[10]) != '')?trim($row[10]):'Unknown',               
-        //     'location'=> (trim($row[14]) != '')?trim($row[14]):'',
-        //     'township_id'=> 1,
-        //     'package_id'=> ($package)?$package->id:20,
-        //     'installation_date'=> (trim($row[20]) != '')?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]):null,
-        //     'status_id'=> 2,   
-        //     'onu_serial' => (trim($row[21]) != '')?trim($row[21]):'',
-        //     'fc_damaged' => (trim($row[22]) != '')?trim($row[22]):0,
-        //     'fc_used' => (trim($row[23]) != '')?trim($row[23]):0,
-        //     'extra_bandwidth' => (trim($row[4]) != '')?trim($row[4]):null,
-        //     'pppoe_account' => (trim($row[7]) != '')?trim($row[7]):null,
-        //     'pppoe_password' => (trim($row[8]) != '')?trim($row[8]):null,
-        //     'deleted' => 0,
 
-        // ]);
-        $customer = Customer::find('ftth_id',$row[1])->first();
+            //for Customer Import
+            $dn_sn = DnPorts::join('sn_ports','sn_ports.dn_id','=','dn_ports.id')
+            ->where('dn_ports.name','=',trim($row[1]))
+            ->where('sn_ports.name','=',trim($row[2]))
+            ->select('dn_ports.id as dn_id','sn_ports.id as sn_id')
+            ->first();
+            if($dn_sn){
+                $cus = Customer::where('ftth_id','=',trim($row[0]))->first();
+                if($cus){
+                    $customer = Customer::find($cus->id);
+                    $customer->sn_id = $dn_sn->sn_id;
+                    $customer->update();
+                }else{
+                    // Storage::prepend('NoCustomer.log', 'Missing Customers');
 
-        if($customer){
-            if(!empty($row[4]))
-            $customer->name = trim($row[4]);
+                    Storage::append('NoCustomer.log', $row[0].',');
+                echo 'no customer'.$row[0].',';
+                }
+            }else{
+                // Storage::prepend('NoSN.log', 'Missing SNDN');
 
-            if(!empty($row[5]))
-            $customer->address = trim($row[5]);
-
-            if(!empty($row[6])){
-                $township = Township::where('name','=',$row[6])->first();
-                $customer->township_id = $township->id;
+                    Storage::append('NoSN.log', $row[0].','.$row[1].','.$row[2].',');
             }
-           
-            if(!empty($row[8]))
-            $customer->phone_1 = trim($row[8]);
-
-            if(!empty($row[9]))
-            $customer->location = trim($row[9]);
-
-            if(!empty($row[10]))
-            $customer->installation_date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject(trim($row[10]));
-
-            $customer->update();
-           
-        }else{
-
         }
+
+            // $j = $row[1];
+            // for ($i=1; $i <= $j; $i++) { 
+            //     $dn =  new DnPorts();
+            //         $dn->name= trim($row[0]);
+            //         $dn->port   = $i;
+            //         $dn->save();
+                
+            // }
+            
+        // $customer = Customer::find('ftth_id',$row[1])->first();
+
+        // if($customer){
+        //     if(!empty($row[4]))
+        //     $customer->name = trim($row[4]);
+
+        //     if(!empty($row[5]))
+        //     $customer->address = trim($row[5]);
+
+        //     if(!empty($row[6])){
+        //         $township = Township::where('name','=',$row[6])->first();
+        //         $customer->township_id = $township->id;
+        //     }
+           
+        //     if(!empty($row[8]))
+        //     $customer->phone_1 = trim($row[8]);
+
+        //     if(!empty($row[9]))
+        //     $customer->location = trim($row[9]);
+
+        //     if(!empty($row[10]))
+        //     $customer->installation_date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject(trim($row[10]));
+
+        //     $customer->update();
+           
+        // }else{
+
+        // }
         
 
-        //$row[3] bandwidth
-        //$row[4] name
-        //$row[5] address
-        //$row[6] township_id
-        //$row[8] phone_1
-        //$row[9] location
-        //$row[10] installation_date
+
 
             
-        }
+        
     }
 }
