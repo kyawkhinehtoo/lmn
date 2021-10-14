@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Township;
 use App\Models\Package;
 use App\Models\Project;
+use App\Models\SnPorts;
 use App\Models\User;
 use App\Models\Status;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -136,6 +137,8 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             'Fiber Distance',
             'ONU Serial',
             'ONU Power',
+            'DN',
+            'SN',
             'Status',
             
         ];
@@ -148,6 +151,12 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
         $subcom = User::find($mycustomer->subcom_id);
         $status = Status::find($mycustomer->status_id);
         $sale_person = User::find($mycustomer->sale_person_id);
+        $sn_dn = DB::table('sn_ports')
+                ->join('dn_ports','sn_ports.dn_id','=','dn_ports.id')
+                ->join('customers','customers.sn_id','=','sn_ports.id')
+                ->where('customers.sn_id','=',$mycustomer->sn_id)
+                ->select('dn_ports.name as dn_name','sn_ports.name as sn_name')
+                ->first();
     
         return [
             $mycustomer->ftth_id,
@@ -174,7 +183,9 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             $mycustomer->advance_payment.' Months -'.$mycustomer->advance_payment_day.' Days',
             $mycustomer->fiber_distance,      
             $mycustomer->onu_serial,      
-            $mycustomer->onu_power,      
+            $mycustomer->onu_power, 
+            ($sn_dn)?$sn_dn->dn_name:"",
+            ($sn_dn)?$sn_dn->sn_name:"",     
             $status->name,       
          ];
     }

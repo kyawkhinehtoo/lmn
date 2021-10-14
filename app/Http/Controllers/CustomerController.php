@@ -122,6 +122,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
+        
         $packages = Package::get();
         $sn = SnPorts::get();
         $dn = DB::table('dn_ports')
@@ -133,6 +134,15 @@ class CustomerController extends Controller
             ->where('roles.name', 'LIKE', '%marketing%')
             ->select('users.name as name', 'users.id as id')
             ->get();
+        $auth_role = DB::table('users')
+            ->join('roles', 'users.role', '=', 'roles.id')
+            ->where('roles.name', 'NOT LIKE', '%admin%')
+            ->where('users.id','=',Auth::user()->id)
+            ->select('users.name as name', 'users.id as id')
+            ->get();
+        if($auth_role){
+            $sale_persons = $auth_role;
+        }   
         $subcoms = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
             ->where('roles.name', 'LIKE', '%installation%')
@@ -269,6 +279,20 @@ class CustomerController extends Controller
                 ->where('roles.name', 'LIKE', '%marketing%')
                 ->select('users.name as name', 'users.id as id')
                 ->get();
+            $auth_role = DB::table('users')
+                ->join('roles', 'users.role', '=', 'roles.id')
+                ->where('roles.name', 'NOT LIKE', '%admin%')
+                ->where('users.id','=',Auth::user()->id)
+                ->select('users.name as name', 'users.id as id')
+                ->get();
+            if($auth_role){
+                $sale_persons = DB::table('users')
+                ->join('roles', 'users.role', '=', 'roles.id')
+                ->where('roles.name', 'LIKE', '%marketing%')
+                ->where('users.id','=',$customer->sale_person_id)
+                ->select('users.name as name', 'users.id as id')
+                ->get();
+            } 
             $subcoms = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
                 ->where('roles.name', 'LIKE', '%installation%')

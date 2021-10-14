@@ -102,7 +102,7 @@
         ​
 
         <div class="bg-gray-50 rounded-sm pt-1 inline-block align-bottom overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-          <form @submit.prevent="submit">
+          
             <div class="">
               <!-- ticket input panel -->
               <div class="">
@@ -418,7 +418,7 @@
               <button @click="closeModal" type="button" class="inline-flex items-center px-4 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:border-gray-500 disabled:opacity-25 transition">Close <i class="lg:ml-1 fas fa-times-circle opacity-75 text-sm"></i></button>
               </div>
             </div>
-          </form>
+         
         </div>
       </div>
     </div>
