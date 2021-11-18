@@ -17,6 +17,9 @@ class Status extends Migration
             $table->id();
             $table->string('name');
             $table->string('color');
+            $table->integer('start_date')->nullable();
+            $table->integer('end_date')->nullable();;
+            $table->integer('relocation')->nullable();;
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });

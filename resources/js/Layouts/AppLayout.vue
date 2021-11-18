@@ -94,10 +94,10 @@
 
           <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">User Panel</h6>
           <ul class="md:flex-col md:min-w-full flex flex-col list-none">
-              <li  v-if="$page.props.user.role == 8">
+            <li v-if="$page.props.user.role == 8">
               <jet-nav-link :href="route('port.index')" :active="route().current('port.index')"> <i class="fas fa-network-wired opacity-75 mr-2 text-sm w-6"></i> DN Setup </jet-nav-link>
             </li>
-            <li  v-if="$page.props.user.role == 8">
+            <li v-if="$page.props.user.role == 8">
               <jet-nav-link :href="route('snport.index')" :active="route().current('snport.index')"> <i class="fas fa-network-wired opacity-75 mr-2 text-sm w-6"></i> SN Setup </jet-nav-link>
             </li>
             <li>
@@ -107,8 +107,19 @@
             <li>
               <jet-nav-link :href="route('incident.index')" :active="route().current('incident.*')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Incident Panel </jet-nav-link>
             </li>
-      
-            
+          </ul>
+          <hr class="my-4 md:min-w-full" />
+          <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">Billing Panel</h6>
+          <ul class="md:flex-col md:min-w-full flex flex-col list-none">
+            <li>
+              <jet-nav-link :href="route('billGenerator')" :active="route().current('billGenerator')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Bill Generator </jet-nav-link>
+            </li>
+            <li>
+              <jet-nav-link :href="route('showbill')" :active="route().current('showbill')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Bill List </jet-nav-link>
+            </li>
+            <li>
+              <jet-nav-link :href="route('tempBilling')" :active="route().current('tempBilling')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i>Temp Bill List </jet-nav-link>
+            </li>
           </ul>
         </div>
       </div>

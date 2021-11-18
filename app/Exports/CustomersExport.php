@@ -151,12 +151,15 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
         $subcom = User::find($mycustomer->subcom_id);
         $status = Status::find($mycustomer->status_id);
         $sale_person = User::find($mycustomer->sale_person_id);
-        $sn_dn = DB::table('sn_ports')
+        if(isset($mycustomer->sn_id)){
+            $sn_dn = DB::table('sn_ports')
                 ->join('dn_ports','sn_ports.dn_id','=','dn_ports.id')
                 ->join('customers','customers.sn_id','=','sn_ports.id')
                 ->where('customers.sn_id','=',$mycustomer->sn_id)
                 ->select('dn_ports.name as dn_name','sn_ports.name as sn_name')
                 ->first();
+        }
+        
     
         return [
             $mycustomer->ftth_id,

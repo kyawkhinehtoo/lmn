@@ -27,8 +27,10 @@
         "vue-loader": "^16.1.2"
     },
     "dependencies": {
+        "@headlessui/vue": "^1.4.1",
         "@j-t-mcc/vue3-chartjs": "^1.1.2",
         "@suadelabs/vue3-multiselect": "^1.0.1",
+        "@vueup/vue-quill": "^1.0.0-beta.7",
         "chart.js": "^3.5.1",
         "dayjs": "^1.10.7",
         "litepie-datepicker": "^1.0.14",

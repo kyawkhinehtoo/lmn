@@ -29,6 +29,9 @@ class StatusController extends Controller
         $status = new Status();
         $status->name = $request->name;
         $status->color = $request->color;
+        $status->start_date = $request->start_date;
+            $status->end_date = $request->end_date;
+            $status->relocation = $request->relocation;
         $status->save();
          return redirect()->route('status.index')->with('message', 'Status Created Successfully.');
     }
@@ -43,6 +46,9 @@ class StatusController extends Controller
             $status = Status::find($request->input('id'));
             $status->name = $request->name;
             $status->color = $request->color;
+            $status->start_date = $request->start_date;
+            $status->end_date = $request->end_date;
+            $status->relocation = $request->relocation;
             $status->update();
             return redirect()->back()
                     ->with('message', 'Status Updated Successfully.');

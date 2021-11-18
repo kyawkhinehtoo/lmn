@@ -86,12 +86,14 @@ export default {
     townships: Object,
     status: Object,
     errors: Object,
+    dn: Object,
   },
   setup(props) {
      provide('packages', props.packages);
      provide('projects', props.projects);
      provide('townships', props.townships);
      provide('status', props.status);
+     provide('dn', props.dn);
      const search = ref("");
      const sort = ref("");
      let show_search = ref(false);
@@ -119,6 +121,11 @@ export default {
       data._method = "DELETE";
       Inertia.post("/customer/" + data.id, data);
     }
+      onMounted(() => {
+      props.packages.map(function (x) {
+        return (x.item_data = `${x.name} - ${x.type.toUpperCase()}`);
+      });
+    });
    return {  deleteRow, searchTsp,toggleAdv,goSearch,sort, search,show_search };
   },
 };

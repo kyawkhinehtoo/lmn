@@ -76,8 +76,31 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::delete('/snport/group/{id}', 'SNPortController@deleteGroup');
 	Route::delete('/port/group/{id}', 'PortController@deleteGroup');
 	
+
+	Route::get('/billGenerator', 'BillingController@BillGenerator')->name('billGenerator');
+	Route::post('/updateTemp', 'BillingController@updateTemp')->name('updateTemp');
+	Route::post('/doGenerate', 'BillingController@doGenerate');
+	Route::post('/saveFinal', 'BillingController@saveFinal');
+	//Route::post('/showbill', 'BillingController@showBill')->name('showbill');
+	Route::get('/showbill', 'BillingController@showBill')->name('showbill');
+	Route::get('/tempBilling', 'BillingController@goTemp')->name('tempBilling');
+	Route::post('/tempBilling/search/', 'BillingController@goTemp');
+	Route::post('/truncateBilling', 'BillingController@destroyall');
+	Route::resource('/billing', BillingController::class);
+	Route::get('/pdfpreview1/{id}', 'BillingController@preview_1');
+	Route::get('/pdfpreview2/{id}', 'BillingController@preview_2');
+
+	Route::post('/getSinglePDF/{id}', 'BillingController@makeSinglePDF');
+	Route::post('/sendSingleEmail/{id}', 'BillingController@sendSingleEmail');
+	Route::post('/getAllPDF', 'BillingController@makeAllPDF');
+	Route::post('/sendAllEmail', 'BillingController@sendAllEmail');
+
+	Route::post('/exportBillingExcel', 'ExcelController@exportBillingExcel')->name('exportBillingExcel');
+
+	Route::resource('/template', EmailTemplateController::class);
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {
     return Inertia::render('Test');
 })->name('test');
+Route::get('/s/{shortURLKey}', '\AshAllenDesign\ShortURL\Controllers\ShortURLController');

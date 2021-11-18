@@ -29,13 +29,14 @@ class CustomerController extends Controller
     }
     public function show(Request $request)
     {
+      
         
         $packages = Package::get();
         $townships = Township::get();
         $projects = Project::get();
         $status = Status::get();
     
-
+        $dn = DnPorts::get();
 
         $orderform = null;
         if($request->orderform)
@@ -46,6 +47,8 @@ class CustomerController extends Controller
             ->join('packages', 'customers.package_id', '=', 'packages.id')
             ->join('townships', 'customers.township_id', '=', 'townships.id')
             ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
+            ->leftjoin('sn_ports', 'customers.sn_id', '=', 'sn_ports.id')
+            ->leftjoin('dn_ports', 'sn_ports.dn_id', '=', 'dn_ports.id')
             ->join('status', 'customers.status_id', '=', 'status.id')
             ->where('customers.deleted', '=', 0)
             ->when($request->keyword, function ($query, $search = null) {
@@ -68,6 +71,12 @@ class CustomerController extends Controller
             })
             ->when($request->order, function ($query, $order) {
                 $query->whereBetween('customers.order_date', [$order['from'], $order['to']]);
+            })
+            ->when($request->dn, function ($query, $dn) {
+                $query->where('dn_ports.id','=',$dn);
+            })
+            ->when($request->sn, function ($query, $sn) {
+                $query->where('sn_ports.id','=',$sn);
             })
             ->when($request->package, function ($query, $package) {
                 $query->where('customers.package_id','=',$package);
@@ -111,6 +120,7 @@ class CustomerController extends Controller
             'townships' => $townships,
             'status' => $status,
             'customers' => $customers,
+            'dn' => $dn,
             ]);
     }
   

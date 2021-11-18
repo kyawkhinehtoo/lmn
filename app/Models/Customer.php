@@ -26,7 +26,7 @@ class Customer extends Model
      * @var array
      */
     protected $fillable = [
-        'ftth_id', 'name', 'nrc', 'phone_1', 'phone_2','address', 'location', 'order_date', 'installation_date', 'prefer_install_date', 'sale_channel', 'sale_remark', 'township_id', 'package_id', 'sale_person_id', 'status_id', 'subcom_id','sn_id','splitter_no','fiber_distance','installation_remark','fc_used','fc_damaged','onu_serial','onu_power','contract_term','foc','foc_period','advance_payment','advance_payment_day','extra_bandwidth', 'created_at', 'updated_at','deleted','pppoe_account','pppoe_password'
+        'ftth_id', 'name', 'nrc', 'phone_1', 'phone_2','address', 'location', 'order_date', 'installation_date', 'prefer_install_date', 'sale_channel', 'sale_remark', 'township_id', 'package_id', 'sale_person_id', 'status_id', 'subcom_id','sn_id','splitter_no','fiber_distance','installation_remark','fc_used','fc_damaged','onu_serial','onu_power','contract_term','foc','foc_period','advance_payment','advance_payment_day','extra_bandwidth', 'created_at', 'updated_at','deleted','pppoe_account','pppoe_password','currency'
     ];
 
     /**

@@ -69,6 +69,20 @@
                                       <div v-if="$page.props.errors.color" class="text-red-500">{{ $page.props.errors.color[0] }}</div>
                                
                                   </div>
+                                  <div class="mb-4 flex justify-between">
+                                    <div class="flex">
+                                    <label for="start_date" class=" text-gray-700 text-sm font-bold mb-2 inline-flex">Start Date :</label>
+                                    <input type="checkbox" class="inline-flex ml-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md" id="start_date" v-model="form.start_date">
+                                    </div>
+                                    <div class="flex">
+                                    <label for="end_date" class="ml-2 text-gray-700 text-sm font-bold mb-2 inline-flex">End Date :</label>
+                                    <input type="checkbox" class="inline-flex ml-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md" id="end_date" v-model="form.end_date">
+                                    </div>
+                                    <div class="flex">
+                                    <label for="relocation" class="ml-2 text-gray-700 text-sm font-bold mb-2 inline-flex">Relocation :</label>
+                                    <input type="checkbox" class="inline-flex ml-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md" id="relocation" v-model="form.relocation">
+                                    </div>
+                                  </div>
                             </div>
                           </div>
                           <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -124,6 +138,9 @@
           id : null,
           name: null,
           color: null,
+          start_date: null,
+          end_date: null,
+          relocation: null,
         })
         const search = ref('')
         let editMode = ref(false)
@@ -132,6 +149,9 @@
         function resetForm(){
               form.name = null
               form.color = null
+              form.start_date = null
+              form.end_date = null
+              form.relocation = null
         }
         function submit() {
            if(! editMode.value){
@@ -183,6 +203,9 @@
               form.id = data.id
               form.name = data.name
               form.color = data.color
+              form.start_date = data.start_date
+              form.end_date = data.end_date
+              form.relocation = (data.relocation)?true:false;
               editMode.value = true
               openModal()
         }
