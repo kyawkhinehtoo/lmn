@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class IncidentController extends Controller
 {
@@ -244,6 +244,8 @@ class IncidentController extends Controller
             'description' => ['required'],
             'customer_id' => ['required'],
         ])->validate();
+       // dd($request->all());
+       if($request->customer_id['id']){
         $incident = new Incident();
        // $incident->code = $request->code;
         $incident->customer_id = $request->customer_id['id'];
@@ -264,6 +266,13 @@ class IncidentController extends Controller
         }
         $incident->date = $request->date;
         $incident->time = $request->time;
+
+        if(isset($request->close_date) && $request->status == 3)
+        $incident->close_date = $request->close_date;
+        
+        if(isset($request->close_time) && $request->status == 3)
+        $incident->close_time = $request->close_time;
+
         $incident->description = $request->description;
         $incident->save();
         $incident->code = 'T-'.str_pad($incident->id,4,"0",STR_PAD_LEFT);
@@ -280,6 +289,8 @@ class IncidentController extends Controller
         
         return redirect()->route('incident.index')->with('message', 'Incident Created Successfully.')
         ->with('id',$incident->id);
+       }
+        
     }
 
 
@@ -340,6 +351,13 @@ class IncidentController extends Controller
                 }
                 $incident->date = $request->date;
                 $incident->time = $request->time;
+
+                if(isset($request->close_date) && $request->status == 3)
+                $incident->close_date = $request->close_date;
+                
+                if(isset($request->close_time) && $request->status == 3)
+                
+                $incident->close_time = $request->close_time;
                 $incident->description = $request->description;
 
             

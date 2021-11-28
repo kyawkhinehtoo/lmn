@@ -77,8 +77,19 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::delete('/port/group/{id}', 'PortController@deleteGroup');
 	
 
+	//Billing 
+	Route::get('tempImportView', 'ExcelController@tempImportView')->name('tempImportView');
+
+	Route::post('updateTempExcel', 'ExcelController@updateTemp')->name('updateTempExcel');
+	Route::post('importPayment', 'ExcelController@importPayment')->name('importPayment');
+
+	Route::post('/exportBillingExcel', 'ExcelController@exportBillingExcel')->name('exportBillingExcel');
+	Route::post('/exportTempBillingExcel', 'ExcelController@exportTempBillingExcel')->name('exportTempBillingExcel');
+	Route::post('/exportRevenue', 'ExcelController@exportRevenue')->name('exportRevenue');
+	
 	Route::get('/billGenerator', 'BillingController@BillGenerator')->name('billGenerator');
 	Route::post('/updateTemp', 'BillingController@updateTemp')->name('updateTemp');
+	Route::post('/updateInvoice', 'BillingController@updateInvoice')->name('updateInvoice');
 	Route::post('/doGenerate', 'BillingController@doGenerate');
 	Route::post('/saveFinal', 'BillingController@saveFinal');
 	//Route::post('/showbill', 'BillingController@showBill')->name('showbill');
@@ -87,16 +98,28 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/tempBilling/search/', 'BillingController@goTemp');
 	Route::post('/truncateBilling', 'BillingController@destroyall');
 	Route::resource('/billing', BillingController::class);
+
+	//Billing PDF
 	Route::get('/pdfpreview1/{id}', 'BillingController@preview_1');
 	Route::get('/pdfpreview2/{id}', 'BillingController@preview_2');
+	Route::get('/ReceiptTemplate/{id}', 'ReceiptController@template');
 
 	Route::post('/getSinglePDF/{id}', 'BillingController@makeSinglePDF');
+	Route::post('/getReceiptPDF/{id}', 'ReceiptController@makeReceiptPDF');
 	Route::post('/sendSingleEmail/{id}', 'BillingController@sendSingleEmail');
 	Route::post('/getAllPDF', 'BillingController@makeAllPDF');
 	Route::post('/sendAllEmail', 'BillingController@sendAllEmail');
 
-	Route::post('/exportBillingExcel', 'ExcelController@exportBillingExcel')->name('exportBillingExcel');
+	
+	//Billing Receipt
+	Route::post('/saveReceipt', 'ReceiptController@store');
+	Route::post('/receipt/search', 'ReceiptController@show');
+	Route::resource('/receipt', ReceiptController::class);
+	Route::get('/saveSingle', 'BillingController@saveSingle');
+	Route::get('/runSummery', 'ReceiptController@runReceiptSummery');
 
+
+	//Email Template
 	Route::resource('/template', EmailTemplateController::class);
 });
 

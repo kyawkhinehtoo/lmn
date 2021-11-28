@@ -55,11 +55,14 @@
                         <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="name" placeholder="Enter Role Name" v-model="form.name" />
                         <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name[0] }}</div>
                       </div>
+        
                       <div class="mb-4">
-                        <label for="read_customer" class="text-sm font-medium text-gray-700">
-                        <input type="checkbox" class="rounded-sm" id="read_customer" v-model="form.read_customer" /> Read Only Customer Data </label>
-                      </div>
-                      <div class="mb-4">
+                         <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Customer Data </legend>
+                            <label class="inline-flex ml-2 text-sm">
+                          <input class="text-gray-500 text-sm w-6 h-6 mr-2 focus:ring-gray-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.read_customer" />
+                          Read Only to Customer Data
+                        </label>
                         <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission :</label>
                         <!-- <select multiple>
                           <option v-for="row in col" v-bind:key="row.id" class="capitalize"> {{ row.name.replace(/_/g, " ") }}</option>
@@ -67,16 +70,47 @@
                         <div class="mt-1 flex rounded-md shadow-sm" v-if="col.length !== 0">
                           <multiselect deselect-label="Selected already" :options="col" track-by="id" label="name" v-model="form.permission" :allow-empty="true" :multiple="true" :taggable="true"> </multiselect>
                         </div>
+                         </fieldset>
                       </div>
                        <div class="mb-4">
-                        <label  class="block text-gray-700 text-sm font-bold mb-2">Incident Access :</label>
-                        
-                         <label for="read_incident" class="text-sm font-medium text-gray-700">
-                        <input type="checkbox" class="rounded-sm" id="read_incident" v-model="form.read_incident" /> Incident Read Permission </label>
-                        <label for="write_incident" class="ml-4 text-sm font-medium text-gray-700">
-                        <input type="checkbox" class="rounded-sm" id="write_incident" v-model="form.write_incident" />
-                        Incident Write Permission </label>
-                      
+                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Incident Control </legend>
+                     
+                      <div class="max-w-full text-sm flex">
+                       
+                        <label class="inline-flex ml-2">
+                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.read_incident" />
+                          Incident Read Permission
+                        </label>
+                          <label class="inline-flex ml-2">
+                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.write_incident" />
+                          Incident Write Permission
+                        </label>
+               
+                  
+                      </div>
+                  </fieldset>
+                      </div>
+                      <div class="mb-4">
+                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Billing Control </legend>
+                     
+                      <div class="max-w-full text-sm flex">
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.bill_generation" />
+                          Bill Generate
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.bill_receipt" />
+                          Bill Receipt
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.edit_invoice" />
+                          Edit Invoice Permission
+                        </label>
+                 
+                      </div>
+                  </fieldset>
                       </div>
                 
                     </div>
@@ -132,6 +166,9 @@ export default {
       read_customer: null,
       read_incident: null,
       write_incident: null,
+      edit_invoice: null,
+      bill_generation: null,
+      bill_receipt: null,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -143,6 +180,9 @@ export default {
       form.read_customer = null;
       form.read_incident = null;
       form.write_incident = null;
+      form.edit_invoice = null;
+      form.bill_generation = null;
+      form.bill_receipt = null;
     }
     function submit() {
       if (!editMode.value) {
@@ -191,6 +231,9 @@ export default {
       form.read_customer =(data.read_customer)?true:false;
       form.read_incident =(data.read_incident)?true:false;
       form.write_incident = (data.write_incident)?true:false;
+      form.edit_invoice = (data.edit_invoice)?true:false;
+      form.bill_generation = (data.bill_generation)?true:false;
+      form.bill_receipt = (data.bill_receipt)?true:false;
 
       editMode.value = true;
       openModal();

@@ -38,6 +38,7 @@ class BillingTemp extends Model
         'discount',
         'amount_in_word',
         'commercial_tax',
+        'tax',
         'email',
         'phone',
         'file',

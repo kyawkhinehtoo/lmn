@@ -102,7 +102,7 @@
         ​
 
         <div class="bg-gray-50 rounded-sm pt-1 inline-block align-bottom overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-          
+      
             <div class="">
               <!-- ticket input panel -->
               <div class="">
@@ -239,8 +239,6 @@
                               <option value="no_internet">No Internet</option>
                               <option value="los_redlight">LOS Redlight</option>
                               <option value="slow_performance">Slow Performance</option>
-                              <option value="game_issue">Game Issue</option>
-                              <option value="website_issue">Website Issue</option>
                               <option value="wifi_issue">Wifi Issue</option>
                               <option value="onu_issue">ONU Issue</option>
                               <option value="password_change">Password Changed</option>
@@ -268,6 +266,28 @@
                            <p v-if="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
                         </div>
                         <!-- end of status -->
+                             <!-- close date time -->
+                  
+                         <div class="py-2 col-span-1 sm:col-span-1"  v-if="form.status == 3">
+                          <div class="mt-1 flex">
+                            <label for="date" class="block text-sm font-medium text-gray-700 mt-2 mr-2"> Incident Close Period : </label>
+                          </div>
+                        </div>
+                        <div class="py-2 col-span-2 sm:col-span-2"  v-if="form.status == 3">
+                          <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="date" v-model="form.close_date" name="close_date" id="close_date" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :readonly="true" />
+                           
+                          </div>
+                           <p v-if="$page.props.errors.close_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.close_date }}</p>
+                        </div>
+                        <div class="py-2 col-span-2 sm:col-span-2"  v-if="form.status == 3">
+                          <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="time" v-model="form.close_time" name="close_time" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :readonly="true" />
+                           </div>
+                           <p v-if="$page.props.errors.close_time" class="mt-2 text-sm text-red-500">{{ $page.props.errors.close_time }}</p>
+                        </div>
+                     
+                        <!-- close date time -->
                         <!-- suspension -->
                         <div class="py-2 col-span-1 sm:col-span-1" v-if="form.type == 'suspension'">
                           <div class="mt-1 flex">
@@ -418,7 +438,7 @@
               <button @click="closeModal" type="button" class="inline-flex items-center px-4 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:border-gray-500 disabled:opacity-25 transition">Close <i class="lg:ml-1 fas fa-times-circle opacity-75 text-sm"></i></button>
               </div>
             </div>
-         
+       
         </div>
       </div>
     </div>
@@ -504,6 +524,8 @@ export default {
       description: null,
       date: null,
       time: null,
+      close_date: null,
+      close_time: null,
     });
     let tab = ref(true);
     let selection = ref("");
@@ -537,9 +559,18 @@ export default {
       form.description = "";
       form.date = "";
       form.time = "";
-    
+      form.close_date = "";
+      form.close_time = "";
     }
     function openModal() {
+      var today = new Date();
+      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+      var time = today.getHours() + ":" + today.getMinutes();
+      console.log(time);
+      if(!form.close_date && incidentStatus.value != 3)
+      form.close_date = date;
+      if(!form.close_time && incidentStatus.value != 3)
+      form.close_time = time;
       tab.value = 1;
       isOpen.value = true;
     }
@@ -557,7 +588,7 @@ export default {
     }
     function submit() {
       if (editMode.value != true) {
-       
+       form._method = "POST";
         Inertia.post("/incident",form, {
           preserveState: true,
           onSuccess: (page) => {
@@ -574,6 +605,7 @@ export default {
           },
           onError: (errors) => {
             loading.value = false;
+     
             console.log("error ..");
           },
           onStart:(pending) =>{
@@ -583,10 +615,8 @@ export default {
         });
       } else {
         form._method = "PUT";
-        
-        Inertia.post("incident/" + form.id,form, {
+        Inertia.post("/incident/" + form.id,form, {
           onSuccess: (page) => {
-             loading.value = false;
             page_update.value +=1;
             Toast.fire({
               icon: "success",
@@ -595,12 +625,7 @@ export default {
             closeModal();
           },
           onError: (errors) => {
-             loading.value = false;
             console.log("error ..".errors);
-          },
-          onStart:(pending) =>{
-            console.log("Loading .." + pending);
-               loading.value = true;
           },
         });
       }
@@ -632,6 +657,8 @@ export default {
       form.description = data.description;
       form.date = data.date;
       form.time = data.time;
+      form.close_date = data.close_date;
+      form.close_time = data.close_time;
       openModal();
     }
     function getStatus(data) {

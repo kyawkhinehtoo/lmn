@@ -29,7 +29,32 @@ class CustomerController extends Controller
     }
     public function show(Request $request)
     {
-      
+        $active = DB::table('customers')
+        ->join('status', 'customers.status_id', '=', 'status.id')
+        ->where('status.name', 'LIKE', '%Activ%')
+        ->where('customers.deleted', '<>', '1')
+        ->count();
+
+        // $relocation = DB::table('customers')
+        // ->join('status', 'customers.status_id', '=', 'status.id')
+        // ->where('status.name', 'LIKE', '%Relocation%')
+        // ->where('customers.deleted', '<>', '1')
+        // ->count();
+        $suspense = DB::table('customers')
+        ->join('status', 'customers.status_id', '=', 'status.id')
+        ->where('status.name', 'LIKE', '%Suspen%')
+        ->where('customers.deleted', '<>', '1')
+        ->count();
+        $installation_request = DB::table('customers')
+        ->join('status', 'customers.status_id', '=', 'status.id')
+        ->where('status.name', 'LIKE', '%Install%')
+        ->where('customers.deleted', '<>', '1')
+        ->count();
+        $terminate = DB::table('customers')
+        ->join('status', 'customers.status_id', '=', 'status.id')
+        ->where('status.name', 'LIKE', '%Termina%')
+        ->where('customers.deleted', '<>', '1')
+        ->count();
         
         $packages = Package::get();
         $townships = Township::get();
@@ -121,6 +146,10 @@ class CustomerController extends Controller
             'status' => $status,
             'customers' => $customers,
             'dn' => $dn,
+            'active' => $active,
+            'suspense' => $suspense,
+            'installation_request' => $installation_request,
+            'terminate' => $terminate,
             ]);
     }
   

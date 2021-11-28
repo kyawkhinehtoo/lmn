@@ -62,10 +62,26 @@
         </TransitionRoot>
         <TransitionRoot :show="step == 2" enter="transition ease-out duration-300 transform" enter-from="translate-x-4" enter-to="translate-x-0">
           <div class="bg-white shadow sm:rounded-lg mt-4">
+            
+            <div class="px-4 py-2">
+               <label class="inline-flex block text-gray-700 text-sm font-bold">
+                Generate In MMK
+                <input class="ml-2 text-red-500 w-4 h-4 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.is_mmk" />
+                          
+               </label>
+             
+            </div>
             <div class="px-4 py-2">
               <label for="usd_exchange_rate" class="block text-gray-700 text-sm font-bold">USD Exchange Rate:</label>
               <div class="flex rounded-md shadow-sm">
                 <input type="text" v-model="form.usd_exchange_rate" name="usd_exchange_rate" id="usd_exchange_rate" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
+              </div>
+             
+            </div>
+            <div class="px-4 py-2">
+              <label for="baht_exchange_rate" class="block text-gray-700 text-sm font-bold">Thai Baht Exchange Rate:</label>
+              <div class="flex rounded-md shadow-sm">
+                <input type="text" v-model="form.baht_exchange_rate" name="baht_exchange_rate" id="baht_exchange_rate" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :readonly="!form.is_mmk" />
               </div>
              
             </div>
@@ -114,8 +130,16 @@
                   <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ form.due_date }}</dd>
                 </div>
                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">Billing Currency</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><label v-if="form.is_mmk">Myanmar Kyat</label><label v-else>Thai Baht</label></dd>
+                </div>
+                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt class="text-sm font-medium text-gray-500">USD Exchange Rate</dt>
                   <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ form.usd_exchange_rate }}</dd>
+                </div>
+                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-gray-500">Thai Baht Exchange Rate</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ form.baht_exchange_rate }}</dd>
                 </div>
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt class="text-sm font-medium text-gray-500">Package</dt>
@@ -175,6 +199,7 @@ export default {
       period_covered_name: null,
       bill_number: null,
       usd_exchange_rate: null,
+      baht_exchange_rate: null,
       issue_date: null,
       due_date:null,
       expire_date: null,
@@ -183,6 +208,7 @@ export default {
       month_name : null,
       bill_month:null,
       bill_year:null,
+      is_mmk:null,
     });
 
     function resetForm() {
@@ -191,6 +217,7 @@ export default {
       form.period_covered_name = null;
       form.bill_number = null;
       form.usd_exchange_rate = null;
+      form.baht_exchange_rate = null;
       form.issue_date = null;
       form.due_date = null;
       form.expire_date = null;
@@ -199,6 +226,7 @@ export default {
       form.month_name = null;
       form.bill_month=null;
       form.bill_year=null;
+      form.is_mmk=null;
     }
     function selectMonth(){
     

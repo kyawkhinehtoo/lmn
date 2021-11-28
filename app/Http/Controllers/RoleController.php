@@ -45,6 +45,9 @@ class RoleController extends Controller
         $role->read_customer = $request->read_customer;
         $role->read_incident = $request->read_incident;
         $role->write_incident = $request->write_incident;
+        $role->bill_generation = $request->bill_generation;
+        $role->edit_invoice = $request->edit_invoice;
+        $role->bill_receipt = $request->bill_receipt;
         
         $role->save();
          return redirect()->route('role.index')->with('message', 'Role Created Successfully.');
@@ -80,6 +83,9 @@ class RoleController extends Controller
             $role->read_customer = $request->read_customer;
             $role->read_incident = $request->read_incident;
             $role->write_incident = $request->write_incident;
+            $role->bill_generation = $request->bill_generation;
+            $role->edit_invoice = $request->edit_invoice;
+            $role->bill_receipt = $request->bill_receipt;
             
             $role->update();
             return redirect()->back()

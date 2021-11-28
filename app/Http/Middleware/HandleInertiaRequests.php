@@ -4,7 +4,8 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-
+use Illuminate\Support\Facades\Auth;
+use App\Models\Role;
 class HandleInertiaRequests extends Middleware
 {
     /**
@@ -36,7 +37,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request)
     {
+        $user = Auth::user();
+        $role = null;
+        if($user != null){
+    
+            $role = Role::join('users','users.role','=','roles.id')
+                ->where('users.id','=',$user->id)
+                ->first();
+        }
         return array_merge(parent::share($request), [
+            'role'=>$role,
             // 'errors' => [
             //     $request->session()->get('errors')
             //     ? $request->session()->get('errors')->getBag('default')->getMessages()

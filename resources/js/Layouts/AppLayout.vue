@@ -1,11 +1,11 @@
 <template>
   <div id="root">
-    <nav class="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6">
+    <nav class="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-200">
       <div class="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex flex-wrap items-center justify-between w-full mx-auto">
         <button class="cursor-pointer text-black opacity-50 md:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-solid border-transparent" type="button" onclick="toggleNavbar('example-collapse-sidebar')">
           <i class="fas fa-bars"></i>
         </button>
-        <a class="md:min-w-full flex-start inline-flex items-center align-middle uppercase text-blueGray-400" href="javascript:void(0)"> <i class="fas fa-cat fa-2x flex"></i> <span class="flex ml-2 mt-2 font-bold antialiased">ISP Manager</span> </a>
+        <a class="md:min-w-full flex-start inline-flex items-center align-middle uppercase text-blueGray-400" href="javascript:void(0)"> <i class="fas fa-cogs fa-2x flex"></i> <span class="flex ml-2 font-bold antialiased">Operations Support System</span> </a>
         <ul class="md:hidden items-center flex flex-wrap list-none">
           <li class="inline-block relative">
             <a class="text-blueGray-500 block py-1 px-3" href="#pablo" onclick="openDropdown(event,'notification-dropdown')"><i class="fas fa-bell"></i></a>
@@ -55,25 +55,22 @@
               <jet-nav-link :href="route('dashboard')" :active="route().current('dashboard')"> <i class="fas fa-tv opacity-75 mr-2 text-sm w-6"></i> Dashboard </jet-nav-link>
             </li>
           </ul>
+          <hr class="my-4 md:min-w-full" />
           <div v-if="$page.props.user.role == 1 || $page.props.user.role == 2">
-            <hr class="my-4 md:min-w-full" />
-            <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">Admin Panel</h6>
+      
+            <h6 @click="toggleMenu('admin')" class="mb-2 text-gray-600 hover:gray-blue-500 text-xs uppercase py-3 font-bold block px-4 rounded-md bg-blueGray-100 shadow-sm cursor-pointer flex justify-between z-10"><label class="flex"> Admin Panel </label> <i class="fa fas text-right flex" :class="{ 'fa-caret-right': !admin, 'fa-caret-down': admin }"></i></h6>
+             <TransitionRoot :show="admin" enter="transition opacity duration-300 transform" enter-from="opacity-0" 
+                    leave="transition opacity duration-100 transform"
+                    enter-to="opacity-100" leave-from="opacity-100" leave-to="opacity-0" >
             <ul class="md:flex-col md:min-w-full flex flex-col list-none">
               <li>
                 <jet-nav-link :href="route('user.index')" :active="route().current('user.index')"> <i class="fas fa-user opacity-75 mr-2 text-sm w-6"></i> User Setup </jet-nav-link>
               </li>
-
               <li>
                 <jet-nav-link :href="route('role.index')" :active="route().current('role.index')"> <i class="fas fa-user-tag opacity-75 mr-2 text-sm w-6"></i> Role Setup </jet-nav-link>
               </li>
               <li>
                 <jet-nav-link :href="route('township.index')" :active="route().current('township.index')"> <i class="fas fa-city opacity-75 mr-2 text-sm w-6"></i> Township Setup </jet-nav-link>
-              </li>
-              <li>
-                <jet-nav-link :href="route('port.index')" :active="route().current('port.index')"> <i class="fas fa-network-wired opacity-75 mr-2 text-sm w-6"></i> DN Setup </jet-nav-link>
-              </li>
-              <li>
-                <jet-nav-link :href="route('snport.index')" :active="route().current('snport.index')"> <i class="fas fa-network-wired opacity-75 mr-2 text-sm w-6"></i> SN Setup </jet-nav-link>
               </li>
               <li>
                 <jet-nav-link :href="route('equiptment.index')" :active="route().current('equiptment.index')"> <i class="fas fa-gamepad opacity-75 mr-2 text-sm w-6"></i> Bundle Setup </jet-nav-link>
@@ -84,55 +81,68 @@
               <li>
                 <jet-nav-link :href="route('package.index')" :active="route().current('package.index')"> <i class="fas fa-cube opacity-75 mr-2 text-sm w-6"></i> Package Setup </jet-nav-link>
               </li>
-
+              <li>
+                <jet-nav-link :href="route('project.index')" :active="route().current('project.index')"> <i class="fas fa-handshake opacity-75 mr-2 text-sm w-6"></i> Project Setup </jet-nav-link>
+              </li>
               <li>
                 <jet-nav-link :href="route('status.index')" :active="route().current('status.index')"> <i class="fas fa-user-tag opacity-75 mr-2 text-sm w-6"></i> Customer Status </jet-nav-link>
               </li>
+              <li>
+                <jet-nav-link :href="route('template.index')" :active="route().current('template.index')"> <i class="fas fa-envelope opacity-75 mr-2 text-sm w-6"></i> Email Template </jet-nav-link>
+              </li>
             </ul>
+             </TransitionRoot>
             <hr class="my-4 md:min-w-full" />
           </div>
-
-          <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">User Panel</h6>
-          <ul class="md:flex-col md:min-w-full flex flex-col list-none">
-            <li v-if="$page.props.user.role == 8">
-              <jet-nav-link :href="route('port.index')" :active="route().current('port.index')"> <i class="fas fa-network-wired opacity-75 mr-2 text-sm w-6"></i> DN Setup </jet-nav-link>
-            </li>
-            <li v-if="$page.props.user.role == 8">
-              <jet-nav-link :href="route('snport.index')" :active="route().current('snport.index')"> <i class="fas fa-network-wired opacity-75 mr-2 text-sm w-6"></i> SN Setup </jet-nav-link>
-            </li>
+          <h6 @click="toggleMenu('user')" class="mb-2 text-gray-600 hover:gray-blue-500 text-xs uppercase py-3 font-bold block px-4 rounded-md bg-blueGray-100 shadow-sm cursor-pointer flex justify-between z-10"><label class="flex"> User Panel </label> <i class="fa fas text-right flex" :class="{ 'fa-caret-right': !user, 'fa-caret-down': user }"></i></h6>
+             <TransitionRoot :show="user" enter="transition opacity duration-300 transform" enter-from="opacity-0" 
+                    leave="transition opacity duration-100 transform"
+                    enter-to="opacity-100" leave-from="opacity-100" leave-to="opacity-0" >
+          <ul class="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
             <li>
               <jet-nav-link :href="route('customer.index')" :active="route().current('customer.*')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Customer </jet-nav-link>
             </li>
 
             <li>
-              <jet-nav-link :href="route('incident.index')" :active="route().current('incident.*')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Incident Panel </jet-nav-link>
+              <jet-nav-link :href="route('incident.index')" :active="route().current('incident.index')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Incident Panel </jet-nav-link>
             </li>
           </ul>
+             </TransitionRoot>
+            <span v-if="$page.props.role.bill_generation || $page.props.role.bill_receipt">
           <hr class="my-4 md:min-w-full" />
-          <h6 class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">Billing Panel</h6>
-          <ul class="md:flex-col md:min-w-full flex flex-col list-none">
-            <li>
-              <jet-nav-link :href="route('billGenerator')" :active="route().current('billGenerator')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Bill Generator </jet-nav-link>
+          <h6 @click="toggleMenu('billing')" class="mb-2 text-gray-600 hover:gray-blue-500 text-xs uppercase py-3 font-bold block px-4 rounded-md bg-blueGray-100 shadow-sm cursor-pointer flex justify-between z-10"><label class="flex"> Billing Panel </label> <i class="fa fas text-right flex" :class="{ 'fa-caret-right': !billing, 'fa-caret-down': billing }"></i></h6>
+           <TransitionRoot :show="billing" enter="transition opacity duration-300 transform" enter-from="opacity-0" 
+                    leave="transition opacity duration-100 transform"
+                    enter-to="opacity-100" leave-from="opacity-100" leave-to="opacity-0" >
+          <ul class="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
+            <li v-if="$page.props.role.bill_generation">
+              <jet-nav-link :href="route('billGenerator')" :active="route().current('billGenerator')"> <i class="fas fa-cogs opacity-75 mr-2 text-sm w-6"></i> Bill Generator </jet-nav-link>
             </li>
-            <li>
-              <jet-nav-link :href="route('showbill')" :active="route().current('showbill')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Bill List </jet-nav-link>
+
+            <li v-if="$page.props.role.bill_generation">
+              <jet-nav-link :href="route('tempBilling')" :active="route().current('tempBilling')"> <i class="fas fa-clipboard-list opacity-75 mr-2 text-sm w-6"></i>Temp Bill List </jet-nav-link>
             </li>
-            <li>
-              <jet-nav-link :href="route('tempBilling')" :active="route().current('tempBilling')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i>Temp Bill List </jet-nav-link>
+            <li v-if="$page.props.role.bill_generation">
+              <jet-nav-link :href="route('showbill')" :active="route().current('showbill')"> <i class="fas fa-coins opacity-75 mr-2 text-sm w-6"></i> Final Bill List </jet-nav-link>
+            </li>
+            <li v-if="$page.props.role.bill_receipt">
+              <jet-nav-link :href="route('receipt.index')" :active="route().current('receipt.index')"> <i class="fas fa-file-invoice-dollar opacity-75 mr-2 text-sm w-6"></i> Bill Receipt </jet-nav-link>
             </li>
           </ul>
+           </TransitionRoot>
+            </span>
         </div>
       </div>
     </nav>
 
-    <div class="relative md:ml-64 bg-blueGray-50 scrollbar-thin scrollbar-thumb-blue-900 scrollbar-track-gray-200 block overflow-auto max-h-screen">
+    <div class="relative md:ml-64 bg-blueGray-50 scrollbar-thin scrollbar-thumb-blue-900 scrollbar-track-gray-200 block overflow-auto h-screen">
+      <!--Body Start -->
       <!--Body Start -->
       <!-- Page Heading -->
       <header class="relative w-full bg-blue-900 md:flex-row md:flex-nowrap md:justify-start flex items-center py-4" v-if="$slots.header">
         <div class="px-4 md:px-10 mx-auto w-full my-4">
           <slot name="header"> </slot>
         </div>
-
         <div class="ml-3 absolute absolute top-8 right-8">
           <jet-dropdown align="right" width="48">
             <template #trigger>
@@ -206,9 +216,11 @@ import JetDropdown from "@/Jetstream/Dropdown";
 import JetDropdownLink from "@/Jetstream/DropdownLink";
 import JetNavLink from "@/Jetstream/NavLink";
 import JetResponsiveNavLink from "@/Jetstream/ResponsiveNavLink";
-
+import { TransitionRoot, TransitionChild } from "@headlessui/vue";
 export default {
   components: {
+    TransitionRoot,
+    TransitionChild,
     JetApplicationMark,
     JetBanner,
     JetDropdown,
@@ -219,7 +231,10 @@ export default {
 
   data() {
     return {
-      showingNavigationDropdown: false,
+      showingNavigationDropdown: true,
+      billing: false,
+      admin: false,
+      user: false,
     };
   },
 
@@ -235,10 +250,44 @@ export default {
         }
       );
     },
-
+    toggleMenu(menu){
+      if(menu == 'billing'){
+        this.billing = (this.billing)?false:true;
+        this.user = false;
+        this.admin = false;
+      }
+      if(menu == 'user'){
+        this.billing = false;
+        this.admin = false;
+        this.user = (this.user)?false:true;
+      }
+      if(menu == 'admin'){
+        this.billing = false;
+        this.user = false;
+        this.admin = (this.admin)?false:true;
+      }
+    
+    },
     logout() {
       this.$inertia.post(route("logout"));
     },
+  },
+  created:function(){
+      if(route().current('receipt.index') || route().current('billGenerator') || route().current('tempBilling')  || route().current('showbill') ){
+            this.billing = true;
+            this.user = false;
+            this.admin = false;
+        }
+     else if(route().current('customer.*')){
+            this.billing = false;
+            this.user = true;
+            this.admin = false;
+     }
+     else if(route().current('user.*') || route().current('role.*') || route().current('township.*') || route().current('equiptment.*') || route().current('sla.*') || route().current('package.*') || route().current('project.*') || route().current('status.*') || route().current('template.*') ){
+            this.billing = false;
+            this.user = false;
+            this.admin = true;
+     }
   },
 };
 </script>
