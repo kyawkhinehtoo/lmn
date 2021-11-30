@@ -17,6 +17,8 @@ use PDF;
 use Storage;
 use Mail;
 use DateTime;
+use DatePeriod;
+use DateInterval;
 
 class ReceiptController extends Controller
 {
@@ -26,9 +28,13 @@ class ReceiptController extends Controller
     }
     public function show(Request $request)
     {
-        $records = ReceiptRecord::get();
+        $records = ReceiptRecord::when($request->sh_year, function ($query, $sh_year) {
+                                            $query->where('receipt_records.year', '=', $sh_year);
+                                        }, function ($query) {
+                                            $query->where('receipt_records.year', '=', date("Y"));
+                                        })->get();
         $bills = Bills::get();
-        $receipt_summeries = Customer::leftjoin('receipt_summery', 'receipt_summery.customer_id', '=', 'customers.id')
+        $receipt_summeries = Customer::join('receipt_summery', 'receipt_summery.customer_id', '=', 'customers.id')
             ->when($request->sh_general, function ($query, $sh_general) {
                 $query->where(function ($query) use ($sh_general) {
                     $query->where('customers.name', 'LIKE', '%' . $sh_general . '%')
@@ -37,16 +43,20 @@ class ReceiptController extends Controller
                         ->orWhere('customers.phone_2', 'LIKE', '%' . $sh_general . '%');
                 });
             })
-            ->where('customers.deleted','<>',1)
             ->when($request->sh_year, function ($query, $sh_year) {
                 $query->where('receipt_summery.year', '=', $sh_year);
             }, function ($query) {
-                $query->where('receipt_summery.year','=',date("Y"));
+                $query->where('receipt_summery.year', '=', date("Y"));
             })
+            ->where(function ($query) {
+                return $query->where('customers.deleted', '=', 0)
+                    ->orWhereNull('customers.deleted');
+            })
+           
             ->orderBy('customers.ftth_id')
             // ->select('receipt_summery.*','customers.ftth_id as ftth_id')
-            ->paginate(15); 
-        $this->mapRecords($receipt_summeries, $records);
+            ->paginate(15);
+     //   $this->mapRecords($receipt_summeries, $records);
         $receipt_summeries->appends($request->all())->links();
         return Inertia::render('Client/ReceiptSummery', [
             'receipt_summeries' => $receipt_summeries,
@@ -54,28 +64,24 @@ class ReceiptController extends Controller
             'bills' => $bills,
         ]);
     }
-    public function mapRecords($rss, $rrs){
-            //dd($rrs);
-            foreach($rss as $key => $rs){
-
-                for ($i=1; $i <=12 ; $i++) { 
-
-                    foreach($rrs as $value){
-                        if($rs[$i]){
-                             
-                            if($value->id === $rs[$i]){
-                
-                                $rs[$i] = $value;
-
-                            }
-                            
+    public function mapRecords($rss, $rrs)
+    {
+      
+        foreach ($rss as $key => $rs) {
+            for ($i = 1; $i <= 12; $i++) {
+                foreach ($rrs as $rr) {
+                    if ($rs[$i]) {
+                       
+                        if ($rr->invoice_id === $rs[$i]) {
+                      
+                            $rs[$i] = $rr;
                         }
                     }
-                   
                 }
-
-                $rss->data[$key]= $rs;
             }
+
+            $rss->data[$key] = $rs;
+        }
     }
 
     public function store(Request $request)
@@ -187,27 +193,46 @@ class ReceiptController extends Controller
         return redirect()->back()->with('message', 'PDF Generated Successfully.');
     }
     public function runReceiptSummery()
-    {   
-        $receipt_records = ReceiptRecord::get();
+    {
+        $receipt_records = ReceiptRecord::join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+            ->select('receipt_records.*', 'invoices.period_covered as period_covered')->get();
         if ($receipt_records) {
-            
+
             foreach ($receipt_records as $receipt_record) {
-                $month = $receipt_record->month;
-                $rs = ReceiptSummery::where('customer_id', '=', $receipt_record->customer_id)
-                    ->where('year', '=', $receipt_record->year)
-                    ->first();
-                if ($rs) {
-                    $rs->$month = $receipt_record->id;
-                    $rs->year = $receipt_record->year;
-                    $rs->update();
-                } else {
-                    $receipt_summery = new ReceiptSummery();
-                    $receipt_summery->$month = $receipt_record->id;
-                    $receipt_summery->year = $receipt_record->year;
-                    $receipt_summery->customer_id = $receipt_record->customer_id;
-                    $receipt_summery->save();
+
+                if ($receipt_record->period_covered) {
+                    if (strpos($receipt_record->period_covered, ' to ')) {
+                        $p_months = explode(" to ", $receipt_record->period_covered);
+
+                        $from = (new DateTime($p_months[0]))->modify('first day of this month');
+
+                        $to = (new DateTime($p_months[1]))->modify('first day of next month');
+                        $interval = DateInterval::createFromDateString('1 month');
+                        $period   = new DatePeriod($from, $interval, $to);
+                        foreach ($period as $dt) {
+
+                            $this->updateRRS($receipt_record->invoice_id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
+                        }
+                    }
                 }
             }
+        }
+    }
+    public function updateRRS($invoice_id, $customer_id, $month, $year)
+    {
+        $rs = ReceiptSummery::where('customer_id', '=', $customer_id)
+            ->where('year', '=', $year)
+            ->first();
+        if ($rs) {
+            $rs->$month = $invoice_id;
+            $rs->year = $year;
+            $rs->update();
+        } else {
+            $receipt_summery = new ReceiptSummery();
+            $receipt_summery->$month = $invoice_id;
+            $receipt_summery->year = $year;
+            $receipt_summery->customer_id = $customer_id;
+            $receipt_summery->save();
         }
     }
 }

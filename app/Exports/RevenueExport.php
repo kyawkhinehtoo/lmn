@@ -33,10 +33,13 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
                 ->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->join('packages', 'customers.package_id', '=', 'packages.id')
                 ->join('townships', 'customers.township_id', '=', 'townships.id')
-                ->join('users', 'customers.sale_person_id', '=', 'users.id')
+                ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
                 ->join('status', 'customers.status_id', '=', 'status.id')
                 ->leftjoin('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
-                ->where('customers.deleted', '<>', 1)
+                ->where(function($query){
+                    return $query->where('customers.deleted', '=', 0)
+                    ->orWhereNull('customers.deleted');
+                })
                 ->where('invoices.bill_id', '=', $request->id)
                 ->select('invoices.*','receipt_records.receipt_number as receipt_number','receipt_records.collected_amount','receipt_records.payment_channel','receipt_records.collected_person','receipt_records.receipt_date','receipt_records.status');
   
@@ -67,7 +70,6 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
             'Discount',
             'Total Payable',
             'Commercial_tax',
-            'Email',
             'Phone',
             'Receipt ID',
             'Receipt Amount',
@@ -103,9 +105,8 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
             $billings->discount,
             $billings->total_payable,
             $billings->commercial_tax,
-            $billings->email,
             $billings->phone,
-            ($billings->receipt_number)?'R'.str_pad($billings->receipt_number,5,"0", STR_PAD_LEFT).'-'.substr($billings->bill_number,0, 4).'-'.substr($billings->ftth_id,0, 5):null,
+            ($billings->receipt_number)?'R'.substr($billings->bill_number,0, 4).'-'.$billings->ftth_id.'-'.str_pad($billings->receipt_number,5,"0", STR_PAD_LEFT):null,
             $billings->collected_amount,
             $billings->payment_channel,
             ($billings->collected_person)?$this->collectedPerson($billings->collected_person):null,

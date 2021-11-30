@@ -30,7 +30,7 @@
       </div>
       <div v-if="billings" class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4">
         <div class="p-3 inline-flex bg-white rounded-md mb-2 shadow-sm flex justify-between w-full">
-       \   <button type="button" @click="sendAllEmail" class="h-10 text-md px-4 bg-yellow-600 rounded text-white hover:bg-yellow-700">Send SMS to All</button>
+        <button type="button" @click="sendAllEmail" class="h-10 text-md px-4 bg-yellow-600 rounded text-white hover:bg-yellow-700">Send SMS to All</button>
         </div>
         <div class="bg-white overflow-auto shadow-xl sm:rounded-lg" v-if="billings.data">
           <table class="min-w-full divide-y divide-gray-200">
@@ -135,10 +135,11 @@
                   <p>Payer Name : {{ form.bill_to }}</p>
                   <p>Payer Address : {{ form.attn }}</p>
                   <p>Payment Description : {{ form.service_description }}</p>
+                  <p>Period Covered : {{ form.period_covered }}</p>
                 </div>
                 <div class="col-span-1 sm:col-span-1 flex flex-col justify-between">
                   <div class="border-2 border-marga p-2 text-center flex flex-col">
-                    <span class="font-semibold text-md">Receipt ID:</span> <span class="text-sm"> {{ receipt_number }}</span>
+                    <span class="font-semibold text-md">Reference :</span> <span class="text-sm"> {{ receipt_number }}</span>
                   </div>
                   <div class="border-2 border-marga p-2 text-center flex flex-col mt-2">
                     <span class="font-semibold text-md">Bill Number:</span> <span class="text-sm"> {{ form.bill_number }}</span>
@@ -198,7 +199,7 @@
                 <div class="col-span-1 sm:col-span-1">
                     <div class="flex">
                       <label class="flex-auto items-center mt-1"> <input type="radio" class="form-radio h-5 w-5 text-red-600" name="currency" v-model="form.currency" value="mmk" /><span class="ml-2 text-gray-700">MMK</span> </label>
-                    <label class="flex-auto items-center mt-1"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="currency" v-model="form.currency" value="usd" /><span class="ml-2 text-gray-700">USD</span> </label>
+                    <label class="flex-auto items-center mt-1"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="currency" v-model="form.currency" value="baht" /><span class="ml-2 text-gray-700">Thai baht</span> </label>
                     </div>
                 </div>
                 
@@ -245,7 +246,9 @@
                     </div>
                     <div class="mb-4 md:col-span-1">
                       <label for="period_covered" class="block text-gray-700 text-sm font-bold mb-2">Period Covered :</label>
-                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="period_covered" placeholder="Enter Period Covered" v-model="form_2.period_covered" />
+                    
+                      <litepie-datepicker placeholder="Enter Period Covered" :formatter="formatter" separator=" to " v-model="form_2.period_covered" ></litepie-datepicker>
+          
                       <div v-if="$page.props.errors.period_covered" class="text-red-500">{{ $page.props.errors.period_covered[0] }}</div>
                     </div>
                     <div class="mb-4 md:col-span-1">
@@ -300,10 +303,6 @@
                       <label for="usage_days" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Actual Usage (Days/Month) :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="usage_days" v-model="form_2.usage_days" disabled />
                       <div v-if="$page.props.errors.usage_days" class="text-red-500">{{ $page.props.errors.usage_days[0] }}</div>
-
-                      <label for="email" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Email :</label>
-                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="email" placeholder="Enter Email" v-model="form_2.email" />
-                      <div v-if="$page.props.errors.email" class="text-red-500">{{ $page.props.errors.email[0] }}</div>
 
                       <label for="phone" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Phone :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="phone" placeholder="Enter Phone Number" v-model="form_2.phone" />
@@ -390,6 +389,7 @@ import { Inertia } from "@inertiajs/inertia";
 import Multiselect from "@suadelabs/vue3-multiselect";
 import Pagination from "@/Components/Pagination";
 import BillingSearch from "@/Components/BillingSearch";
+import LitepieDatepicker from "litepie-datepicker";
 export default {
   name: "BillList",
   components: {
@@ -397,6 +397,7 @@ export default {
     Pagination,
     BillingSearch,
     Multiselect,
+    LitepieDatepicker,
   },
   props: {
     lists: Object,
@@ -416,6 +417,10 @@ export default {
     provide("projects", props.projects);
     provide("townships", props.townships);
     provide("status", props.status);
+    const formatter = ref({
+      date: "YYYY-MM-DD",
+      month: "MMM",
+    });
     let show_search = ref(false);
     let loading = ref(false);
     let parameter = ref("");
@@ -443,7 +448,7 @@ export default {
       amount_in_word: null,
       user:null,
       type:"cash",
-      currency:"mmk",
+      currency:"baht",
       collected_amount:0,
       extra_amount:0,
       remark:null,
@@ -743,9 +748,9 @@ export default {
       form.type = (data.payment_channel)?data.payment_channel:'cash';
       form.receipt_status = data.receipt_status;
       if(data.receipt_number)
-      receipt_number.value = 'R'+('00000'+data.receipt_number).slice(-5)+'-'+data.bill_number.substring(0, 4)+'-'+data.ftth_id.substring(0, 5);
+      receipt_number.value = 'R'+data.bill_number.substring(0, 4)+'-'+data.ftth_id+'-'+('00000'+data.receipt_number).slice(-5);
       else
-      receipt_number.value = 'R'+('00000'+(props.max_receipt.max_receipt_number+1)).slice(-5)+'-'+data.bill_number.substring(0, 4)+'-'+data.ftth_id.substring(0, 5);
+      receipt_number.value = 'R'+data.bill_number.substring(0, 4)+'-'+data.ftth_id+'-'+('00000'+(props.max_receipt.max_receipt_number+1)).slice(-5);
       calc();
       openModal();
     }
@@ -810,7 +815,7 @@ export default {
       });
       invoiceEdit.value = checkEdit();
     });
-    return { form, form_2, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendEmail, parameter,sendAllEmail, doExcel, openReceipt, closeModal, getMonth, calc, form2_calc,calTax,isOpen,outstanding,saveReceipt,updateInvoice,generateReceiptPDF ,receipt_number ,editInvoice,edit_invoice, openEdit,closeEdit ,invoiceEdit};
+    return { form, form_2, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendEmail, parameter,sendAllEmail, doExcel, openReceipt, closeModal, getMonth, calc, form2_calc,calTax,isOpen,outstanding,saveReceipt,updateInvoice,generateReceiptPDF ,receipt_number ,editInvoice,edit_invoice, openEdit,closeEdit ,invoiceEdit,formatter};
   },
 };
 </script>

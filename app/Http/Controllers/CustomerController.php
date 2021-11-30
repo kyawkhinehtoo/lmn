@@ -32,7 +32,10 @@ class CustomerController extends Controller
         $active = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', 'LIKE', '%Activ%')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->count();
 
         // $relocation = DB::table('customers')
@@ -43,17 +46,26 @@ class CustomerController extends Controller
         $suspense = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', 'LIKE', '%Suspen%')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->count();
         $installation_request = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', 'LIKE', '%Install%')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->count();
         $terminate = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', 'LIKE', '%Termina%')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->count();
         
         $packages = Package::get();
@@ -75,7 +87,10 @@ class CustomerController extends Controller
             ->leftjoin('sn_ports', 'customers.sn_id', '=', 'sn_ports.id')
             ->leftjoin('dn_ports', 'sn_ports.dn_id', '=', 'dn_ports.id')
             ->join('status', 'customers.status_id', '=', 'status.id')
-            ->where('customers.deleted', '=', 0)
+            ->where(function($query){
+                return $query->where('customers.deleted', '=', 0)
+                ->orWhereNull('customers.deleted');
+            })
             ->when($request->keyword, function ($query, $search = null) {
             $query->where(function ($query) use ($search) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
@@ -196,6 +211,7 @@ class CustomerController extends Controller
         $status_list = Status::get();
         $roles = Role::get();
         $users = User::find(Auth::user()->id);
+        $max_id = $this->getmaxid();
         return Inertia::render(
             'Client/AddCustomer',
             [
@@ -208,6 +224,7 @@ class CustomerController extends Controller
                 'users' => $users,
                 'sn' => $sn,
                 'dn' => $dn,
+                'max_id' => $max_id,
             ]
         );
     }
@@ -307,7 +324,10 @@ class CustomerController extends Controller
         if ($id) {
             $customer =  DB::table('customers')
                 ->where('customers.id', '=', $id)
-                ->where('customers.deleted', '<>', 1)
+                ->where(function($query){
+                    return $query->where('customers.deleted', '=', 0)
+                    ->orWhereNull('customers.deleted');
+                })
                 ->first();
             $sn = DB::table('sn_ports')
                     ->join('dn_ports','sn_ports.dn_id','=','dn_ports.id')
@@ -329,13 +349,16 @@ class CustomerController extends Controller
                 ->where('users.id','=',Auth::user()->id)
                 ->select('users.name as name', 'users.id as id')
                 ->get();
-            if(!$auth_role->isEmpty()){
-                $sale_persons = DB::table('users')
+            if(!$auth_role->isEmpty() && $customer->sale_person_id){
+             
+                    $sale_persons = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
                 ->where('roles.name', 'LIKE', '%marketing%')
                 ->where('users.id','=',$customer->sale_person_id)
                 ->select('users.name as name', 'users.id as id')
                 ->get();
+            
+                
             } 
             $subcoms = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
@@ -425,7 +448,17 @@ class CustomerController extends Controller
 
         return redirect()->route('customer.index')->with('message', 'Customer Updated Successfully.');
     }
-
+    public function getmaxid(){
+        $customers = Customer::all();
+        $cid = array();
+        foreach($customers as $customer){
+            if(preg_match("/([a-z]{3}[0-9]{4})$/",$customer->ftth_id)){
+                $num = substr($customer->ftth_id,-4,4);
+                array_push($cid,(int)$num);
+            }
+        }
+        return max($cid);
+    }
     /**
      * Remove the specified resource from storage.
      *

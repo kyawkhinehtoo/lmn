@@ -84,7 +84,8 @@ body{
     font-size: 1.4rem;
 }
 .font-small{
-    font-size: 1rem;
+    font-size: 0.8rem;
+    font-weight:600;
 }
 .collapse{
     border-collapse: collapse;
@@ -182,7 +183,13 @@ tr td.fix {
                 <td style="text-align:center;">
                 <div style="background:#ffffff;" class="round">
                     <label class="block font-small">Date:  {{ date("j F Y",strtotime($receipt_date)) }}</span></label>
-                    <label class="block font-small">Invoice No:  </span></label>
+                    <label class="block font-small" >Invoice No:<span style="text-transform:uppercase;">
+                    @php
+                              
+                              $receipt_num = 'R'.substr($bill_number,0, 4).'-'.$ftth_id.'-'.str_pad($receipt_number,5,"0", STR_PAD_LEFT);
+                              echo $receipt_num;
+                           @endphp        
+                </span></label>
                 </div>
                 </td>
                 </tr>
@@ -200,10 +207,10 @@ tr td.fix {
       
             <tr>
                 <th>No</th>
-                <th>Description</th>
+                <th style="width: 200px;">Description</th>
                 <th style="width: 100px;">Qty</th>
                 <th style="width: 100px;">Price (USD/Kyat)</th>
-                <th>Amount <br/> (USD/Kyat)</th>
+                <th style="width: 150px;">Amount <br/> (USD/Kyat)</th>
             </tr>
             </thead>
            <tbody>
@@ -233,7 +240,7 @@ tr td.fix {
                 {
                     $count++;
                @endphp
-               <tr><td>{{$count}}</td><td>Compensation</td><td>1</td><td>- {{$compensation}}</td><td>- {{$compensation}}</td></tr>
+               <tr><td>{{$count}}</td><td>- Compensation</td><td>1</td><td> {{$compensation}}</td><td> {{$compensation}}</td></tr>
                @php
                 }else{
                 @endphp
@@ -246,7 +253,7 @@ tr td.fix {
              
          
                <tr><td colspan="4">Subtotal</td><td>{{number_format($sub_total)}}</td></tr>
-               <tr><td colspan="4">Discount</td><td>- {{number_format($discount)}}</td></tr>
+               <tr><td colspan="4">- Discount</td><td> {{number_format($discount)}}</td></tr>
                <tr><td colspan="4">Commercial Tax</td><td>{{number_format($tax)}}</td></tr>
                <tr><td colspan="4">Grand Total</td><td>{{number_format($total_payable)}}</td></tr>
                <tr><td style="text-align:left; padding:10px;" colspan="5">Cover Period : {{$period_covered}}</td></tr>

@@ -39,9 +39,12 @@ class TempBillingExport implements FromQuery, WithMapping,WithHeadings
                 ->join('customers', 'customers.id', '=', 'temp_billings.customer_id')
                 ->join('packages', 'customers.package_id', '=', 'packages.id')
                 ->join('townships', 'customers.township_id', '=', 'townships.id')
-                ->join('users', 'customers.sale_person_id', '=', 'users.id')
+                ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
                 ->join('status', 'customers.status_id', '=', 'status.id')
-                ->where('customers.deleted', '=', 0)
+                ->where(function($query){
+                    return $query->where('customers.deleted', '=', 0)
+                    ->orWhereNull('customers.deleted');
+                })
                 ->when($request->keyword, function ($query, $search = null) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
                         ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
@@ -52,9 +55,7 @@ class TempBillingExport implements FromQuery, WithMapping,WithHeadings
                         $query->where('customers.name', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
                     });
                 })
                 ->when($request->installation, function ($query, $installation) {
@@ -120,7 +121,6 @@ class TempBillingExport implements FromQuery, WithMapping,WithHeadings
             'Discount',
             'Total Payable',
             'Commercial_tax',
-            'Email',
             'Phone'
         ];
     }
@@ -150,7 +150,6 @@ class TempBillingExport implements FromQuery, WithMapping,WithHeadings
             $billings->discount,
             $billings->total_payable,
             $billings->commercial_tax,
-            $billings->email,
             $billings->phone
          ];
     }

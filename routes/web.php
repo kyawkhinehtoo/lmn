@@ -121,6 +121,10 @@ Route::group(['middleware'=> 'auth'], function(){
 
 	//Email Template
 	Route::resource('/template', EmailTemplateController::class);
+
+
+	//test
+	Route::get('/testCustomer', 'CustomerController@preg_test');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

@@ -414,6 +414,7 @@ export default {
   setup(props) {
       let lat_long = '';
       if(props.customer.location){
+        console.log('hello');
         lat_long = props.customer.location.split(",", 2); 
       }
   

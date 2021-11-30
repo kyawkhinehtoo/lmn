@@ -58,7 +58,7 @@
                   <div class="col-span-2 sm:col-span-2">
                     <label for="township" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Township </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="townships.length !== 0">
-                      <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.township" :allow-empty="false" :disabled="checkPerm('township_id')"></multiselect>
+                      <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.township" :allow-empty="false" :disabled="checkPerm('township_id')" :onchange="goID" @select="goID" @close="goID"></multiselect>
                     </div>
                     <p v-show="$page.props.errors.township" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township }}</p>
                   </div>
@@ -402,6 +402,7 @@ export default {
     roles: Object,
     users: Object,
     dn:Object,
+    max_id:Object,
     errors: Object,
   },
   setup(props) {
@@ -541,15 +542,28 @@ export default {
       }
       
     }
-
+    function goID(){
+      if(form.township){
+        
+        if(form.township.name == "Mong Koe"){
+          form.ftth_id = 'gghmk6888'+('00000'+props.max_id+1).slice(-5);
+        }else{
+          form.ftth_id = 'gghtcl6888'+('00000'+props.max_id).slice(-5);
+        }
+        
+      }else{
+        form.ftth_id = 'gghtcl6888'+('00000'+props.max_id).slice(-5);
+      }
+    }
     
     onMounted(() => {
       form.township = props.townships.filter((d) => d.id == 1)[0];
         form.sale_person = props.sale_persons[0];
         form.package = props.packages[0];
         form.status = props.status_list[0];
+        goID();
     });
-    return { form, submit, resetForm, isNumber, checkPerm,res_sn,DNSelect };
+    return { form, submit, resetForm, isNumber, checkPerm,res_sn,DNSelect,goID };
   },
 };
 </script>

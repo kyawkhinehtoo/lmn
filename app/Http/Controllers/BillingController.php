@@ -15,6 +15,7 @@ use App\Models\EmailTemplate;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\ReceiptRecord;
+use App\Models\ReceiptSummery;
 use Inertia\Inertia;
 use NumberFormatter;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +52,10 @@ class BillingController extends Controller
             ->when($request->township, function ($query, $township) {
                 $query->where('townships.id', '=', $township['id']);
             })
-            ->where('customers.deleted', '<>', 1)
+            ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orwherenull('customers.deleted');
+        })
             ->whereNotIn('status.id', [4,5,8])
             ->select(
                 'customers.id as id',
@@ -77,9 +81,13 @@ class BillingController extends Controller
 
         if ($customers) {
             foreach ($customers as $value) {
-
-         
-                    $billing_cost = $value->price;
+                    $receipt_summeries = ReceiptSummery::where('customer_id','=',$value->id)
+                                    ->where('year','=',$request->bill_year)
+                                    ->whereNotNull($request->bill_month)
+                                    ->first();
+                    
+                    if(!$receipt_summeries){
+                        $billing_cost = $value->price;
                     $total_cost = ceil($billing_cost);
                     $billing_day = '1 Month';
                 // if($value->advance_payment){
@@ -106,7 +114,7 @@ class BillingController extends Controller
 
                 
                 $inWords = new NumberFormatter('en', NumberFormatter::SPELLOUT);
-                //if($total_cost != 0 ){
+             
                     $billing = new BillingTemp();
                     $billing->period_covered = $request->period_covered_name;
                     $billing->bill_number = strtoupper($request->bill_number . "-" .trim($value->ftth_id). "-" . $value->type);
@@ -135,7 +143,9 @@ class BillingController extends Controller
                     $billing->bill_month = $request->bill_month;
                     $billing->bill_year = $request->bill_year;
                     $billing->save();
-               // }
+                    }
+                    
+              
                 
             }
             return redirect()->back()->with('message', 'Billing Created Successfully.');
@@ -158,7 +168,10 @@ class BillingController extends Controller
             ->join('townships', 'customers.township_id', '=', 'townships.id')
             ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
             ->join('status', 'customers.status_id', '=', 'status.id')
-            ->where('customers.deleted', '<>', 1)
+            ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orwherenull('customers.deleted');
+        })
             ->when($request->keyword, function ($query, $search = null) {
                 $query->where('customers.name', 'LIKE', '%' . $search . '%')
                     ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
@@ -428,7 +441,7 @@ class BillingController extends Controller
     {
         $billings = Invoice::join('receipt_records','receipt_records.invoice_id','=','invoices.id')
                     ->where('invoices.id','=',$request->id)
-                    ->select('invoices.*','receipt_records.remark as remark','receipt_records.collected_amount as collected_amount','receipt_records.receipt_date as receipt_date')
+                    ->select('invoices.*','receipt_records.remark as remark','receipt_records.collected_amount as collected_amount','receipt_records.receipt_date as receipt_date','receipt_records.receipt_number as receipt_number')
                     ->first();
         return view('voucher', $billings);
     }
@@ -565,7 +578,10 @@ class BillingController extends Controller
                 ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
                 ->join('status', 'customers.status_id', '=', 'status.id')
                 ->leftJoin('receipt_records','invoices.id','=','receipt_records.invoice_id')
-                ->where('customers.deleted', '=', 0)
+                ->where(function($query){
+                    return $query->where('customers.deleted', '=', 0)
+                    ->orWhereNull('customers.deleted');
+                })
                 ->where('invoices.bill_id', '=', $request->id)
                 ->when($request->keyword, function ($query, $search = null) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
@@ -577,8 +593,7 @@ class BillingController extends Controller
                         $query->where('customers.name', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
                     });
                 })
                 ->when($request->total_payable_min, function ($query, $total_payable_min) {
@@ -729,7 +744,10 @@ class BillingController extends Controller
                 ->join('users', 'customers.sale_person_id', '=', 'users.id')
                 ->join('status', 'customers.status_id', '=', 'status.id')
                 ->where('invoices.total_payable', '>', 0)
-                ->where('customers.deleted', '=', 0)
+                ->where(function($query){
+                    return $query->where('customers.deleted', '=', 0)
+                    ->orWhereNull('customers.deleted');
+                })
                 ->where('bill_id', '=', $request->id)
                 ->when($request->keyword, function ($query, $search = null) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
@@ -930,7 +948,10 @@ class BillingController extends Controller
                 ->join('users', 'customers.sale_person_id', '=', 'users.id')
                 ->join('status', 'customers.status_id', '=', 'status.id')
                 ->where('invoices.total_payable', '>', 0)
-                ->where('customers.deleted', '=', 0)
+                ->where(function($query){
+                    return $query->where('customers.deleted', '=', 0)
+                    ->orWhereNull('customers.deleted');
+                })
                 ->where('bill_id', '=', $request->id)
                 ->when($request->keyword, function ($query, $search = null) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
@@ -942,9 +963,7 @@ class BillingController extends Controller
                         $query->where('customers.name', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
                     });
                 })
                 ->when($request->installation, function ($query, $installation) {

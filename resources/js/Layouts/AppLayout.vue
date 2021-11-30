@@ -129,7 +129,7 @@
               <jet-nav-link :href="route('showbill')" :active="route().current('showbill')"> <i class="fas fa-coins opacity-75 mr-2 text-sm w-6"></i> Final Bill List </jet-nav-link>
             </li>
             <li v-if="$page.props.role.bill_receipt">
-              <jet-nav-link :href="route('receipt.index')" :active="route().current('receipt.index')"> <i class="fas fa-file-invoice-dollar opacity-75 mr-2 text-sm w-6"></i> Bill Receipt </jet-nav-link>
+              <jet-nav-link :href="route('receipt.index')" :active="route().current('receipt.*')"> <i class="fas fa-file-invoice-dollar opacity-75 mr-2 text-sm w-6"></i> Bill Receipt </jet-nav-link>
             </li>
           </ul>
            </TransitionRoot>

@@ -49,7 +49,10 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             ->join('townships', 'customers.township_id', '=', 'townships.id')
             ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
             ->join('status', 'customers.status_id', '=', 'status.id')
-            ->where('customers.deleted', '=', 0)
+            ->where(function($query){
+                return $query->where('customers.deleted', '=', 0)
+                ->orWhereNull('customers.deleted');
+            })
             ->when($request->keyword, function ($query, $search = null) {
             $query->where(function ($query) use ($search) {
                 $query->where('customers.name', 'LIKE', '%' . $search . '%')

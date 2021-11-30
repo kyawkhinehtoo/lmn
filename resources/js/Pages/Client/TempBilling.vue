@@ -105,7 +105,9 @@
                     </div>
                     <div class="mb-4 md:col-span-1">
                       <label for="period_covered" class="block text-gray-700 text-sm font-bold mb-2">Period Covered :</label>
-                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="period_covered" placeholder="Enter Period Covered" v-model="form.period_covered" />
+                     
+                      <litepie-datepicker placeholder="Enter Period Covered" :formatter="formatter" separator=" to " v-model="form.period_covered" ></litepie-datepicker>
+          
                       <div v-if="$page.props.errors.period_covered" class="text-red-500">{{ $page.props.errors.period_covered[0] }}</div>
                     </div>
                     <div class="mb-4 md:col-span-1">
@@ -257,11 +259,13 @@ import { useForm } from "@inertiajs/inertia-vue3";
 import { onMounted, onUpdated, provide, ref } from "vue";
 import { Inertia } from "@inertiajs/inertia";
 import BillingSearch from "@/Components/BillingSearch";
+import LitepieDatepicker from "litepie-datepicker";
 export default {
   components: {
     AppLayout,
     Pagination,
     BillingSearch,
+    LitepieDatepicker,
   },
   name: "TempBilling",
   props: {
@@ -272,6 +276,10 @@ export default {
     errors: Object,
   },
   setup(props) {
+     const formatter = ref({
+      date: "YYYY-MM-DD",
+      month: "MMM",
+    });
     const chartRef = ref(null);
     let proj_name = ref([]);
     let showExcel = ref(false);
@@ -424,7 +432,7 @@ export default {
         return (x.item_data = `${x.speed}Mbps - ${x.name} - ${x.contract_period} Months`);
       });
     });
-    return { form, form_1, clearData, submit, deleteRow, isOpen, edit, closeModal, searchTsp, goSearch, toggleAdv, sort, search, show_search, calc, openBillName, saveFinal, goFinal, closeFinal };
+    return {formatter, form, form_1, clearData, submit, deleteRow, isOpen, edit, closeModal, searchTsp, goSearch, toggleAdv, sort, search, show_search, calc, openBillName, saveFinal, goFinal, closeFinal };
   },
 };
 </script>

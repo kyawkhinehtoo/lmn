@@ -22,28 +22,43 @@ class DashboardController extends Controller
         $total = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', '<>', 'Terminate')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->count();
         $to_install = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', '=', 'Installation Request')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->count();
         $pending = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', 'like', '%Pending%')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->count();
         $install_week = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->whereRaw('week(installation_date)=week(now()) AND year(installation_date)=year(NOW())')
         ->count();
 
         $ftth = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'ftth')
         ->count();
@@ -51,7 +66,10 @@ class DashboardController extends Controller
         $b2b = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'b2b')
         ->count();
@@ -59,7 +77,10 @@ class DashboardController extends Controller
         $dia = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'dia')
         ->count();
@@ -67,7 +88,10 @@ class DashboardController extends Controller
         $ftth_total = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'ftth')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
@@ -78,7 +102,10 @@ class DashboardController extends Controller
         $b2b_total = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orwherenull('customers.deleted');
+        })
         ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'b2b')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
@@ -89,7 +116,10 @@ class DashboardController extends Controller
         $dia_total = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->join('packages', 'customers.package_id', '=', 'packages.id')
-        ->where('customers.deleted', '<>', '1')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
         ->where('status.name', '<>', 'Terminate')
         ->where('packages.type', '=', 'dia')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
