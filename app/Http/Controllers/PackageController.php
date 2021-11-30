@@ -49,7 +49,7 @@ class PackageController extends Controller
             'name' => ['required'],
             'speed' => ['required'],
             'sla_id' => ['required'],
-            'type' => ['required', 'in:ftth,sme,dia'],
+            'type' => ['required', 'in:ftth,b2b,dia'],
             'contract_period' => ['required', 'in:6,12,24'],
         ])->validate();
 
@@ -85,7 +85,7 @@ class PackageController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'speed' => ['required'],
-            'type' => ['required', 'in:ftth,sme,dia'],
+            'type' => ['required', 'in:ftth,b2b,dia'],
             'sla_id' => ['required'],
             'contract_period' => ['required', 'in:6,12,24'],
         ])->validate();

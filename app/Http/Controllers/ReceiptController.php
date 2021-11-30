@@ -34,9 +34,7 @@ class ReceiptController extends Controller
                     $query->where('customers.name', 'LIKE', '%' . $sh_general . '%')
                         ->orWhere('customers.ftth_id', 'LIKE', '%' . $sh_general . '%')
                         ->orWhere('customers.phone_1', 'LIKE', '%' . $sh_general . '%')
-                        ->orWhere('customers.phone_2', 'LIKE', '%' . $sh_general . '%')
-                        ->orWhere('customers.email', 'LIKE', '%' . $sh_general . '%')
-                        ->orWhere('customers.company_name', 'LIKE', '%' . $sh_general . '%');
+                        ->orWhere('customers.phone_2', 'LIKE', '%' . $sh_general . '%');
                 });
             })
             ->where('customers.deleted','<>',1)

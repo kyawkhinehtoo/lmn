@@ -173,13 +173,16 @@ class CustomerController extends Controller
             ->where('roles.name', 'LIKE', '%marketing%')
             ->select('users.name as name', 'users.id as id')
             ->get();
+            
         $auth_role = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
-            ->where('roles.name', 'NOT LIKE', '%admin%')
+            ->where('roles.name', 'NOT LIKE', '%Admin%')
             ->where('users.id','=',Auth::user()->id)
             ->select('users.name as name', 'users.id as id')
-            ->get();
+            ->first();
+    
         if($auth_role){
+           
             $sale_persons = $auth_role;
         }   
         $subcoms = DB::table('users')
