@@ -117,6 +117,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::resource('/receipt', ReceiptController::class);
 	Route::get('/saveSingle', 'BillingController@saveSingle');
 	Route::get('/runSummery', 'ReceiptController@runReceiptSummery');
+	Route::get('/getmax', 'CustomerController@getmaxid');
 
 
 	//Email Template

@@ -466,12 +466,14 @@ class CustomerController extends Controller
     public function getmaxid(){
         $customers = Customer::all();
         $cid = array();
+    
         foreach($customers as $customer){
-            if(preg_match("/([a-z]{3}[0-9]{4})$/",$customer->ftth_id)){
+            if(preg_match("/([a-z]{5,6}[0-9]{9})$/",$customer->ftth_id)){
                 $num = substr($customer->ftth_id,-4,4);
                 array_push($cid,(int)$num);
             }
         }
+      //  dd($cid);
         return max($cid);
     }
     /**
