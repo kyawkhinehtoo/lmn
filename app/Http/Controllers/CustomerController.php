@@ -282,11 +282,26 @@ class CustomerController extends Controller
         // $customer->sale_person_id = $request->sale_person['id'];
         
         // $customer->save();
+        $auto_ftth_id = $request->ftth_id;
+        $check_id = Customer::where('ftth_id','=',$auto_ftth_id)->first();
+        if($check_id){
+            //already exists
+            $max_id = $this->getmaxid();
+            if($request->township['name'] == "Mong Koe"){
+               
+                $auto_ftth_id = 'gghmk6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
+              }else{
+                $auto_ftth_id = 'gghtcl6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
+              }
+   
+        }
         $customer = new Customer();
         foreach ($user_perm as $key => $value) {
             if ($value != 'id')
                 $customer->$value = $request->$value;
-
+            
+            if ($value == 'ftth_id')
+                $customer->$value = $auto_ftth_id;
             if ($value == 'location')
                 $customer->$value = $request->latitude . ',' . $request->longitude;
             if ($value == 'status_id')
