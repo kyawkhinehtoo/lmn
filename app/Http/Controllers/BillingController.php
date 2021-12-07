@@ -52,6 +52,7 @@ class BillingController extends Controller
             ->when($request->township, function ($query, $township) {
                 $query->where('townships.id', '=', $township['id']);
             })
+            ->whereDate('customers.installation_date', '<', $temp_date)
             ->where(function($query){
             return $query->where('customers.deleted', '=', 0)
             ->orwherenull('customers.deleted');

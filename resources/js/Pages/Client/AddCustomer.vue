@@ -548,11 +548,11 @@ export default {
         if(form.township.name == "Mong Koe"){
           form.ftth_id = 'gghmk6888'+('00000'+props.max_id+1).slice(-5);
         }else{
-          form.ftth_id = 'gghtcl6888'+('00000'+props.max_id).slice(-5);
+          form.ftth_id = 'gghtcl6888'+('00000'+props.max_id+1).slice(-5);
         }
         
       }else{
-        form.ftth_id = 'gghtcl6888'+('00000'+props.max_id).slice(-5);
+        form.ftth_id = 'gghtcl6888'+('00000'+props.max_id+1).slice(-5);
       }
     }
     

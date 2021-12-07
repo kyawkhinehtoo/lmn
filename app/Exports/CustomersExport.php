@@ -107,7 +107,6 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             },function ($query){
                 $query->orderBy('customers.id','desc');
             })
-            ->where('customers.deleted','<>',1)
             ->select('customers.*');
         return $mycustomer;
     
@@ -190,8 +189,8 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             $mycustomer->fiber_distance,      
             $mycustomer->onu_serial,      
             $mycustomer->onu_power, 
-            ($sn_dn)?$sn_dn->dn_name:"",
-            ($sn_dn)?$sn_dn->sn_name:"",     
+            (isset($sn_dn))?$sn_dn->dn_name:"",
+            (isset($sn_dn))?$sn_dn->sn_name:"",     
             $status->name,       
          ];
     }
