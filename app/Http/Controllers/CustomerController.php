@@ -343,7 +343,7 @@ class CustomerController extends Controller
         if ($request->end_date)
             $new_history->end_date = $request->end_date;
 
-        if ($request->status['relocation']){
+        if (isset($request->status['relocation'])){
             //new
             if ($request->new_address)
             $new_history->new_address = $request->new_address;
@@ -506,7 +506,7 @@ class CustomerController extends Controller
                         $new_history->active = 1;
                         $new_history->date = date("Y-m-j h:m:s");
                      
-                        if ($request->status['relocation']){
+                        if (isset($request->status['relocation'])){
                             $new_history->type = 'relocation';
                             //new
                             if ($request->new_address)
