@@ -105,7 +105,9 @@
             <li>
               <jet-nav-link :href="route('customer.index')" :active="route().current('customer.*')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Customer </jet-nav-link>
             </li>
-
+            <li>
+              <jet-nav-link :href="route('servicerequest.index')" :active="route().current('servicerequest.*')"> <i class="fas fa-tasks opacity-75 mr-2 text-sm w-6"></i> Service Request </jet-nav-link>
+            </li>
             <li>
               <jet-nav-link :href="route('incident.index')" :active="route().current('incident.index')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Incident Panel </jet-nav-link>
             </li>
@@ -281,7 +283,7 @@ export default {
             this.user = false;
             this.admin = false;
         }
-     else if(route().current('customer.*')){
+     else if(route().current('customer.*') || route().current('servicerequest.*')){
             this.billing = false;
             this.user = true;
             this.admin = false;

@@ -39,7 +39,7 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"  @click="sortBy('date')">Date <i class="fas fa-sort text-gray-400"></i></th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @click="sortBy('code')">Ticket <i class="fas fa-sort text-gray-400"></i></th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @click="sortBy('ftth_id')">User <i class="fas fa-sort text-gray-400"></i> </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @click="sortBy('type')">Type <i class="fas fa-sort text-gray-400"></i> </th>
+                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @click="sortBy('type')">Type <i class="fas fa-sort text-gray-400"></i> </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
 
                   </tr>
@@ -50,6 +50,7 @@
                     <td class="px-6 py-3 whitespace-nowrap">{{ row.date}} {{ row.time }}</td>
                     <td class="px-6 py-3 whitespace-nowrap">{{ row.code }}</td>
                     <td class="px-6 py-3 whitespace-nowrap" v-if="row.ftth_id">{{ row.ftth_id }}</td>
+              
                     <td class="px-6 py-3 whitespace-nowrap capitalize">{{ row.type.replace("_", " ") }}</td>
                     <td class="px-6 py-3 whitespace-nowrap">{{ getStatus(row.status) }}</td>
                   </tr>
@@ -242,6 +243,7 @@
                               <option value="wifi_issue">Wifi Issue</option>
                               <option value="onu_issue">ONU Issue</option>
                               <option value="password_change">Password Changed</option>
+                              <option value="game_issue">Game Issue</option>
                               <option value="other">Other</option>
                             </select>
                            </div>
@@ -266,7 +268,7 @@
                            <p v-if="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
                         </div>
                         <!-- end of status -->
-                             <!-- close date time -->
+                        <!-- close date time -->
                   
                          <div class="py-2 col-span-1 sm:col-span-1"  v-if="form.status == 3">
                           <div class="mt-1 flex">
@@ -275,14 +277,14 @@
                         </div>
                         <div class="py-2 col-span-2 sm:col-span-2"  v-if="form.status == 3">
                           <div class="mt-1 flex rounded-md shadow-sm">
-                            <input type="date" v-model="form.close_date" name="close_date" id="close_date" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :readonly="true" />
+                            <input type="date" v-model="form.close_date" name="close_date" id="close_date" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
                            
                           </div>
                            <p v-if="$page.props.errors.close_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.close_date }}</p>
                         </div>
                         <div class="py-2 col-span-2 sm:col-span-2"  v-if="form.status == 3">
                           <div class="mt-1 flex rounded-md shadow-sm">
-                            <input type="time" v-model="form.close_time" name="close_time" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :readonly="true" />
+                            <input type="time" v-model="form.close_time" name="close_time" class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
                            </div>
                            <p v-if="$page.props.errors.close_time" class="mt-2 text-sm text-red-500">{{ $page.props.errors.close_time }}</p>
                         </div>
@@ -301,18 +303,18 @@
                                 <span class="-mt-1 z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
                                   <i class="fas fa-pause"></i>
                                 </span>
-                                <input type="date" v-model="form.suspense_from" name="suspense_from" id="suspense_from" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
+                                <input type="date" v-model="form.start_date" name="start_date" id="start_date" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
                               </div>
-                              <p v-if="$page.props.errors.suspense_from" class="mt-2 text-sm text-red-500">{{ $page.props.errors.suspense_from }}</p>
+                              <p v-if="$page.props.errors.start_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.start_date }}</p>
                             </div>
                             <div class="col-span-1 sm:col-span-1">
                               <div class="mt-1 flex rounded-md shadow-sm">
                                 <span class="-mt-1 z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
                                   <i class="fas fa-play"></i>
                                 </span>
-                                <input type="date" v-model="form.suspense_to" name="suspense_to" id="suspense_to" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
+                                <input type="date" v-model="form.end_date" name="end_date" id="end_date" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
                               </div>
-                              <p v-if="$page.props.errors.suspense_to" class="mt-2 text-sm text-red-500">{{ $page.props.errors.suspense_to }}</p>
+                              <p v-if="$page.props.errors.end_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.end_date }}</p>
                             </div>
                           </div>
                         </div>
@@ -328,9 +330,9 @@
                             <span class="z-10 -mt-1 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
                               <i class="fas fa-play"></i>
                             </span>
-                            <input type="date" v-model="form.resume" name="resume" id="resume" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
+                            <input type="date" v-model="form.start_date" name="start_date" id="start_date" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
                           </div>
-                             <p v-if="$page.props.errors.resume" class="mt-2 text-sm text-red-500">{{ $page.props.errors.resume }}</p>
+                             <p v-if="$page.props.errors.resume" class="mt-2 text-sm text-red-500">{{ $page.props.errors.start_date }}</p>
                         </div>
                         <!-- end of resume -->
                         <!-- termination -->
@@ -344,9 +346,9 @@
                             <span class="z-10 -mt-1 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
                               <i class="fas fa-stop"></i>
                             </span>
-                            <input type="date" v-model="form.termination" name="termination" id="termination" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
+                            <input type="date" v-model="form.start_date" name="start_date" id="start_date" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
                          </div>
-                          <p v-if="$page.props.errors.termination" class="mt-2 text-sm text-red-500">{{ $page.props.errors.termination }}</p>
+                          <p v-if="$page.props.errors.start_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.start_date }}</p>
                         </div>
                         <!-- end of termination -->
                         <!-- relocation address -->
@@ -362,6 +364,19 @@
                             <p v-if="$page.props.errors.new_address" class="mt-2 text-sm text-red-500">{{ $page.props.errors.new_address }}</p>
                         </div>
                         <!-- end of relocation address -->
+                         <!-- relocation township -->
+                        <div class="py-2 col-span-1 sm:col-span-1" v-if="form.type == 'relocation'">
+                          <div class="mt-1 flex">
+                            <label for="new_address" class="block text-sm font-medium text-gray-700 mt-2 mr-2"> New Township : </label>
+                          </div>
+                        </div>
+                        <div class="py-2 col-span-4 sm:col-span-4" v-if="form.type == 'relocation'">
+                            <div class="mt-1 flex rounded-md shadow-sm" v-if="townships.length !== 0">
+                            <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.new_township" :allow-empty="false"></multiselect>
+                          </div>
+                            <p v-if="$page.props.errors.new_township" class="mt-2 text-sm text-red-500">{{ $page.props.errors.new_township }}</p>
+                        </div>
+                        <!-- end of relocation township -->
                         <!-- relocation latlong -->
                         <div class="py-2 col-span-1 sm:col-span-1" v-if="form.type == 'relocation'">
                           <div class="mt-1 flex">
@@ -391,6 +406,22 @@
                           </div>
                         </div>
                         <!-- end of relocation latlong -->
+                        <!-- relocation start date -->
+                        <div class="py-2 col-span-1 sm:col-span-1" v-if="form.type == 'relocation'">
+                          <div class="mt-1 flex">
+                            <label for="new_address" class="block text-sm font-medium text-gray-700 mt-2 mr-2"> Effective Date : </label>
+                          </div>
+                        </div>
+                          <div class="py-2 col-span-4 sm:col-span-4" v-if="form.type == 'relocation'">
+                          <div class="mt-1 flex rounded-md shadow-sm">
+                            <span class="z-10 -mt-1 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
+                              <i class="fas fa-truck"></i>
+                            </span>
+                            <input type="date" v-model="form.start_date" name="start_date" id="start_date" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
+                         </div>
+                          <p v-if="$page.props.errors.start_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.start_date }}</p>
+                        </div>
+                        <!-- relocation end date -->
                         <!-- plan change -->
                         <div class="py-2 col-span-1 sm:col-span-1" v-if="form.type == 'plan_change'">
                           <div class="mt-1 flex">
@@ -404,6 +435,22 @@
                           <p v-if="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
                         </div>
                         <!-- end of plan change -->
+                           <!-- relocation start date -->
+                        <div class="py-2 col-span-1 sm:col-span-1" v-if="form.type == 'plan_change'">
+                          <div class="mt-1 flex">
+                            <label for="new_address" class="block text-sm font-medium text-gray-700 mt-2 mr-2"> Effective Date : </label>
+                          </div>
+                        </div>
+                          <div class="py-2 col-span-4 sm:col-span-4" v-if="form.type == 'plan_change'">
+                          <div class="mt-1 flex rounded-md shadow-sm">
+                            <span class="z-10 -mt-1 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
+                              <i class="fas fa-random"></i>
+                            </span>
+                            <input type="date" v-model="form.start_date" name="start_date" id="start_date" class="pl-10 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" />
+                         </div>
+                          <p v-if="$page.props.errors.start_date" class="mt-2 text-sm text-red-500">{{ $page.props.errors.start_date }}</p>
+                        </div>
+                        <!-- relocation end date -->
                         <!-- detail -->
                         <div class="py-2 col-span-1 sm:col-span-1">
                           <div class="mt-1 flex">
@@ -414,7 +461,7 @@
                           <div class="mt-1 flex">
                             <textarea v-model="form.description" name="detail" id="detail" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"> </textarea>
                              </div>
-                            <p v-if="$page.props.errors.detail" class="mt-2 text-sm text-red-500">{{ $page.props.errors.detail }}</p>
+                            <p v-if="$page.props.errors.description" class="mt-2 text-sm text-red-500">{{ $page.props.errors.description }}</p>
                          </div>
                         <!-- end of detail -->
                       </div>
@@ -513,11 +560,10 @@ export default {
       type: "default",
       topic: null,
       status: 1,
-      suspense_from: null,
-      suspense_to: null,
-      resume: null,
-      termination: null,
-      new_address: null,
+      start_date: null,
+      end_date: null,
+      new_address: null, 
+      new_township: null, 
       latitude: null,
       longitude: null,
       package_id: null,
@@ -548,11 +594,10 @@ export default {
       form.type = "default";
       form.topic = "";
       form.status = 1;
-      form.suspense_from = "";
-      form.suspense_to = "";
-      form.resume = "";
-      form.termination = "";
+      form.start_date = "";
+      form.end_date = "";
       form.new_address = "";
+      form.new_township = "";
       form.latitude = "";
       form.longitude = "";
       form.package_id = "";
@@ -561,12 +606,12 @@ export default {
       form.time = "";
       form.close_date = "";
       form.close_time = "";
+    
     }
     function openModal() {
       var today = new Date();
       var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
       var time = today.getHours() + ":" + today.getMinutes();
-      console.log(time);
       if(!form.close_date && incidentStatus.value != 3)
       form.close_date = date;
       if(!form.close_time && incidentStatus.value != 3)
@@ -648,11 +693,10 @@ export default {
       form.type = data.type;
       form.topic = data.topic;
       form.status = data.status;
-      form.suspense_from = data.suspense_from;
-      form.suspense_to = data.suspense_to;
-      form.resume = data.resume;
-      form.termination = data.termination;
+      form.start_date = data.start_date;
+      form.end_date = data.end_date;
       form.new_address = data.new_address;
+      form.new_township = props.townships.filter((d) => d.id == data.new_township)[0];
       form.package_id = props.packages.filter((d) => d.id == data.package_id)[0];
       form.description = data.description;
       form.date = data.date;
@@ -740,11 +784,14 @@ export default {
  
     onMounted(() => {
       props.packages.map(function (x) {
-        return (x.item_data = `${x.name} - ${x.contract_period} Months`);
+        return (x.item_data = `${x.speed} Mbps - ${x.name} - ${x.contract_period} Months`);
       });
       priorityColor();
     });
     onUpdated(() => {
+      props.packages.map(function (x) {
+        return (x.item_data = `${x.speed} Mbps - ${x.name} - ${x.contract_period} Months`);
+      });
       priorityColor();
     });
     return { loading,openModal, closeModal, newTicket, isOpen, deleteIncident, searchIncident, edit, sortBy, submit, getStatus, clearform, changeStatus,form, sort, search, show, tabClick, tab, selection, selected_id, editMode, typeChange,incidentStatus,page_update};

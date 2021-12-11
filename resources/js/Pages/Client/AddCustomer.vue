@@ -402,7 +402,8 @@ export default {
     roles: Object,
     users: Object,
     dn:Object,
-    max_id:Object,
+    max_mk_id:Object,
+    max_tcl_id:Object,
     errors: Object,
   },
   setup(props) {
@@ -546,9 +547,9 @@ export default {
       if(form.township){
         
         if(form.township.name == "Mong Koe"){
-          form.ftth_id = 'gghmk6888'+('00000'+(parseInt(props.max_id)+1)).slice(-5);
+          form.ftth_id = 'gghmk6888'+('00000'+(parseInt(props.max_mk_id)+1)).slice(-5);
         }else{
-          form.ftth_id = 'gghtcl6888'+('00000'+(parseInt(props.max_id)+1)).slice(-5);
+          form.ftth_id = 'gghtcl6888'+('00000'+(parseInt(props.max_tcl_id)+1)).slice(-5);
         }
         
       }else{

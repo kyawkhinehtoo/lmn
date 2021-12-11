@@ -23,87 +23,33 @@ class CustomersUpdate implements ToModel
     {
         if($row[0] != 'No' ){
             
-            $customer = Customer::where('ftth_id','LIKE',trim($row[2]).'%')->first();
-            // $status = Status::where('name','LIKE','%'.$row[3].'%')->first();  
+            $customer = Customer::where('ftth_id','LIKE',trim($row[0]).'%')->first();
+            $status = Status::where('name','LIKE','%'.$row[1].'%')->first();  
             // $active_satus = Status::where('name','LIKE','%Active%')->first();  
             // $suspend_satus = Status::where('name','LIKE','%Suspend%')->first();  
              if($customer){
      
-          //      // $tmp_date = (trim($row[19]) != '')?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[19]):null;
-          //      // $customer->bill_start_date = $tmp_date;
-          
-            //    if($row[3] == "Suspend" || $row[3] == "Terminate"  ){
-            //         $old = CustomerHistory::find($customer->id);
-            //         if($old){
-            //             $old->active = 0;
-            //             $old->update();
-            //         }
-                    
 
-            //         $new_history = new CustomerHistory();
-            //         $new_history->status_id = $status->id;
-            //         $new_history->customer_id = $customer->id;
-            //         $new_history->actor_id = Auth::user()->id;
-            //         $new_history->active = 1;
+                    CustomerHistory::where('customer_id', '=', $customer->id)->update(['active'=>0]);
 
-
-            //         if ($row[4]!= "")
-            //             $new_history->start_date =(trim($row[4]) != '')?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[4]):null;
-
-            //         if ($row[5]!= "")
-            //             $new_history->end_date =(trim($row[5]) != '')?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[5]):null;
-                    
-            //         $new_history->save();
-            //         $customer->status_id = $status->id;
-            //         $log = $row[1]." Updated Data for suspend and terminate";
+                    $active_history = new CustomerHistory();
+                    $active_history->customer_id = $customer->id;
+                    $active_history->new_status = $status->id;
+                    //$active_history->start_date =  date("Y-m-j h:m:s");
+                    $active_history->type = $status->name;
+                    $active_history->active = 1;
+                    $active_history->actor_id = Auth::user()->id;
+                    $active_history->save();
+            
+                $customer->status_id = $status->id;
+                $customer->update();
+                $log = $row[0]." Updated";
+                Storage::append('update.log',$log);
                
-            //         Storage::append('import_log.log',$log);
-
-            //    }else{
-
-            //         $old = CustomerHistory::where('customer_id','=',$customer->id);
-            //         if($old)
-            //         $old->delete();
-
-            //         $new_history = new CustomerHistory();
-            //         $new_history->status_id = $suspend_satus->id;
-            //         $new_history->customer_id = $customer->id;
-            //         $new_history->actor_id = Auth::user()->id;
-            //         $new_history->active = 0;
-
-
-            //         if ($row[4]!= "")
-            //             $new_history->start_date =(trim($row[4]) != '')?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[4]):null;
-
-            //         if ($row[5]!= "")
-            //             $new_history->end_date =(trim($row[5]) != '')?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[5]):null;
-                    
-            //         $new_history->save();
-
-            //         $active_history = new CustomerHistory();
-            //         $active_history->customer_id = $customer->id;
-            //         $active_history->status_id = $active_satus->id;
-            //         $active_history->start_date = (trim($row[5]) != '')?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[5]):null;
-            //         $active_history->active = 1;
-            //         $active_history->actor_id = Auth::user()->id;
-            //         $active_history->save();
-                
-            //         $customer->status_id = $active_satus->id;
-            //         $log = $row[1]." Updated Data for Reactiveate";
-            //         Storage::append('import_log.log',$log);
-            //    }
-       
-            //     $customer->update();
-            if($row[5] != ""){
-                $customer->payment_type = 1;
-                $customer->prepaid_period = $row[6];
-                $log = $row[1]." Updated";
-                Storage::append('import_log.log',$log);
-               }
-            $customer->update();
+           
              }else{
-                $log = $row[1]." Not Found";
-                Storage::append('import_log.log',$log);
+                $log = $row[0]." Not Found";
+                Storage::append('update.log',$log);
              }
      
 

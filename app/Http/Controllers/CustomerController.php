@@ -12,7 +12,9 @@ use App\Models\Township;
 use App\Models\Role;
 use App\Models\SnPorts;
 use App\Models\DnPorts;
+use App\Models\CustomerHistory;
 use Inertia\Inertia;
+use DateTime;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -211,7 +213,8 @@ class CustomerController extends Controller
         $status_list = Status::get();
         $roles = Role::get();
         $users = User::find(Auth::user()->id);
-        $max_id = $this->getmaxid();
+        $max_tcl_id = $this->getmaxtclid();
+        $max_mk_id = $this->getmaxmkid();
         return Inertia::render(
             'Client/AddCustomer',
             [
@@ -224,7 +227,8 @@ class CustomerController extends Controller
                 'users' => $users,
                 'sn' => $sn,
                 'dn' => $dn,
-                'max_id' => $max_id,
+                'max_tcl_id' => $max_tcl_id,
+                'max_mk_id' => $max_mk_id,
             ]
         );
     }
@@ -286,11 +290,12 @@ class CustomerController extends Controller
         $check_id = Customer::where('ftth_id','=',$auto_ftth_id)->first();
         if($check_id){
             //already exists
-            $max_id = $this->getmaxid();
+            
             if($request->township['name'] == "Mong Koe"){
-               
+                $max_id = $this->getmaxmkid();
                 $auto_ftth_id = 'gghmk6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
               }else{
+                $max_id = $this->getmaxtclid();
                 $auto_ftth_id = 'gghtcl6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
               }
    
@@ -323,6 +328,36 @@ class CustomerController extends Controller
         }
         $customer->deleted = 0;
         $customer->save();
+
+        $new_history = new CustomerHistory();
+      
+        $new_history->customer_id = $customer->id;
+        $new_history->actor_id = Auth::user()->id;
+        $new_history->new_status = $request->status['id'];
+        $new_history->active = 1;
+        $new_history->type = 'new_installation';
+        $new_history->date = date("Y-m-j h:m:s");
+        if ($request->start_date)
+            $new_history->start_date = $request->start_date;
+
+        if ($request->end_date)
+            $new_history->end_date = $request->end_date;
+
+        if ($request->status['relocation']){
+            //new
+            if ($request->new_address)
+            $new_history->new_address = $request->new_address;
+            if ($request->new_latitude && $request->new_longitude)
+            $new_history->new_location = $request->new_latitude . ',' . $request->new_longitude;
+            //old
+            $new_history->old_address = $request->address;
+            $new_history->old_location = $request->latitude . ',' . $request->longitude;
+        }
+        if ($request->package)
+        {
+            $new_history->new_package =$request->package['id']; 
+        }
+        $new_history->save();
         return redirect()->route('customer.index')->with('message', 'Customer Created Successfully.');
     }
 
@@ -343,6 +378,9 @@ class CustomerController extends Controller
                     return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
                 })
+                ->first();
+            $customer_history = CustomerHistory::where('customer_id', '=', $id)
+                ->where('active', '=', 1)
                 ->first();
             $sn = DB::table('sn_ports')
                     ->join('dn_ports','sn_ports.dn_id','=','dn_ports.id')
@@ -397,6 +435,7 @@ class CustomerController extends Controller
                     'users' => $users,
                     'sn' => $sn,
                     'dn' => $dn,
+                    'customer_history' => $customer_history
                 ]
             );
         }
@@ -440,8 +479,68 @@ class CustomerController extends Controller
 
                 if ($value == 'location')
                     $customer->$value = $request->latitude . ',' . $request->longitude;
-                if ($value == 'status_id')
-                $customer->$value = $request->status['id'];
+                    if ($value == 'status_id') {
+                        $customer->$value = $request->status['id'];
+                        CustomerHistory::where('customer_id', '=', $request->input('id'))->update(['active'=>0]);
+    
+    
+                        $new_history = new CustomerHistory();
+                        $old_c = Customer::find($request->input('id'));
+                        if ($request->start_date)
+                        $new_history->start_date = $request->start_date;
+            
+                        if ($request->end_date)
+                        $new_history->end_date = $request->end_date;
+            
+                        $new_history->customer_id = $customer->id;
+                        $new_history->actor_id = Auth::user()->id;
+                        //if($old_c->status_id !=  $request->status['id']){
+                            $new_history->old_status =  $old_c->status_id;
+                            $new_history->new_status = $request->status['id'];
+                            $new_history->start_date = $request->start_date;
+                           
+                       // }
+                       if($old_c->status_id !=  $request->status['id'])
+                       $new_history->type = $request->status['name'];
+                        
+                        $new_history->active = 1;
+                        $new_history->date = date("Y-m-j h:m:s");
+                     
+                        if ($request->status['relocation']){
+                            $new_history->type = 'relocation';
+                            //new
+                            if ($request->new_address)
+                            $new_history->new_address = $request->new_address;
+                            if ($request->new_latitude && $request->new_longitude)
+                            $new_history->new_location = $request->new_latitude . ',' . $request->new_longitude;
+                            //old
+                            $new_history->old_address = $request->address;
+                            $new_history->old_location = $request->latitude . ',' . $request->longitude;
+                        }
+                        if ($request->package)
+                        {
+                            if($request->package['id'] != $old_c->package_id ){
+                                $new_history->type = 'plan_change';
+                                $new_history->new_package =$request->package['id']; 
+                                $new_history->old_package = $old_c->package_id;
+                                $myDateTime = new DateTime;
+                                if ($request->start_date){
+                                    $myDateTime = new DateTime($request->start_date);
+                                }
+                                    $newtime = clone $myDateTime;
+                                    if($myDateTime->format('d') <= 7){
+                                        $newtime->modify('first day of this month');
+                                        $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+                                    }else{
+                                        $newtime->modify('+1 month');
+                                        $newtime->modify('first day of this month');
+                                        $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+                                    }
+                            }
+                            
+                        }
+                        $new_history->save();
+                    }
                 if ($value == 'township_id')
                     $customer->$value = $request->township['id'];
                 if ($value == 'package_id')
@@ -463,18 +562,50 @@ class CustomerController extends Controller
 
         return redirect()->route('customer.index')->with('message', 'Customer Updated Successfully.');
     }
-    public function getmaxid(){
+    public function getHistory($id)
+    {
+        if ($id) {
+            $customer_history =  CustomerHistory::where('customer_id', '=', $id)
+                                 ->leftjoin('status','status.id','=','customer_histories.old_status')
+                                 ->leftjoin('status as s','s.id','=','customer_histories.new_status')
+                                 ->join('users','users.id','=','customer_histories.actor_id')
+                                 ->leftjoin('packages as p1', DB::raw( 'p1.id' ),'=','customer_histories.old_package')
+                                 ->leftjoin('packages as p2',DB::raw( 'p2.id' ),'=','customer_histories.new_package')
+                                 ->select('customer_histories.*','status.name as old_status_name','status.color as status_color','users.name as actor_name',DB::raw( 'p1.name as old_package_name' ),DB::raw( 'p2.name as new_package_name' ),DB::raw( 's.name as new_status_name'))
+                                 ->OrderBy('customer_histories.id','DESC')
+                                 ->get();
+            return response()->json($customer_history, 200);
+        }
+    }
+    public function getmaxtclid(){
         $customers = Customer::all();
         $cid = array();
-    
+        //gghtcl688803770
+        //gghmk688803770
         foreach($customers as $customer){
-            if(preg_match("/([a-z]{5,6}[0-9]{9})$/",$customer->ftth_id)){
+            if(preg_match("/(^[a-z]{6}[0-9]{9})$/",$customer->ftth_id)){
                 $num = substr($customer->ftth_id,-4,4);
                 array_push($cid,(int)$num);
             }
         }
-      //  dd($cid);
+        if(sizeof($cid))
         return max($cid);
+        return 0;
+    }
+    public function getmaxmkid(){
+        $customers = Customer::all();
+        $cid = array();
+        //gghtcl688803770
+        //gghmk688803770
+        foreach($customers as $customer){
+            if(preg_match("/(^[a-z]{5}[0-9]{9})$/",$customer->ftth_id)){
+                $num = substr($customer->ftth_id,-4,4);
+                array_push($cid,(int)$num);
+            }
+        }
+        if(sizeof($cid))
+        return max($cid);
+        return 0;
     }
     /**
      * Remove the specified resource from storage.

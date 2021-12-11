@@ -53,6 +53,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/getLog/{id}', 'IncidentController@getLog');
 	Route::get('/getHistory/{id}', 'IncidentController@getHistory');
 	Route::get('/getFile/{id}', 'IncidentController@getFile');
+	Route::get('/getCustomerHistory/{id}', 'CustomerController@getHistory');
 	Route::get('/getCustomerFile/{id}', 'IncidentController@getCustomerFile');
 	Route::delete('/deleteFile/{id}', 'IncidentController@deleteFile');
 	Route::post('/addTask', 'IncidentController@addTask');
@@ -65,11 +66,15 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/customer/search/', 'CustomerController@show');
 	Route::resource('/incident', IncidentController::class);
 	Route::get('/incidentlist', 'IncidentController@getIncident');
+
 	Route::get('importExportView', 'ExcelController@importExportView')->name('importExportView');
 	// Route for export/download tabledata to .csv, .xls or .xlsx
 	Route::post('/exportExcel', 'ExcelController@exportExcel')->name('exportExcel');
 	// Route for import excel data to database.
 	Route::post('importExcel', 'ExcelController@importExcel')->name('importExcel');
+	Route::post('updateExcel', 'ExcelController@updateExcel')->name('updateExcel');
+
+
 	Route::resource('/port', PortController::class);
 	Route::resource('/snport', SNPortController::class);
 	Route::get('/generateSN', 'SNPortController@generateSN');
@@ -117,7 +122,8 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::resource('/receipt', ReceiptController::class);
 	Route::get('/saveSingle', 'BillingController@saveSingle');
 	Route::get('/runSummery', 'ReceiptController@runReceiptSummery');
-	Route::get('/getmax', 'CustomerController@getmaxid');
+	Route::get('/gettclmax', 'CustomerController@gettclmaxid');
+	Route::get('/getmkmax', 'CustomerController@getmkmaxid');
 
 
 	//Email Template
@@ -126,6 +132,8 @@ Route::group(['middleware'=> 'auth'], function(){
 
 	//test
 	Route::get('/testCustomer', 'CustomerController@preg_test');
+	//Service Request
+	Route::resource('/servicerequest', ServiceRequestController::class);
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

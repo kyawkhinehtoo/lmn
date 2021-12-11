@@ -8,6 +8,18 @@
         <div class="mt-5 md:mt-0 md:col-span-2">
          <form @submit.prevent="submit">
             <div class="shadow sm:rounded-md sm:overflow-hidden">
+              <div class="inline-flex w-full bg-gray-50 rounded-t-lg">
+                    <ul id="tabs" class="flex">
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 1 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(1)" preserve-state>Genaral</a></li>
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 2 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(2)" preserve-state>Documents</a></li>
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 3 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(3)" preserve-state>History</a></li>
+                     
+                    </ul>
+                  </div>
+                    <!-- Tab Contents -->
+                  <div id="tab-contents">
+                    <!-- tab1 -->
+                    <div class="p-4" :class="[tab == 1 ? '' : 'hidden']">
               <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                 <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Customer Basic Information</h6>
                 <div class="grid grid-cols-4 gap-2">
@@ -359,15 +371,7 @@
                     <p v-show="$page.props.errors.installation_remark" class="mt-2 text-sm text-red-500">{{ $page.props.errors.installation_remark }}</p>
                   </div>
                 </div>
-                <hr class="my-4 md:min-w-full" />
-                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Customer Data</h6>
-                  <div class="grid grid-cols-1 gap-2">
-                     <div class="col-span-1 sm:col-span-1">
-                  <keep-alive>
-                    <customer-file :data="form.id" :permission="!checkPerm('order_date')" />
-                    </keep-alive>
-                     </div>
-                  </div>
+             
               </div>
               <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
                 <inertia-link :href="route('customer.index')" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150">Back</inertia-link>
@@ -376,6 +380,28 @@
 
                 <button wire:click.prevent="submit" type="submit" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" >Save</button>
               </div>
+                </div> <!-- tab1 -->
+               <div class="p-4" :class="[tab == 2 ? '': 'hidden']">
+                  <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Customer Documents</h6>
+                  <hr class="my-4 md:min-w-full" />
+                  <keep-alive>
+                   <customer-file :data="form.id" :permission="!checkPerm('order_date')" v-if="tab== 2"/>
+                  </keep-alive>
+                 
+                  </div>
+               </div>
+               <div class="p-4" :class="[tab == 3 ? '': 'hidden']">
+                  <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Customer History</h6>
+                  <hr class="my-4 md:min-w-full" />
+                  <keep-alive>
+                   <customer-history :data="form.id" :permission="!checkPerm('order_date')" v-if="tab== 3"/>
+                  </keep-alive>
+                 
+                  </div>
+               </div>
+              </div> <!-- Tab Contents -->
             </div>
           </form>
         </div>
@@ -391,12 +417,14 @@ import Multiselect from "@suadelabs/vue3-multiselect";
 import { reactive,ref, onMounted } from "vue";
 import { Inertia } from "@inertiajs/inertia";
 import CustomerFile from "@/Components/CustomerFile";
+import CustomerHistory from "@/Components/CustomerHistory";
 export default {
   name: "EditCustomer",
   components: {
     AppLayout,
     CustomerFile,
     Multiselect,
+    CustomerHistory,
   },
   props: {
     packages: Object,
@@ -410,6 +438,7 @@ export default {
     users: Object,
     sn:Object,
     dn:Object,
+    customer_history: Object,
   },
   setup(props) {
       let lat_long = '';
@@ -417,7 +446,12 @@ export default {
         console.log('hello');
         lat_long = props.customer.location.split(",", 2); 
       }
-  
+      let tab = ref(true);
+      let selected_id = ref("");
+        function tabClick(val) {
+      if(selected_id.value != null)
+      tab.value = val;
+    }
       let res_sn = ref("");
     const form = reactive({
       id: props.customer.id,
@@ -537,7 +571,7 @@ export default {
       form.status = props.status_list.filter((d) => d.id == props.customer.status_id)[0];
       form.subcom = props.subcoms.filter((d) => d.id == props.customer.subcom_id)[0];
     });
-    return { form,submit,isNumber,checkPerm,res_sn,DNSelect };
+    return { form,submit,isNumber,checkPerm,res_sn,DNSelect,tab,tabClick };
   },
 };
 </script>

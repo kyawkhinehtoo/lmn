@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use DateTime;
 
 class IncidentController extends Controller
 {
@@ -43,7 +44,10 @@ class IncidentController extends Controller
             ->join('roles', 'users.role', '=', 'roles.id')
             ->select('users.name as name', 'users.id as id')
             ->get();
-        $customers = Customer::select('id','ftth_id')->get();
+        $customers = Customer::select('id','ftth_id')->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })->get();
         $orderby = null;
         if($request->sort && $request->order){
             $orderby = $request->sort .' '.$request->order;
@@ -254,25 +258,45 @@ class IncidentController extends Controller
         $incident->priority = $request->priority;
         $incident->topic = $request->topic;
         $incident->status = $request->status;
-        $incident->suspense_from = $request->suspense_from;
-        $incident->suspense_to = $request->suspense_to;
-        $incident->resume = $request->resume;
-        $incident->termination = $request->termination;
+        
+        if($request->type == 'plan_change'){
+            //$myDateTime = new DateTime;
+            //$newtime = clone $myDateTime;
+            if ($request->start_date)
+            $incident->start_date = $request->start_date;
+            ///$myDateTime = new DateTime($request->start_date);
+            // if($myDateTime->format('d') <= 7){
+            //     $newtime->modify('first day of this month');
+            //     $incident->start_date = $newtime->format('Y-m-j h:m:s');
+            // }else{
+            //     $newtime->modify('+1 month');
+            //     $newtime->modify('first day of this month');
+            //     $incident->start_date = $newtime->format('Y-m-j h:m:s');
+            // }
+        }else{
+            $incident->start_date = $request->start_date;
+        }
+        
+        
+        $incident->end_date = $request->end_date;
+        if(!empty($request->new_township)){
+            $incident->new_township = $request->new_township['id'];
+        }
+
         $incident->new_address = $request->new_address;
         if(!empty($request->latitude) && !empty($request->longitude))
         $incident->location = $request->latitude.','.$request->longitude;
-        if(!empty($request->package)){
+        if(!empty($request->package_id)){
             $incident->package_id = $request->package_id['id'];
         }
-        $incident->date = $request->date;
-        $incident->time = $request->time;
-
+       
         if(isset($request->close_date) && $request->status == 3)
         $incident->close_date = $request->close_date;
-        
+                
         if(isset($request->close_time) && $request->status == 3)
         $incident->close_time = $request->close_time;
-
+        $incident->date = $request->date;
+        $incident->time = $request->time;
         $incident->description = $request->description;
         $incident->save();
         $incident->code = 'T-'.str_pad($incident->id,4,"0",STR_PAD_LEFT);
@@ -339,15 +363,22 @@ class IncidentController extends Controller
                 $incident->priority = $request->priority;
                 $incident->topic = $request->topic;
                 $incident->status = $request->status;
-                $incident->suspense_from = $request->suspense_from;
-                $incident->suspense_to = $request->suspense_to;
-                $incident->resume = $request->resume;
-                $incident->termination = $request->termination;
+                if($request->type == 'plan_change'){
+                    if ($request->start_date)
+                    $incident->start_date = $request->start_date;
+                }else{
+                    $incident->start_date = $request->start_date;
+                }
+                $incident->end_date = $request->end_date;
+                if(!empty($request->new_township)){
+                    $incident->new_township = $request->new_township['id'];
+                }
+        
                 $incident->new_address = $request->new_address;
                 if(!empty($request->latitude) && !empty($request->longitude))
                 $incident->location = $request->latitude.','.$request->longitude;
-                if(!empty($request->package)){
-                    $incident->package_id = $request->package_['id'];
+                if(!empty($request->package_id)){
+                    $incident->package_id = $request->package_id['id'];
                 }
                 $incident->date = $request->date;
                 $incident->time = $request->time;
@@ -356,8 +387,8 @@ class IncidentController extends Controller
                 $incident->close_date = $request->close_date;
                 
                 if(isset($request->close_time) && $request->status == 3)
-                
                 $incident->close_time = $request->close_time;
+
                 $incident->description = $request->description;
 
             
@@ -400,12 +431,11 @@ class IncidentController extends Controller
                 }
                 else if($key == "incharge_id"){
                     $insert .= $key.':'.$value["name"].',';
-                }else if($key == "resume" || $key== "date" || $key== "suspense_from" || $key== "suspense_to"){
+                }else if( $key== "date" || $key== "start_date" || $key== "end_date"){
                     $insert .= $key.':'.ucwords($value).',';
                 }else  if( $key == "time"){
                     $insert .=  $key.':'.ucwords($value).',';
                 }else if($key == "status"){
-                    dd($this->getStatus($value));
                     $insert .=  $key.':'.$this->getStatus($value).',';
                 }else{
                     $insert .=  $key.':'.ucwords($value).',';
@@ -415,7 +445,7 @@ class IncidentController extends Controller
         return $insert;
     }
     public function checkUpdate($old,$new){
-   
+  
         $update =null;
         foreach ($new as $key => $value) {
             if(isset($old->$key) && !empty($key) ){
@@ -425,19 +455,29 @@ class IncidentController extends Controller
                 }
                 else if($key == "incharge_id"){
                     $update .=($old->incharge_id != $value['id'])? $key.':'.$value["name"].',':'';
-                }else if($key == "resume" || $key== "date" || $key== "suspense_from" || $key== "suspense_to"){
+                }else if( $key== "date" || $key== "start_date" || $key== "end_date"){
                     $update .= (date("Y-m-j",$old->$key) != $value)? $key.':'.ucwords($value).',':'';
                 }else  if( $key == "time"){
                     $update .= ($old->$key != strtotime($value))? $key.':'.ucwords($value).',':'';
                 }else if($key == "status"){
                     $update .=  ($old->$key != $value)? $key.':'.$this->getStatus($value).',':'';
+                }else if($key == "package_id"){
+                    $update .=  ($old->$key != $value)? $key.':'.$value["name"].',':'';
+                }else if($key == "new_township"){
+                    $update .=  ($old->$key != $value)? $key.':'.$value["name"].',':'';
                 }else{
-                    $update .= ($old->$key != $value)? $key.':'.ucwords($value).',':'';
+                    try {
+                        $update .= ($old->$key != $value)? $key.':'.ucwords($value).',':'';
+                    } catch (\Throwable $th) {
+                        dd($key);
+                    }
+                   
                 }
                 
             }
            
         }
+   
         return $update;
     }
     public function destroy(Request $request, $id)
