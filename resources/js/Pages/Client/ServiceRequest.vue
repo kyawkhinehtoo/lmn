@@ -137,7 +137,7 @@
                        <div class="mb-4 col-span-1 sm:col-span-1" v-if="form.new_address">
                         <label for="current_address" class="block text-gray-700 text-sm font-bold mt-3 mr-2">Current Address:</label>
                       </div>
-                      <div class="mb-4 col-span-4 sm:col-span-4"  v-if="form.current_address"> 
+                      <div class="mb-4 col-span-4 sm:col-span-4"  v-if="form.new_address"> 
                   
                         <textarea class="mt-1 ring-1 ring-blue-200  focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="current_address" :value='`${form.current_address}`' :readonly="true" />
                       </div>
