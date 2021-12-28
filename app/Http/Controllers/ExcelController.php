@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Exports\CustomersExport;
 use App\Imports\CustomersImport;
+use App\Imports\ContractUpdate;
 use App\Imports\PaymentImport;
 
 use App\Exports\BillingExport;
@@ -29,6 +30,10 @@ class ExcelController extends Controller
     public function tempImportView()
     {
        return view('excel.tempupdate');
+    }
+    public function updateContractView()
+    {
+       return view('excel.contractupdate');
     }
    
    
@@ -69,6 +74,15 @@ class ExcelController extends Controller
     {
         Storage::prepend('import_log.log', 'Importing Excel File');
         Excel::import(new CustomersUpdate,$request->import_file);
+
+        Session::put('success', 'Your file is imported successfully in database.');
+           
+        return back();
+    }
+    public function updateContract(Request $request) 
+    {
+        Storage::prepend('contract_update.log', 'Importing Excel File');
+        Excel::import(new ContractUpdate,$request->import_file);
 
         Session::put('success', 'Your file is imported successfully in database.');
            

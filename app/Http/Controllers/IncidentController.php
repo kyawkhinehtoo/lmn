@@ -451,7 +451,7 @@ class IncidentController extends Controller
             if(isset($old->$key) && !empty($key) ){
     
                 if($key == "customer_id"){
-                    $update .=($old->customer_id != $value['id'])? $key.':'.$value["name"].',':'';
+                    $update .=($old->customer_id != $value['id'])? $key.':'.$value["ftth_id"].',':'';
                 }
                 else if($key == "incharge_id"){
                     $update .=($old->incharge_id != $value['id'])? $key.':'.$value["name"].',':'';

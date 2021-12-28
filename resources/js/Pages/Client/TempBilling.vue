@@ -411,7 +411,7 @@ export default {
     function clearData() {
       var conf = confirm("Are you sure want to remove all imported Data ?");
       if (conf) {
-        Inertia.post("/truncateBilling/");
+        Inertia.post("/truncateBilling");
       }
     }
 
