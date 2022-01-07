@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Exports\CustomersExport;
 use App\Imports\CustomersImport;
 use App\Imports\ContractUpdate;
+use App\Imports\TownshipUpdate;
 use App\Imports\PaymentImport;
 
 use App\Exports\BillingExport;
@@ -34,6 +35,10 @@ class ExcelController extends Controller
     public function updateContractView()
     {
        return view('excel.contractupdate');
+    }
+    public function updateTownshipView()
+    {
+       return view('excel.townshipupdate');
     }
    
    
@@ -83,6 +88,16 @@ class ExcelController extends Controller
     {
         Storage::prepend('contract_update.log', 'Importing Excel File');
         Excel::import(new ContractUpdate,$request->import_file);
+
+        Session::put('success', 'Your file is imported successfully in database.');
+           
+        return back();
+    }
+    public function updateTownship(Request $request) 
+    {
+        ini_set('max_execution_time', 0);
+        Storage::prepend('township_update.log', 'Importing Excel File');
+        Excel::import(new TownshipUpdate,$request->import_file);
 
         Session::put('success', 'Your file is imported successfully in database.');
            

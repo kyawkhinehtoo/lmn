@@ -86,7 +86,9 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('tempImportView', 'ExcelController@tempImportView')->name('tempImportView');
 
 	Route::get('updateContractView', 'ExcelController@updateContractView')->name('updateContractView');
+	Route::get('updateTownshipView', 'ExcelController@updateTownshipView')->name('updateTownshipView');
 	Route::post('updateContract', 'ExcelController@updateContract')->name('updateContract');
+	Route::post('updateTownship', 'ExcelController@updateTownship')->name('updateTownship');
 	
 	Route::post('updateTempExcel', 'ExcelController@updateTemp')->name('updateTempExcel');
 	Route::post('importPayment', 'ExcelController@importPayment')->name('importPayment');
