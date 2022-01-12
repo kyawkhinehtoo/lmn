@@ -44,6 +44,8 @@ body{
     margin:0 auto;
     height:297mm;
     width:210mm; 
+    font-weight: normal;
+    font-size: 0.8em;
     /* height:210mm;
     width:297mm;
     width:1344px;
@@ -54,12 +56,9 @@ body{
 
 .mm{
     font-family: 'WinInnwa';
-    font-size: 1.3rem;
+    font-size: 1rem;
 }
-body{
-    font-family:sans-serif;
-    font-size: 0.5rem;
-}
+
 .header-img{
   width:100%;
   height:auto;
@@ -133,9 +132,8 @@ body{
     height: 0.5em;
     text-align: center;
     width: auto;
-    padding:10px 0;
+    padding:8px;
     color:#484848;
-    font-weight: 600;
 }
 tr td.fix {
     width: 1%;
@@ -174,13 +172,13 @@ tr td.fix {
   margin:0 auto;
 }
 .round{
-    text-align: left;
+    text-align: center;
     vertical-align: middle;
     font-size: 1.2rem;
     font-weight: bolder;
     border-radius: 0.5rem;
     width: 65%;
-    padding: 10px 5px;
+    padding: 5px;
     margin: 0 auto;
 }
 .round label{
@@ -194,7 +192,7 @@ tr td.fix {
     font-size: 1rem;
     font-weight: bold;
     padding: 10px 20px;
-
+    margin-top:5px;
 }
 
 </style>
@@ -202,6 +200,17 @@ tr td.fix {
 </head>
 
 <body class="font-sans antialiased" style="border-top:0 !important">
+@php
+                        if (strpos($period_covered, ' to ')) {
+                            $p_months = explode(" to ", ($period_covered));
+                            $from = (new DateTime($p_months[0]));
+                            $to = (new DateTime($p_months[1]));
+                            $first_date = $from->format("d-m-Y");
+                            $last_date = $to->format("d-m-Y");
+                            $period_covered = $first_date.' to '.$last_date;
+                        }  
+                   
+                @endphp
 <div class="container">
 <div class="container-1">
         <div>
@@ -231,17 +240,17 @@ tr td.fix {
         <div class="center" style="margin-top:5px;" >
             <div class="bg-image">
             <table class="collapse" style="margin-top:0px; border-top:0; width:100%; ">
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Client ID : {{$ftth_id}}</td></tr>
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Address : {{$attn}}</td><td rowspan="2">Internet Speed: {{$qty}}</td></tr>
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Contact No : {{$phone}}</td></tr>
+                <tr><td style="text-align:left;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
+                <tr><td style="text-align:left;" colspan="4">Client ID : {{$ftth_id}}</td></tr>
+                <tr><td style="text-align:left;" colspan="4">Address : {{$attn}}</td><td rowspan="2">Internet Speed: <br />{{$qty}}</td></tr>
+                <tr><td style="text-align:left;" colspan="4">Contact No : {{$phone}}</td></tr>
         
                 <tr>
                     <th>No</th>
                     <th style="width: 200px;">Description</th>
                     <th style="width: 100px;">Qty</th>
-                    <th style="width: 100px;">Price (USD/Kyat)</th>
-                    <th style="width: 150px;">Amount <br/> (USD/Kyat)</th>
+                    <th style="width: 100px;">Price (THB)</th>
+                    <th style="width: 150px;">Amount (THB)</th>
                 </tr>
                 </thead>
             <tbody>
@@ -295,9 +304,9 @@ tr td.fix {
             <table>
                 <tr><td colspan="6">&nbsp;</td></tr>
                 <tr><td colspan="6">&nbsp;</td></tr>
-                <tr><td>Sale Name </td><td>: ..........................</td><td>ID</td><td>: ..........................</td><td>Paid By</td><td>: ..........................</td></tr>
+                <tr><td>Sale Name </td><td>:<span style="text-decoration: underline dotted ;"> {{$collector}}</span></td><td>ID</td><td>: <span style="text-decoration: underline dotted ;"> {{$ftth_id}}</td><td>Paid By</td><td>: ..........................</td></tr>
                 <tr><td colspan="6">&nbsp;</td></tr>
-                <tr><td colspan="6">&nbsp;</td></tr>
+         
                 <tr><td>Signature </td><td>: ..........................</td><td>&nbsp;</td><td>&nbsp;</td><td>Signature</td><td>: ..........................</td></tr>
             </table>
          
@@ -306,11 +315,11 @@ tr td.fix {
         <div class="footer">
         <div style="text-align: center;margin-top:10px;">
                 <h1 style="font-size:1rem;font-weight:800;">(Sales Office)</h1>
-                <p style="text-align: center;font-size: 0.9rem;font-weight: 600;margin-top:5px;">1/91, Bogyoke Street,Sansai (A),Tachileik Township, Eastern Shan State, Myanmar.</p>
+                <p style="text-align: center;font-size: 0.8rem;font-weight: 600;margin-top:5px;">1/91, Bogyoke Street,Sansai (A),Tachileik Township, Eastern Shan State, Myanmar.</p>
                 <p><span style="font-size: 1.5rem;">☎ </span><span style="font-weight: 600;font-size:1rem;">09 777049642, 09 777049644, 09 777049645, 09 777049649</span></p>
             </div>
-        <div style="height: 10px;width:100%;background:#fed406;"></div>
-        <div style="height: 10px;width:100%;background:#000000;"></div>
+        <div style="height: 5px;width:100%;background:#fed406;"></div>
+        <div style="height: 5px;width:100%;background:#000000;"></div>
         </div>
 </div>
 <div class="container-2">
@@ -341,17 +350,17 @@ tr td.fix {
         <div class="center" style="margin-top:5px;" >
             <div class="bg-image">
             <table class="collapse" style="margin-top:0px; border-top:0; width:100%; ">
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Client ID : {{$ftth_id}}</td></tr>
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Address : {{$attn}}</td><td rowspan="2">Internet Speed: {{$qty}}</td></tr>
-                <tr><td style="text-align:left; padding:10px;" colspan="4">Contact No : {{$phone}}</td></tr>
+                <tr><td style="text-align:left;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
+                <tr><td style="text-align:left;" colspan="4">Client ID : {{$ftth_id}}</td></tr>
+                <tr><td style="text-align:left;" colspan="4">Address : {{$attn}}</td><td rowspan="2">Internet Speed: <br />{{$qty}}</td></tr>
+                <tr><td style="text-align:left;" colspan="4">Contact No : {{$phone}}</td></tr>
         
                 <tr>
                     <th>No</th>
                     <th style="width: 200px;">Description</th>
                     <th style="width: 100px;">Qty</th>
-                    <th style="width: 100px;">Price (USD/Kyat)</th>
-                    <th style="width: 150px;">Amount <br/> (USD/Kyat)</th>
+                    <th style="width: 100px;">Price (THB)</th>
+                    <th style="width: 150px;">Amount (THB)</th>
                 </tr>
                 </thead>
             <tbody>
@@ -390,7 +399,7 @@ tr td.fix {
                     }
                 @endphp
           
-                
+         
             
                 <tr><td colspan="4">Subtotal</td><td>{{number_format($sub_total)}}</td></tr>
                 <tr><td colspan="4">- Discount</td><td> {{number_format($discount)}}</td></tr>
@@ -405,9 +414,9 @@ tr td.fix {
             <table>
                 <tr><td colspan="6">&nbsp;</td></tr>
                 <tr><td colspan="6">&nbsp;</td></tr>
-                <tr><td>Sale Name </td><td>: ..........................</td><td>ID</td><td>: ..........................</td><td>Paid By</td><td>: ..........................</td></tr>
+                <tr><td>Sale Name </td><td>:<span style="text-decoration: underline dotted ;"> {{$collector}}</span></td><td>ID</td><td>: <span style="text-decoration: underline dotted ;"> {{$ftth_id}}</td><td>Paid By</td><td>: ..........................</td></tr>
                 <tr><td colspan="6">&nbsp;</td></tr>
-                <tr><td colspan="6">&nbsp;</td></tr>
+         
                 <tr><td>Signature </td><td>: ..........................</td><td>&nbsp;</td><td>&nbsp;</td><td>Signature</td><td>: ..........................</td></tr>
             </table>
          
@@ -416,11 +425,11 @@ tr td.fix {
         <div class="footer">
         <div style="text-align: center;margin-top:10px;">
                 <h1 style="font-size:1rem;font-weight:800;">(Sales Office)</h1>
-                <p style="text-align: center;font-size: 0.9rem;font-weight: 600;margin-top:5px;">1/91, Bogyoke Street,Sansai (A),Tachileik Township, Eastern Shan State, Myanmar.</p>
+                <p style="text-align: center;font-size: 0.8rem;font-weight: 600;margin-top:5px;">1/91, Bogyoke Street,Sansai (A),Tachileik Township, Eastern Shan State, Myanmar.</p>
                 <p><span style="font-size: 1.5rem;">☎ </span><span style="font-weight: 600;font-size:1rem;">09 777049642, 09 777049644, 09 777049645, 09 777049649</span></p>
             </div>
-        <div style="height: 10px;width:100%;background:#fed406;"></div>
-        <div style="height: 10px;width:100%;background:#000000;"></div>
+        <div style="height: 5px;width:100%;background:#fed406;"></div>
+        <div style="height: 5px;width:100%;background:#000000;"></div>
         </div>
 </div>
 </div>

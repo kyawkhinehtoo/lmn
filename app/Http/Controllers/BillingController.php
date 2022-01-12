@@ -441,8 +441,9 @@ class BillingController extends Controller
     public function preview_2(Request $request)
     {
         $billings = Invoice::join('receipt_records','receipt_records.invoice_id','=','invoices.id')
+                    ->join('users','users.id','=','receipt_records.collected_person')
                     ->where('invoices.id','=',$request->id)
-                    ->select('invoices.*','receipt_records.remark as remark','receipt_records.collected_amount as collected_amount','receipt_records.receipt_date as receipt_date','receipt_records.receipt_number as receipt_number')
+                    ->select('invoices.*','receipt_records.remark as remark','receipt_records.collected_amount as collected_amount','receipt_records.receipt_date as receipt_date','receipt_records.receipt_number as receipt_number','users.name as collector')
                     ->first();
         return view('voucher', $billings);
     }
