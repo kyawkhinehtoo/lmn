@@ -31,9 +31,11 @@ class BillingController extends Controller
 
         $packages = Package::orderBy('name', 'ASC')->get();
         $townships = Township::get();
+        $bill = Bills::get();
         return Inertia::render('Client/BillGenerator', [
             'packages' => $packages,
-            'townships' => $townships
+            'townships' => $townships,
+            'bill'=>$bill,
         ]);
     }
     public function doGenerate(Request $request)
@@ -52,12 +54,22 @@ class BillingController extends Controller
             ->when($request->township, function ($query, $township) {
                 $query->where('townships.id', '=', $township['id']);
             })
+            ->when($request->bill_id, function ($query,$bill) {
+                $bill_id = $bill['id'];
+                  
+                $query_result  = DB::select('select customer_id from invoices where bill_id ='.$bill_id);
+                $result = collect($query_result)->pluck('customer_id')->toArray();
+            
+                $query->whereNotIn('customers.id',$result);
+             
+            })
             ->whereDate('customers.installation_date', '<', $temp_date)
             ->where(function($query){
             return $query->where('customers.deleted', '=', 0)
             ->orwherenull('customers.deleted');
         })
             ->whereNotIn('status.id', [4,5,8])
+            ->where('customers.id','=',942)
             ->select(
                 'customers.id as id',
                 'customers.ftth_id as ftth_id',
