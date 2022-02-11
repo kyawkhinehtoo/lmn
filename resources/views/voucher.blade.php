@@ -15,8 +15,8 @@
 
 @media print {
      body{
-        width: 29.7cm !important;
-        height: 21cm !important;
+        width: 29.62cm !important;
+
         margin: 30mm 45mm 30mm 45mm; 
         page-break-inside: avoid;
        
@@ -42,7 +42,6 @@
 
 body{
     margin:0 auto;
-    height:297mm;
     width:210mm; 
     font-weight: normal;
     font-size: 0.8em;
@@ -60,7 +59,7 @@ body{
 }
 
 .header-img{
-  width:100%;
+  width:95%;
   height:auto;
 }
 .footer{
@@ -205,8 +204,8 @@ tr td.fix {
                             $p_months = explode(" to ", ($period_covered));
                             $from = (new DateTime($p_months[0]));
                             $to = (new DateTime($p_months[1]));
-                            $first_date = $from->format("d-m-Y");
-                            $last_date = $to->format("d-m-Y");
+                            $first_date = $from->format("d-M-Y");
+                            $last_date = $to->format("d-M-Y");
                             $period_covered = $first_date.' to '.$last_date;
                         }  
                    
@@ -216,8 +215,8 @@ tr td.fix {
         <div>
             <table style="background:#000000;border:0;border-collapse: collapse;">
                 <tr>
-                    <td style="width:55%;" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
-                    <td style="width:45%;text-align:center;"><label style="display:block;font-size:3rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
+                    <td style="width:45%;text-align:center;" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
+                    <td style="width:35%;text-align:center;"><label style="display:block;font-size:2.4rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
                 </tr>
                 <tr>
                 <td style="text-align:center;">
@@ -237,7 +236,7 @@ tr td.fix {
             </table>
         
         </div>
-        <div class="center" style="margin-top:5px;" >
+        <div class="center" style="margin-top:2px;" >
             <div class="bg-image">
             <table class="collapse" style="margin-top:0px; border-top:0; width:100%; ">
                 <tr><td style="text-align:left;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
@@ -257,7 +256,7 @@ tr td.fix {
                 <tr>
                     <td class="fix">1</td>
                     <td>{{$service_description}}</td>
-                    <td class="fix">{{$qty}}</td>
+                    <td class="fix">{{$usage_days}}</td>
                     <td>{{number_format($sub_total)}}</td>
                     <td>{{number_format($sub_total)}}</td>
                 </tr>
@@ -296,13 +295,12 @@ tr td.fix {
                 <tr><td colspan="4">Commercial Tax</td><td>{{number_format($tax)}}</td></tr>
                 <tr><td colspan="4">Grand Total</td><td>{{number_format($total_payable)}}</td></tr>
                 <tr><td style="text-align:left; padding:10px;" colspan="5">Cover Period : {{$period_covered}}</td></tr>
-                <tr><td style="text-align:left; padding:10px;height:50px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
+                <tr><td style="text-align:left; padding:5px 10px;height:50px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
             </tbody>
             </table>
         
             </div>
             <table>
-                <tr><td colspan="6">&nbsp;</td></tr>
                 <tr><td colspan="6">&nbsp;</td></tr>
                 <tr><td>Sale Name </td><td>:<span style="text-decoration: underline dotted ;"> {{$collector}}</span></td><td>ID</td><td>: <span style="text-decoration: underline dotted ;"> {{$ftth_id}}</td><td>Paid By</td><td>: ..........................</td></tr>
                 <tr><td colspan="6">&nbsp;</td></tr>
@@ -326,8 +324,8 @@ tr td.fix {
         <div>
             <table style="background:#000000;border:0;border-collapse: collapse;">
                 <tr>
-                    <td style="width:55%;" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
-                    <td style="width:45%;text-align:center;"><label style="display:block;font-size:3rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
+                    <td style="width:45%;text-align:center" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
+                    <td style="width:35%;text-align:center;"><label style="display:block;font-size:2.4rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
                 </tr>
                 <tr>
                 <td style="text-align:center;">
@@ -347,7 +345,7 @@ tr td.fix {
             </table>
         
         </div>
-        <div class="center" style="margin-top:5px;" >
+        <div class="center" style="margin-top:2px;" >
             <div class="bg-image">
             <table class="collapse" style="margin-top:0px; border-top:0; width:100%; ">
                 <tr><td style="text-align:left;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
@@ -367,7 +365,7 @@ tr td.fix {
                 <tr>
                     <td class="fix">1</td>
                     <td>{{$service_description}}</td>
-                    <td class="fix">{{$qty}}</td>
+                    <td class="fix">{{$usage_days}}</td>
                     <td>{{number_format($sub_total)}}</td>
                     <td>{{number_format($sub_total)}}</td>
                 </tr>
@@ -406,17 +404,15 @@ tr td.fix {
                 <tr><td colspan="4">Commercial Tax</td><td>{{number_format($tax)}}</td></tr>
                 <tr><td colspan="4">Grand Total</td><td>{{number_format($total_payable)}}</td></tr>
                 <tr><td style="text-align:left; padding:10px;" colspan="5">Cover Period : {{$period_covered}}</td></tr>
-                <tr><td style="text-align:left; padding:10px;height:50px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
+                <tr><td style="text-align:left; padding:5px 10px;height:50px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
             </tbody>
             </table>
         
             </div>
             <table>
                 <tr><td colspan="6">&nbsp;</td></tr>
-                <tr><td colspan="6">&nbsp;</td></tr>
                 <tr><td>Sale Name </td><td>:<span style="text-decoration: underline dotted ;"> {{$collector}}</span></td><td>ID</td><td>: <span style="text-decoration: underline dotted ;"> {{$ftth_id}}</td><td>Paid By</td><td>: ..........................</td></tr>
                 <tr><td colspan="6">&nbsp;</td></tr>
-         
                 <tr><td>Signature </td><td>: ..........................</td><td>&nbsp;</td><td>&nbsp;</td><td>Signature</td><td>: ..........................</td></tr>
             </table>
          

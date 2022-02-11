@@ -7,12 +7,12 @@
     <div class="py-2">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex">
         <label for="name" class="block text-sm font-bold text-gray-700 w-24 mt-3">Billing List :</label>
-        <select id="id" v-model="form.id" name="id" class="ml-2 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="1" required>
+        <select id="id" v-model="form.bill_id" name="bill_id" class="ml-2 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="1" required>
           <option value="0">-Choose Package-</option>
           <option v-for="row in lists" v-bind:key="row.id" :value="row.id">{{ row.name }}</option>
         </select>
 
-        <a @click="view" class="ml-2 cursor-pointer inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">View <i class="ml-1 fa fa-search text-white" tabindex="10"></i></a>
+        <a @click="view" class="ml-2 cursor-pointer inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">View <i class="ml-1 fa fa-search text-white" tabindex="2"></i></a>
       </div>
 
       <div class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4 flex justify-between">
@@ -22,15 +22,29 @@
           <i class="fas fa-chevron-down text-blueGray-400" v-show="show_search"></i>
         </div>
         <div class="flex">
-          <a @click="doExcel" class="cursor-pointer inline-flex items-center px-4 py-2 bg-green-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">Export Excel <i class="ml-1 fa fa-download text-white" tabindex="12"></i></a>
         </div>
       </div>
       <div v-show="show_search" class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4">
         <billing-search @search_parameter="goSearch" />
       </div>
       <div v-if="billings" class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4">
-        <div class="p-3 inline-flex bg-white rounded-md mb-2 shadow-sm flex justify-between w-full">
-        <button type="button" @click="sendAllEmail" class="h-10 text-md px-4 bg-yellow-600 rounded text-white hover:bg-yellow-700">Send SMS to All</button>
+        <div class="px-3 py-1 items-center bg-white rounded-md mb-2 shadow-sm flex justify-between w-full ">
+          <div class="flex pt-1 w-full">
+            <div class="relative w-full">
+            <label class="text-xs">{{paid_percent}}% Percentage of {{ (paid)?new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 }).format(paid):0 }} MMK in {{ new Intl.NumberFormat('en-US', { maximumSignificantDigits: 8 }).format(receivable) }} MMK</label>
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-lightBlue-200">
+              <div :style="`width: ${paid_percent}%`" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-lightBlue-500 "></div>
+
+            </div>
+            </div>
+          </div>
+          <div class="flex w-full justify-end gap-4">
+          <!-- <a @click="generateAllPDF" class="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">Generate All PDF <i class="ml-1 fa fa-file-pdf text-white"></i></a>
+          <a @click="sendAllSMS" class="cursor-pointer inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-500 active:bg-yellow-700 focus:outline-none focus:border-yellow-700 focus:ring focus:ring-yellow-300 disabled:opacity-25 transition">Send SMS to All <i class="ml-1 fa fa-sms text-white"></i></a> -->
+          
+          <a @click="createPrepaid" class="cursor-pointer inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition" >Add New Invoice <i class="ml-1 fa fa-plus-square text-white"></i></a>
+          <a @click="doExcel" class="cursor-pointer inline-flex items-center px-4 py-2 bg-green-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">Export Excel <i class="ml-1 fa fa-download text-white"></i></a>
+          </div>
         </div>
         <div class="bg-white overflow-auto shadow-xl sm:rounded-lg" v-if="billings.data">
           <table class="min-w-full divide-y divide-gray-200">
@@ -65,7 +79,7 @@
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.total_payable > 0">
                     <span v-if="row.status">{{ row.status }}</span
-                    ><span v-else><button type="button" @click="sendEmail(row.id)" class="h-8 text-md w-20 bg-yellow-600 rounded text-white hover:bg-yellow-700">Send</button></span>
+                    ><span v-else><button type="button" @click="sendSMS(row.id)" class="h-8 text-md w-20 bg-yellow-600 rounded text-white hover:bg-yellow-700">Send</button></span>
                   </span>
                 </td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.sent_date ? row.sent_date : "None" }}</td>
@@ -135,7 +149,7 @@
                   <p>Payer Name : {{ form.bill_to }}</p>
                   <p>Payer Address : {{ form.attn }}</p>
                   <p>Payment Description : {{ form.service_description }}</p>
-                  <p>Period Covered : {{ form.period_covered }}</p>
+                  <p>Period Covered : {{ form.period_covered_2 }}</p>
                 </div>
                 <div class="col-span-1 sm:col-span-1 flex flex-col justify-between">
                   <div class="border-2 border-marga p-2 text-center flex flex-col">
@@ -151,7 +165,7 @@
               </div>
               <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
                 <div class="py-4 col-span-1 sm:col-span-1 border-2 border-marga text-center flex flex-col">
-                  <span class="font-semibold text-md">Amount (MMK):</span> <span class="text-sm"> {{ form.total_payable }}</span>
+                  <span class="font-semibold text-md">Amount (THB):</span> <span class="text-sm"> {{ form.total_payable }}</span>
                 </div>
                 <div class="py-4 col-span-3 sm:col-span-3 border-2 border-marga text-center flex flex-col">
                   <span class="font-semibold text-md">Amount In Word:</span> <span class="text-sm"> {{ form.amount_in_word }}</span>
@@ -232,49 +246,59 @@
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-7xl sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
            
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 shadow sm:rounded-lg">
-                  <h6 class="md:min-w-full text-indigo-700 text-sm uppercase font-bold block pt-1 no-underline">Billing Detail Information</h6>
+                  <h6 class="md:min-w-full text-indigo-700 text-sm uppercase font-bold block pt-1 no-underline" v-if="editMode">Billing Detail Information</h6>
+                  <h6 class="md:min-w-full text-indigo-700 text-sm uppercase font-bold block pt-1 no-underline" v-else>Create Invoice</h6>
+                 
                   <div class="hidden sm:block" aria-hidden="true">
                     <div class="py-5">
                       <div class="border-t border-gray-200"></div>
                     </div>
                   </div>
                   <div class="md:grid md:grid-cols-3 md:gap-6">
-                    <div class="mb-4 md:col-span-1">
+                    <div class="mb-4 md:col-span-1" v-if="editMode">
                       <label for="bill_number" class="block text-gray-700 text-sm font-bold mb-2">Bill Number :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="bill_number" placeholder="Enter Bill Number" v-model="form_2.bill_number" />
-                      <div v-if="$page.props.errors.bill_number" class="text-red-500">{{ $page.props.errors.bill_number[0] }}</div>
+                      <div v-if="$page.props.errors.bill_number" class="text-red-500">{{ $page.props.errors.bill_number }}</div>
+                    </div>
+                    <div class="mb-4 md:col-span-1" v-else>
+                      <label for="customer_status" class="block text-gray-700 text-sm font-bold mb-2">Customer Status :</label>
+                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="customer_status"  v-model="form_2.customer_status" />
+                      <div v-if="$page.props.errors.customer_status" class="text-red-500">{{ $page.props.errors.customer_status }}</div>
                     </div>
                     <div class="mb-4 md:col-span-1">
                       <label for="period_covered" class="block text-gray-700 text-sm font-bold mb-2">Period Covered :</label>
-                    
-                      <litepie-datepicker placeholder="Enter Period Covered" :formatter="formatter" separator=" to " v-model="form_2.period_covered" ></litepie-datepicker>
-          
-                      <div v-if="$page.props.errors.period_covered" class="text-red-500">{{ $page.props.errors.period_covered[0] }}</div>
+                   
+                          <litepie-datepicker ref="myRef" placeholder="Enter Period Covered" :formatter="formatter" separator=" to " v-model="form_2.period_covered" ></litepie-datepicker>
+                      
+                        
+
+                      <div v-if="$page.props.errors.period_covered" class="text-red-500">{{ $page.props.errors.period_covered }}</div>
                     </div>
                     <div class="mb-4 md:col-span-1">
                       <label for="ftth_id" class="block text-gray-700 text-sm font-bold mb-2">Customer ID :</label>
-                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="ftth_id" placeholder="Enter Customer ID" v-model="form_2.ftth_id" disabled />
-                      <div v-if="$page.props.errors.ftth_id" class="text-red-500">{{ $page.props.errors.ftth_id[0] }}</div>
+                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="ftth_id" placeholder="Enter Customer ID" v-model="form_2.ftth_id" disabled v-if="editMode" />
+                       <multiselect deselect-label="Selected already" :options="prepaid_customers" track-by="id" label="ftth_id" v-model="form_2.ftth_id" :allow-empty="true" v-else @select="updateData" />
+                      <div v-if="$page.props.errors.ftth_id" class="text-red-500">{{ $page.props.errors.ftth_id }}</div>
                     </div>
                   </div>
                   <div class="md:grid md:grid-cols-3 md:gap-6">
                     <div class="mb-4 md:col-span-1">
                       <label for="date_issued" class="block text-gray-700 text-sm font-bold mb-2">Bill Issue Date :</label>
                       <input type="date" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="date_issued" placeholder="Enter Issue Date" v-model="form_2.date_issued" />
-                      <div v-if="$page.props.errors.date_issued" class="text-red-500">{{ $page.props.errors.date_issued[0] }}</div>
+                      <div v-if="$page.props.errors.date_issued" class="text-red-500">{{ $page.props.errors.date_issued }}</div>
 
                       <label for="payment_duedate" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Payment Due Date :</label>
-                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="payment_duedate" placeholder="Enter Payment Due Date" v-model="form_2.payment_duedate" />
-                      <div v-if="$page.props.errors.payment_duedate" class="text-red-500">{{ $page.props.errors.payment_duedate[0] }}</div>
+                      <input type="date" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="payment_duedate" placeholder="Enter Payment Due Date" v-model="form_2.payment_duedate" />
+                      <div v-if="$page.props.errors.payment_duedate" class="text-red-500">{{ $page.props.errors.payment_duedate }}</div>
                     </div>
 
                     <div class="mb-4 md:col-span-2">
                       <label for="bill_to" class="block text-gray-700 text-sm font-bold mb-2">Bill To :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="bill_to" placeholder="Enter Bill To" v-model="form_2.bill_to" />
-                      <div v-if="$page.props.errors.bill_to" class="text-red-500">{{ $page.props.errors.bill_to[0] }}</div>
+                      <div v-if="$page.props.errors.bill_to" class="text-red-500">{{ $page.props.errors.bill_to }}</div>
                       <label for="attn" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Attention :</label>
                       <textarea class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="attn" placeholder="Enter Attention" v-model="form_2.attn"></textarea>
-                      <div v-if="$page.props.errors.attn" class="text-red-500">{{ $page.props.errors.attn[0] }}</div>
+                      <div v-if="$page.props.errors.attn" class="text-red-500">{{ $page.props.errors.attn }}</div>
                     </div>
                   </div>
                   <div class="hidden sm:block" aria-hidden="true">
@@ -286,34 +310,48 @@
                     <div class="mb-4 md:col-span-1">
                       <label for="service_description" class="block text-gray-700 text-sm font-bold mb-2">Service Description :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="service_description" placeholder="Enter Service Description" v-model="form_2.service_description" />
-                      <div v-if="$page.props.errors.service_description" class="text-red-500">{{ $page.props.errors.service_description[0] }}</div>
+                      <div v-if="$page.props.errors.service_description" class="text-red-500">{{ $page.props.errors.service_description }}</div>
 
                       <label for="qty" class="mt-4 block text-gray-700 text-sm font-bold mb-2">QTY :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="qty" placeholder="Enter QTY" v-model="form_2.qty" />
-                      <div v-if="$page.props.errors.qty" class="text-red-500">{{ $page.props.errors.qty[0] }}</div>
+                      <div v-if="$page.props.errors.qty" class="text-red-500">{{ $page.props.errors.qty }}</div>
 
                       <label for="normal_cost" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Original Package Price :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="normal_cost" v-model="form_2.normal_cost" disabled />
-                      <div v-if="$page.props.errors.normal_cost" class="text-red-500">{{ $page.props.errors.normal_cost[0] }}</div>
+                      <div v-if="$page.props.errors.normal_cost" class="text-red-500">{{ $page.props.errors.normal_cost }}</div>
 
                       <label for="type" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Type :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="type" placeholder="Enter Type" v-model="form_2.type" />
-                      <div v-if="$page.props.errors.type" class="text-red-500">{{ $page.props.errors.type[0] }}</div>
+                      <div v-if="$page.props.errors.type" class="text-red-500">{{ $page.props.errors.type }}</div>
+                      
+                      <label for="usage_days" class="mt-4 block text-gray-700 text-sm font-bold mb-2" v-if="editMode">Actual Usage (Days - Month) :  {{form_2.usage_days}}</label>
+                      <label for="usage_days" class="mt-4 block text-gray-700 text-sm font-bold mb-2" v-else>Usage (Days - Month) :  {{form_2.usage_days}}</label>
+                      <div class="flex justify-between ">
+                         <input type="number" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" id="usage_d" v-model="form_2.usage_d" @change="updateUsage" />
+                         <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Days </span>
+                         <input type="number" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" id="usage_mo" v-model="form_2.usage_mo" @change="updateUsage" />
+                         <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Months </span>
+                      </div>
+                     
+                      <div v-if="$page.props.errors.usage_days" class="text-red-500">{{ $page.props.errors.usage_days }}</div>
 
-                      <label for="usage_days" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Actual Usage (Days/Month) :</label>
-                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="usage_days" v-model="form_2.usage_days" disabled />
-                      <div v-if="$page.props.errors.usage_days" class="text-red-500">{{ $page.props.errors.usage_days[0] }}</div>
+                      <label for="email" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Email :</label>
+                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="email" placeholder="Enter Email" v-model="form_2.email" />
+                      <div v-if="$page.props.errors.email" class="text-red-500">{{ $page.props.errors.email }}</div>
 
                       <label for="phone" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Phone :</label>
                       <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="phone" placeholder="Enter Phone Number" v-model="form_2.phone" />
-                      <div v-if="$page.props.errors.phone" class="text-red-500">{{ $page.props.errors.phone[0] }}</div>
-                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                      <div v-if="$page.props.errors.phone" class="text-red-500">{{ $page.props.errors.phone }}</div>
+                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md"  v-if="editMode">
                           <legend class="text-gray-700 text-sm font-bold">Meta Data </legend>
                      
                       <div class="max-w-sm text-sm flex">
-                       
+                        <label class="inline-flex ml-2">
+                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form_2.reset_pdf" />
+                          Reset PDF
+                        </label>
                           <label class="inline-flex ml-2">
-                          <input class="text-green-500 w-6 h-6 mr-2 focus:ring-green-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form_2.reset_email" />
+                          <input class="text-green-500 w-6 h-6 mr-2 focus:ring-green-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form_2.reset_sms" />
                           Reset SMS
                         </label>
                         <div v-if="form_2.receipt_id">
@@ -329,46 +367,46 @@
                     <div class="mb-4 md:col-span-2">
                       <label for="previous_balance" class="block text-gray-700 text-sm font-bold mb-2">Previous Balance :</label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="previous_balance" placeholder="Enter Previous Balance" v-model="form_2.previous_balance" @change="form2_calc" />
-                      <div v-if="$page.props.errors.previous_balance" class="text-red-500">{{ $page.props.errors.previous_balance[0] }}</div>
+                      <div v-if="$page.props.errors.previous_balance" class="text-red-500">{{ $page.props.errors.previous_balance }}</div>
 
                       <label for="current_charge" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Current Charge :</label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="current_charge" placeholder="Enter Current Charge" v-model="form_2.current_charge" @change="form2_calc" />
-                      <div v-if="$page.props.errors.current_charge" class="text-red-500">{{ $page.props.errors.current_charge[0] }}</div>
+                      <div v-if="$page.props.errors.current_charge" class="text-red-500">{{ $page.props.errors.current_charge }}</div>
 
                       <label for="sub_total" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Sub Total :</label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="total_mmk" placeholder="Enter Sub Total" v-model="form_2.sub_total" @change="form2_calc" />
-                      <div v-if="$page.props.errors.sub_total" class="text-red-500">{{ $page.props.errors.sub_total[0] }}</div>
+                      <div v-if="$page.props.errors.sub_total" class="text-red-500">{{ $page.props.errors.sub_total }}</div>
 
                       <label for="otc" class="mt-4 block text-gray-700 text-sm font-bold mb-2">OTC :</label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="otc" placeholder="Enter OTC" v-model="form_2.otc" @change="form2_calc" />
-                      <div v-if="$page.props.errors.otc" class="text-red-500">{{ $page.props.errors.otc[0] }}</div>
+                      <div v-if="$page.props.errors.otc" class="text-red-500">{{ $page.props.errors.otc }}</div>
 
                       <label for="compensation" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Compensation :</label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="compensation" placeholder="Enter Compensation" v-model="form_2.compensation" @change="form2_calc" />
-                      <div v-if="$page.props.errors.compensation" class="text-red-500">{{ $page.props.errors.compensation[0] }}</div>
+                      <div v-if="$page.props.errors.compensation" class="text-red-500">{{ $page.props.errors.compensation }}</div>
 
                       <label for="discount" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Discount :</label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="discount" placeholder="Enter Discount" v-model="form_2.discount" @change="form2_calc" />
-                      <div v-if="$page.props.errors.discount" class="text-red-500">{{ $page.props.errors.discount[0] }}</div>
+                      <div v-if="$page.props.errors.discount" class="text-red-500">{{ $page.props.errors.discount }}</div>
 
                       <label for="tax" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Commercial Tax (5%) : <button  type="button" class="inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-blue-500 text-base leading-6 font-medium text-white shadow-sm hover:text-white focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5" @click="calTax">Calculate </button> </label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="tax" v-model="form_2.tax" @change="form2_calc" />
-                      <div v-if="$page.props.errors.tax" class="text-red-500">{{ $page.props.errors.tax[0] }}</div>
+                      <div v-if="$page.props.errors.tax" class="text-red-500">{{ $page.props.errors.tax }}</div>
 
                       <label for="total_payable" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Total Payable :</label>
                       <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="total_payable" placeholder="Enter Total Payable" v-model="form_2.total_payable" />
-                      <div v-if="$page.props.errors.total_payable" class="text-red-500">{{ $page.props.errors.total_payable[0] }}</div>
+                      <div v-if="$page.props.errors.total_payable" class="text-red-500">{{ $page.props.errors.total_payable }}</div>
 
                     </div>
                   </div>
                 </div>
 
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <!-- <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                    <button wire:click.prevent="submit" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="!editMode">Save</button>
-                  </span> -->
                   <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                    <button @click="updateInvoice" type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Update</button>
+                    <button @click="createInvoice" type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="!editMode">Save</button>
+                  </span> 
+                  <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
+                    <button @click="updateInvoice" type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="editMode" >Update</button>
                   </span>
                   <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
                     <button @click="closeEdit" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5">Close</button>
@@ -384,7 +422,7 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import { useForm } from "@inertiajs/inertia-vue3";
-import { reactive, ref, provide, onMounted } from "vue";
+import { reactive, ref, provide, onMounted,onUpdated } from "vue";
 import { Inertia } from "@inertiajs/inertia";
 import Multiselect from "@suadelabs/vue3-multiselect";
 import Pagination from "@/Components/Pagination";
@@ -411,6 +449,10 @@ export default {
     users:Object,
     roles:Object,
     max_receipt:Object,
+    prepaid_customers:Object,
+    receivable: Object,
+    paid: Object,
+    current_bill: Object,
   },
   setup(props) {
     provide("packages", props.packages);
@@ -421,6 +463,7 @@ export default {
       date: "YYYY-MM-DD",
       month: "MMM",
     });
+    const myRef = ref(null);
     let show_search = ref(false);
     let loading = ref(false);
     let parameter = ref("");
@@ -430,11 +473,13 @@ export default {
     let outstanding = ref(false);
     let invoiceEdit = ref(false);
     let receipt_number = ref(0);
+    const paid_percent = ref(0);
     const form = reactive({
       id: null,
-      bill_id : null,
+      bill_id : (props.current_bill)?props.current_bill['id']:null,
       customer_id: null,
       period_covered: null,
+      period_covered_2: null,
       bill_number: null,
       ftth_id: null,
       date_issued: null,
@@ -458,9 +503,10 @@ export default {
     
     function resetForm(){
       form.id = null;
-      form.bill_id  = null;
+      form.bill_id  = (props.current_bill)?props.current_bill['id']:null;
       form.customer_id = null;
       form.period_covered = null;
+      form.period_covered_2 = null;
       form.bill_number = null;
       form.ftth_id = null;
       form.date_issued = null;
@@ -484,6 +530,7 @@ export default {
 
       const form_2 = useForm({
       id: null,
+      bill_id:(props.current_bill)?props.current_bill['id']:null,
       customer_id: null,
       period_covered: null,
       bill_number: null,
@@ -509,12 +556,16 @@ export default {
       phone: null,
       reset_pdf: null,
       reset_email: null,
+      reset_sms: null,
       reset_receipt: null,
       receipt_id: null,
+      usage_mo:null,
+      usage_d:null,
+      customer_status:null,
     });
     function edit_invoice(data) {
-      console.log(data);
       form_2.id = data.id;
+      form_2.bill_id = data.bill_id;
       form_2.customer_id = data.customer_id;
       form_2.period_covered = data.period_covered;
       form_2.bill_number = data.bill_number;
@@ -538,12 +589,58 @@ export default {
       form_2.discount = data.discount;
       form_2.email = data.email;
       form_2.phone = data.phone;
-      form_2.reset_pdf = data.reset_pdf;
-      form_2.reset_email = data.reset_email;
       form_2.reset_receipt = data.reset_receipt;
       form_2.receipt_id = data.receipt_id;
       editMode.value = true;
       openEdit();
+    }
+    function createPrepaid(){
+      form_2.reset();
+      editMode.value = false;
+      openEdit();
+    }
+    function updateData(option,id){
+
+      form_2.customer_id = option.id;
+      form_2.bill_id =  (props.current_bill)?props.current_bill['id']:null;
+      //form_2.period_covered = data.period_covered;
+      //form_2.bill_number = data.bill_number;
+      //form_2.ftth_id = data.ftth_id;
+      form_2.customer_status= option.customer_status;
+      form_2.date_issued = new Date('Y-m-d');
+      form_2.bill_to = option.name;
+      form_2.attn = option.address;
+      form_2.previous_balance = 0;
+      form_2.current_charge = option.package_price * option.prepaid_period;
+      form_2.compensation = 0;
+      form_2.otc = 0;
+      //form_2.sub_total = data.sub_total;
+      //form_2.payment_duedate = data.payment_duedate;
+      form_2.service_description = option.package_name;
+      form_2.qty = option.package_speed+' Mbps';
+      form_2.usage_mo = option.prepaid_period; 
+      form_2.usage_days = option.prepaid_period + ' Months';
+      //form_2.tax = data.tax;
+      form_2.normal_cost = option.package_price;
+      form_2.type = "Prepaid";
+      form_2.discount = 0;
+      form_2.email = option.email;
+      form_2.phone = (option.phone_1)?option.phone_1:'';
+      if(form_2.phone != option.phone_2)
+      form_2.phone += (option.phone_2)?','+option.phone_2:'';
+      form2_calc();
+    }
+     function updateUsage(){
+      var dt = new Date();
+      var month = dt.getMonth();
+      var year = dt.getFullYear();
+      var daysInMonth = new Date(year, month, 0).getDate();
+      form_2.usage_days = (form_2.usage_mo)?form_2.usage_mo+' Months':'';
+      form_2.usage_days += (form_2.usage_d)?' and '+ form_2.usage_d +' Days':'';
+      let daycount = (form_2.usage_d)?(form_2.normal_cost/daysInMonth)*form_2.usage_d:0;
+      let monthcount = (form_2.usage_mo)?form_2.usage_mo*form_2.normal_cost:0;
+      form_2.current_charge = Math.round(daycount+monthcount);
+      form2_calc();
     }
     function resetEdit() {
         form_2.reset();
@@ -555,6 +652,19 @@ export default {
         editInvoice.value = false;
         resetEdit();
         editMode.value = false;
+    }
+    function createInvoice(){
+      form_2.post("/createInvoice", {
+        onSuccess: (page) => {
+          Toast.fire({
+            icon: "success",
+            title: page.props.flash.message,
+          });
+        },
+        onError: (errors) => {
+          console.log(errors);
+        },
+      });
     }
       function updateInvoice() {
       form_2.post("/updateInvoice", {
@@ -571,8 +681,8 @@ export default {
     }
       const goSearch = (parm) => {
       let url = "/showbill";
-      if (form.id != null) {
-        parm.id = form.id;
+       if (form.bill_id != null) {
+        parm.bill_id = form.bill_id;
       }
       parameter.value = parm;
       Inertia.get(url, parm, { preserveState: true });
@@ -585,7 +695,7 @@ export default {
     function view() {
       //form._method = "POST";
       let parm = Object.create({});
-      parm.id = form.id;
+      parm.bill_id = form.bill_id;
       parameter.value = parm;
       form._method = "GET";
       Inertia.get("/showbill", form, {
@@ -665,8 +775,8 @@ export default {
         },
       });
     }
-    function sendEmail(data) {
-      Inertia.post("/sendSingleEmail/" + data, data, {
+    function sendSMS(data) {
+      Inertia.post("/sendSingleSMS/" + data, data, {
         preserveState: true,
         onSuccess: (page) => {
           loading.value = false;
@@ -684,9 +794,9 @@ export default {
         },
       });
     }
-    function sendAllEmail(){
+     function sendAllSMS(){
       let data = parameter.value;
-        Inertia.post("/sendAllEmail",data, {
+        Inertia.post("/sendAllSMS",data, {
           preserveState: true,
           onSuccess: (page) => {
             loading.value = false;
@@ -705,6 +815,7 @@ export default {
           },
         });
     }
+    
     function doExcel() {
       axios.post("/exportBillingExcel", parameter.value).then((response) => {
         console.log(response);
@@ -731,6 +842,19 @@ export default {
       form.id = data.id;
       form.bill_id = data.bill_id;
       form.customer_id = data.customer_id;
+      if(data.period_covered){
+        var result = data.period_covered.indexOf(' to ');
+        var date_options = {year: 'numeric', month: 'short', day: 'numeric' };
+        // date_options.timeZone = 'Asia/Rangoon';
+        // date_options.timeZoneName = 'long';
+        if(result !== -1){
+          var date_array = data.period_covered.split(' to ');
+          console.log(date_array);
+          var from_date = new Intl.DateTimeFormat('en-SG', date_options).format(new Date(date_array[0]));
+          var to_date = new Intl.DateTimeFormat('en-SG', date_options).format(new Date(date_array[1]));
+          form.period_covered_2 = from_date + ' to ' +  to_date ;
+        }
+      }
       form.period_covered = data.period_covered;
       form.bill_number = data.bill_number;
       form.ftth_id = data.ftth_id;
@@ -746,6 +870,7 @@ export default {
       form.user = (data.collected_person)? props.users.filter((d) => d.id == data.collected_person)[0]:null;
       form.collected_amount = data.collected_amount;
       form.type = (data.payment_channel)?data.payment_channel:'cash';
+      form.remark = data.remark;
       form.receipt_status = data.receipt_status;
       if(data.receipt_number)
       receipt_number.value = 'R'+data.bill_number.substring(0, 4)+'-'+data.ftth_id+'-'+('00000'+data.receipt_number).slice(-5);
@@ -809,13 +934,44 @@ export default {
     function getMonth(m) {
       return Intl.DateTimeFormat("en", { month: "long" }).format(new Date(m));
     }
+     function cal_percent(){
+      if(props.paid != 0){
+
+        let temp = (props.paid/ props.receivable) * 100;
+        paid_percent.value = temp.toFixed(0);
+      }else{
+        paid_percent.value = 0;
+      }
+    }
     onMounted(() => {
       props.packages.map(function (x) {
         return (x.item_data = `${x.speed}Mbps - ${x.name} - ${x.contract_period} Months`);
       });
       invoiceEdit.value = checkEdit();
+      cal_percent();
+       let bill_id =  (props.current_bill)?props.current_bill['id']:null;
+       if(bill_id){
+         let parm = Object.create({});
+          parm.bill_id = bill_id;
+          parameter.value = parm;
+       }
     });
-    return { form, form_2, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendEmail, parameter,sendAllEmail, doExcel, openReceipt, closeModal, getMonth, calc, form2_calc,calTax,isOpen,outstanding,saveReceipt,updateInvoice,generateReceiptPDF ,receipt_number ,editInvoice,edit_invoice, openEdit,closeEdit ,invoiceEdit,formatter};
+    onUpdated(() => {
+      props.packages.map(function (x) {
+        return (x.item_data = `${x.speed}Mbps - ${x.name} - ${x.contract_period} Months`);
+      });
+      invoiceEdit.value = checkEdit();
+      cal_percent();
+       form_2.bill_id =  (props.current_bill)?props.current_bill['id']:null;
+       form.bill_id = (props.current_bill)?props.current_bill['id']:null;
+       let bill_id =  (props.current_bill)?props.current_bill['id']:null;
+       if(bill_id){
+         let parm = Object.create({});
+          parm.bill_id = bill_id;
+          parameter.value = parm;
+       }
+    });
+    return { form, form_2,formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter,sendAllSMS, doExcel, openReceipt, closeModal, getMonth, calc, form2_calc,calTax,isOpen,outstanding,saveReceipt,updateInvoice,generateReceiptPDF ,receipt_number ,editInvoice,edit_invoice, openEdit,closeEdit ,createPrepaid,invoiceEdit,updateData,editMode,myRef,paid_percent,createInvoice,updateUsage};
   },
 };
 </script>

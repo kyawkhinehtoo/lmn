@@ -1,7 +1,7 @@
 <template>
     <!-- Advance Search -->
         <div class="bg-white shadow sm:rounded-t-lg flex justify-between space-x-2 items-end py-2 px-2 md:px-2">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <div class="col-span-1 sm:col-span-1">
               <div class="py-2">
                       <label for="sh_general" class="block text-sm font-medium text-gray-700">General </label>
@@ -15,12 +15,12 @@
                      
                 </div>
                 <div class="py-2">
-                      <label for="sh_package" class="block text-sm font-medium text-gray-700" >Payment Type </label>
+                      <label for="sh_payment" class="block text-sm font-medium text-gray-700" >Paid/Unpaid</label>
                       <div class="mt-1 flex rounded-md shadow-sm">
-                        <select id="sh_package" v-model="sh_payment" name="sh_package" class="py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="2">
+                        <select id="sh_payment" v-model="sh_payment" name="sh_payment" class="py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="2">
                             <option value="0"> -Both-</option>
-                            <option value="1"> Prepaid </option>
-                            <option value="2"> Postpaid</option>
+                            <option value="paid"> Paid </option>
+                            <option value="unpaid"> Unpaid</option>
                         </select>
                      </div>
                 </div>

@@ -24,8 +24,17 @@ use PDF;
 use Storage;
 use Mail;
 use DateTime;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 class BillingController extends Controller
 {
+    static $sms_post_url = 'https://api.smsbrix.com/v1/message/send';
+    static $sms_status_url = 'https://api.smsbrix.com/v1/message/info/';
+    static $sid = 'SB75107534857625535893739362750761';
+    static $token = '7hsayCpJlpMnT6vfizMO0qIZzFesLhtreDgHZZ215HqF';
+    static $senderid = 'Link Fast';
+    static $header = ['Authorization' => 'Basic U0I3NTEwNzUzNDg1NzYyNTUzNTg5MzczOTM2Mjc1MDc2MTo3aHNheUNwSmxwTW5UNnZmaXpNTzBxSVp6RmVzTGh0cmVEZ0haWjIxNUhxRg=='];
+   
     public function BillGenerator()
     {
 
@@ -431,6 +440,14 @@ class BillingController extends Controller
             $invoice->total_payable = $request->total_payable;
             $invoice->discount = $request->discount;
             $invoice->phone = $request->phone;
+            if($request->reset_email){
+                $invoice->sent_date = null;
+                $invoice->mail_sent_status = null;
+            }
+            if($request->reset_sms){
+                $invoice->sent_date = null;
+                $invoice->sms_sent_status = null;
+            }
             if($request->reset_pdf){
                 $invoice->file = null;
                 $invoice->url = null;
@@ -444,6 +461,74 @@ class BillingController extends Controller
             return redirect()->back()->with('message', 'Invoice Updated Successfully.');
         }
         return redirect()->back()->with('message', 'Invoice Cannot be Updated.');
+    }
+    public function createInvoice(Request $request){
+        Validator::make($request->all(), [
+            'customer_id' => 'required|max:255',
+            'bill_id' => 'required|max:255',
+            'period_covered' => 'required|max:255',
+            'ftth_id' => 'required',
+            'date_issued' => 'required',
+            'bill_to' => 'required|max:255',
+            'attn' => 'required|max:255',
+            'current_charge' => 'required|max:255',
+            'sub_total' => 'required|max:255',
+            'payment_duedate' => 'required|max:255',
+            'service_description' => 'required|max:255',
+            'qty' => 'required|max:255',
+            'usage_days' => 'required|max:255',
+            'normal_cost' => 'required|max:255',
+            'type' => 'required|max:255',
+            'total_payable' => 'required|max:255',
+            'phone' => 'required|max:255',
+            
+
+        ])->validate();
+         //   dd($request);
+        $bill = Bills::find($request->bill_id);
+        $max_invoice_id =  DB::table('invoices')
+                                        ->where('invoices.bill_id', '=', $request->bill_id)
+                                        ->select(DB::raw('max(invoices.invoice_number) as max_invoice_number'))
+                                        ->first();
+        $customer_status = Customer::join('status','status.id','=','customers.status_id')
+                                    ->join('packages','packages.id','=','customers.package_id')
+                    ->where('customers.id','=',$request->customer_id)
+                    ->select('status.name as status_name','packages.type as package_type')
+                    ->first();
+        $inWords = new NumberFormatter('en', NumberFormatter::SPELLOUT);
+        $invoice = new Invoice();
+        $invoice->customer_id = $request->customer_id;
+        $invoice->bill_id = $request->bill_id;
+        $invoice->invoice_number =($max_invoice_id)?($max_invoice_id->max_invoice_number + 1) : 1;
+        $invoice->period_covered = $request->period_covered['startDate'].' to '.$request->period_covered['endDate'];
+        $invoice->bill_number = $bill->bill_number.'-'.$request->ftth_id['ftth_id'].'-'.strtoupper($customer_status->package_type);
+        $invoice->ftth_id = $request->ftth_id['ftth_id'];
+        $invoice->date_issued = $request->date_issued;
+        $invoice->bill_to = $request->bill_to;
+        $invoice->attn = $request->attn;
+        $invoice->previous_balance = $request->previous_balance;
+        $invoice->current_charge = $request->current_charge;
+        $invoice->compensation = $request->compensation;
+        $invoice->otc = $request->otc;
+        $invoice->sub_total = $request->sub_total;
+        $invoice->payment_duedate = $request->payment_duedate;
+        $invoice->service_description = $request->service_description;
+        $invoice->qty = $request->qty;
+        $invoice->usage_days = $request->usage_days;
+        $invoice->normal_cost = $request->normal_cost;
+        $invoice->type = $request->type;
+        $invoice->tax = $request->tax;
+        $invoice->total_payable = $request->total_payable;
+        $invoice->discount = $request->discount;
+        $invoice->email = $request->email;
+        $invoice->phone = $request->phone;
+        $invoice->customer_status = $customer_status->status_name;
+        $invoice->bill_month = $bill->bill_month;
+        $invoice->bill_year = $bill->bill_year;
+        $invoice->amount_in_word = 'Amount in words: ' . ucwords($inWords->format($request->total_payable));
+        $invoice->commercial_tax = "The Prices are inclusive of Commerial Tax (5%)";
+        $invoice->save();
+        return redirect()->back()->with('message', 'Invoice Created Successfully.');
     }
     public function preview_1(Request $request)
     {
@@ -510,7 +595,12 @@ class BillingController extends Controller
         if ($request->bill_name) {
            
             $bill = new Bills();
+            $bill_data = BillingTemp::first();
             $bill->name = $request->bill_name;
+            $bill->default_period_covered = $bill_data->period_covered;
+            $bill->bill_number = substr($bill_data->bill_number,0,4);
+            $bill->bill_month = $bill_data->bill_month;
+            $bill->bill_year = $bill_data->bill_year;
             $bill->status = "active";
             $bill->save();
             
@@ -569,7 +659,7 @@ class BillingController extends Controller
     {
         $roles = Role::get();
         $user = User::find(Auth::user()->id);
-        if($request->id){
+        if($request->bill_id){
             $lists = Bills::all();
             $packages = Package::orderBy('name', 'ASC')->get();
             $townships = Township::get();
@@ -582,9 +672,28 @@ class BillingController extends Controller
 
             $max_receipt =  DB::table('invoices')
             ->leftJoin('receipt_records','invoices.id','=','receipt_records.invoice_id')
-            ->where('invoices.bill_id', '=', $request->id)
+            ->where('invoices.bill_id', '=', $request->bill_id)
             ->select(DB::raw('max(receipt_records.receipt_number) as max_receipt_number'))
             ->first();
+            $total_receivable = DB::table('invoices')
+            ->leftJoin('receipt_records','invoices.id','=','receipt_records.invoice_id')
+            ->where('invoices.bill_id', '=', $request->bill_id)
+            ->select(DB::raw('sum(invoices.total_payable) as total_payable'))
+            ->first();
+            $receivable = $total_receivable->total_payable;
+
+            $total_paid = DB::table('invoices')
+            ->leftJoin('receipt_records','invoices.id','=','receipt_records.invoice_id')
+            ->where('invoices.bill_id', '=', $request->bill_id)
+            ->select(DB::raw('sum(receipt_records.collected_amount) as paid'))
+            ->first();
+            $paid = $total_paid->paid;
+
+            $receipts = ReceiptRecord::where('bill_id','=', $request->bill_id)
+                        ->select('invoice_id')
+                        ->get()
+                        ->toArray();
+          
             $billings =  DB::table('invoices')
                 ->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->join('packages', 'customers.package_id', '=', 'packages.id')
@@ -596,7 +705,7 @@ class BillingController extends Controller
                     return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
                 })
-                ->where('invoices.bill_id', '=', $request->id)
+                ->where('invoices.bill_id', '=', $request->bill_id)
                 ->when($request->keyword, function ($query, $search = null) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
                         ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
@@ -612,6 +721,13 @@ class BillingController extends Controller
                 })
                 ->when($request->total_payable_min, function ($query, $total_payable_min) {
                     $query->where('invoices.total_payable', '>=', $total_payable_min);
+                })
+                ->when($request->payment_type, function ($query,$payment_type) use ($receipts) {
+                    if($payment_type=='unpaid'){
+                        $query->whereNotIn('invoices.id',$receipts);
+                    }else{
+                        $query->whereIn('invoices.id',$receipts);
+                    }
                 })
                 ->when($request->total_payable_max, function ($query, $total_payable_max) {
                     $query->where('invoices.total_payable', '<=', $total_payable_max);
@@ -675,10 +791,24 @@ class BillingController extends Controller
                 'receipt_records.collected_person as collected_person', 
                 'receipt_records.collected_amount as collected_amount',
                 'receipt_records.collected_amount as collected_amount',
+                'receipt_records.remark as remark',
                 'receipt_records.payment_channel as payment_channel')
                 ->paginate(10);
                 //DATE_FORMAT(date_and_time, '%Y-%m-%dT%H:%i') AS 
-
+                $invoices_customers = DB::table('customers')->join('invoices','invoices.customer_id','=','customers.id')
+                                        ->where('invoices.bill_id','=',$request->bill_id)
+                                        ->pluck('customers.id');
+                $prepaid_customers = DB::table('customers')
+                                        ->join('packages','packages.id','=','customers.package_id')
+                                        ->join('status','status.id','=','customers.status_id')
+                                        ->whereNotIn('customers.id',$invoices_customers)
+                                        ->where(function($query){
+                                            return $query->where('customers.deleted', '=', 0)
+                                            ->orwherenull('customers.deleted');
+                                            })
+                                        ->select('customers.*','packages.name as package_name','packages.speed as package_speed','packages.type as package_type','packages.price as package_price','status.name as customer_status')
+                                        ->get(); 
+                $current_bill = DB::table('bills')->where('id','=',$request->bill_id)->first();
                 
                 
             $billings->appends($request->all())->links();
@@ -692,6 +822,10 @@ class BillingController extends Controller
                 'user' => $user,
                 'roles' => $roles,
                 'max_receipt' => $max_receipt,
+                'prepaid_customers' => $prepaid_customers,
+                'receivable' => $receivable,
+                'paid' => $paid,
+                'current_bill' => $current_bill,
             ]);
         }else{
 
@@ -762,7 +896,7 @@ class BillingController extends Controller
                     return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
                 })
-                ->where('bill_id', '=', $request->id)
+                ->where('bill_id', '=', $request->bill_id)
                 ->when($request->keyword, function ($query, $search = null) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
                         ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
@@ -966,7 +1100,7 @@ class BillingController extends Controller
                     return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
                 })
-                ->where('bill_id', '=', $request->id)
+                ->where('bill_id', '=', $request->bill_id)
                 ->when($request->keyword, function ($query, $search = null) {
                     $query->where('customers.name', 'LIKE', '%' . $search . '%')
                         ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
@@ -1077,6 +1211,237 @@ class BillingController extends Controller
       }
 
     } 
+    
+    public function sendSingleSMS(Request $request){
+        if($request->id){
+            $invoice = Invoice::find($request->id);
+            if($invoice->phone && $invoice->sms_sent_status != 'sent'){
+                
+            $sms_template = EmailTemplate::where('default','=',1)
+                                  ->where('type','=','sms')
+                                  ->first();
+            //check sms template
+            if($sms_template){
+                $billing_phone = $invoice->phone;
+                $phones = $billing_phone;
+                if( strpos($billing_phone, ',') !== false ) {
+                    $phones = explode(",", $billing_phone);
+                }
+                if( strpos($billing_phone, ';') !== false ) {
+                    $phones = explode(';', $billing_phone);
+                }
+                if( strpos($billing_phone, ':') !== false ) {
+                    $phones = explode(':', $billing_phone);
+                }
+                if( strpos($billing_phone, ' ') !== false ) {
+                    $phones = explode(' ', $billing_phone);
+                }
+                if( strpos($billing_phone, '/') !== false ) {
+                    $phones = explode('/', $billing_phone);
+                }
+               // $sms_message = 'Testing';
+                $sms_message = $sms_template->body;
+                $sms_response = null;
+                $success = false;
+                    if(is_array($phones)){
+                        foreach($phones as $phone){
+                            $pattern = "/^(09|\+959)+[0-9]+$/";
+                            if(!preg_match($pattern, $phone)) {
+                                $phone = '09'.$phone;
+                            }
+                            $email_body = $this->replaceMarkup($sms_message, $request->id);
+                            $sms_response = $this->sendSMS($phone,$email_body);
+                            if($sms_response['status'] == 'success'){
+                            $client = new \GuzzleHttp\Client();
+                            $status_response = $client->request('GET', self::$sms_status_url.$sms_response['messageId'], ['headers'=>self::$header]);
+                            $statusresponseBody = json_decode($status_response->getBody(), true);
+                            if($statusresponseBody['status'] == 'Sent'){
+                                    $success=true;
+                                }
+                            }
+                        }
+                    }else{
+                        $pattern = "/^(09|\+959)+[0-9]+$/";
+                            if(!preg_match($pattern, $phones)) {
+                                $phones = '09'.$phones;
+                        }
+                        $email_body = $this->replaceMarkup($sms_message, $request->id);
+                        $sms_response = $this->sendSMS($phones,$email_body);
+                        if($sms_response['status'] == 'success'){
+                        $client = new \GuzzleHttp\Client();
+                        $status_response = $client->request('GET', self::$sms_status_url.$sms_response['messageId'], ['headers'=>self::$header]);
+                        $statusresponseBody = json_decode($status_response->getBody(), true);
+                        if($statusresponseBody['status'] == 'Sent'){
+                                $success=true;
+                            }
+                        }
+                    }
+                    $billing_data = Invoice::find($invoice->id);
+                    $billing_data->sent_date = date('j M Y');
+                    $billing_data->sms_sent_status =($success)?"sent":"error";
+                    $billing_data->update();
+                    if ($success) {
+                        return redirect()->back()->with('message', 'Sent SMS Successfully.');
+                        
+                    }else{
+                        return redirect()->back()->with('message', 'SMS Cannot Send');
+                     }
+                }// end of check sms template
+            }// end of check phone exists or not  
+            else{
+                return redirect()->back()->with('message', 'Customer does not have phone number !');
+            }
+        }//end of check ID exists or not
+    }
+
+    public function sendAllSMS(Request $request){
+        ini_set('max_execution_time', '0'); 
+      $invoices =  Invoice::join('customers', 'customers.id', '=', 'invoices.customer_id')
+                ->join('packages', 'customers.package_id', '=', 'packages.id')
+                ->join('townships', 'customers.township_id', '=', 'townships.id')
+                ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
+                ->join('status', 'customers.status_id', '=', 'status.id')
+                ->where('invoices.total_payable', '>', 0)
+                ->where(function($query){
+                    return $query->where('customers.deleted', '=', 0)
+                    ->orwherenull('customers.deleted');
+                    })
+                ->where('bill_id', '=', $request->bill_id)
+                ->when($request->keyword, function ($query, $search = null) {
+                    $query->where('customers.name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
+                        ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
+                })->when($request->general, function ($query, $general) {
+                    $query->where(function ($query) use ($general) {
+                        $query->where('customers.name', 'LIKE', '%' . $general . '%')
+                            ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
+                            ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
+                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
+                    });
+                })
+                ->when($request->installation, function ($query, $installation) {
+                    $query->whereBetween('customers.installation_date', [$installation['from'], $installation['to']]);
+                })
+                ->when($request->total_payable_min, function ($query, $total_payable_min) {
+                    $query->where('invoices.total_payable', '>=', $total_payable_min);
+                })
+                ->when($request->total_payable_max, function ($query, $total_payable_max) {
+                    $query->where('invoices.total_payable', '<=', $total_payable_max);
+                })
+                ->when($request->payment_type, function ($query, $payment_type) {
+                    $type = ($payment_type == 1) ? 1 : 0;
+                    $query->where('customers.payment_type', '=', $type);
+                })
+                ->when($request->package, function ($query, $package) {
+                    $query->where('customers.package_id', '=', $package);
+                })
+                ->when($request->project, function ($query, $project) {
+                    $query->where('customers.project_id', '=', $project);
+                })
+                ->when($request->township, function ($query, $township) {
+                    $query->where('customers.township_id', '=', $township);
+                })
+                ->when($request->status, function ($query, $status) {
+                    $query->where('customers.status_id', '=', $status);
+                })
+                ->when($request->order, function ($query, $order) {
+                    $query->whereBetween('customers.order_date', $order);
+                })
+                ->when($request->installation, function ($query, $installation) {
+                    $query->whereBetween('customers.installation_date', $installation);
+                })
+                ->select('invoices.*')
+                ->get();
+
+                $sms_template = EmailTemplate::where('default','=',1)
+                ->where('type','=','sms')
+                ->first();
+                foreach ($invoices as $invoice) {
+                  if($invoice->phone && $invoice->sms_sent_status != 'sent'){
+              
+                    $billing_phone = $invoice->phone;
+                 
+                   if($sms_template){
+                        $billing_phone = $invoice->phone;
+                        $phones = $billing_phone;
+                        if( strpos($billing_phone, ',') !== false ) {
+                            $phones = explode(",", $billing_phone);
+                        }
+                        if( strpos($billing_phone, ';') !== false ) {
+                            $phones = explode(';', $billing_phone);
+                        }
+                        if( strpos($billing_phone, ':') !== false ) {
+                            $phones = explode(':', $billing_phone);
+                        }
+                        if( strpos($billing_phone, ' ') !== false ) {
+                            $phones = explode(' ', $billing_phone);
+                        }
+                        if( strpos($billing_phone, '/') !== false ) {
+                            $phones = explode('/', $billing_phone);
+                        }
+                        $sms_message = $sms_template->body;
+                        $sms_response = null;
+                        $success = false;
+                            if(is_array($phones)){
+                                foreach($phones as $phone){
+                                    $pattern = "/^(09|\+959)+[0-9]+$/";
+                                    if(!preg_match($pattern, $phone)) {
+                                        $phone = '09'.$phone;
+                                    }
+                                    $email_body = $this->replaceMarkup($sms_message, $invoice->id);
+                                    $sms_response = $this->sendSMS($phone,$email_body);
+                                    if($sms_response['status'] == 'success'){
+                                    $client = new \GuzzleHttp\Client();
+                                    $status_response = $client->request('GET', self::$sms_status_url.$sms_response['messageId'], ['headers'=>self::$header]);
+                                    $statusresponseBody = json_decode($status_response->getBody(), true);
+                                    if($statusresponseBody['status'] == 'Sent'){
+                                            $success=true;
+                                        }
+                                    }
+                                }
+                            }else{
+                                $pattern = "/^(09|\+959)+[0-9]+$/";
+                                    if(!preg_match($pattern, $phones)) {
+                                        $phones = '09'.$phones;
+                                }
+                                $email_body = $this->replaceMarkup($sms_message, $invoice->id);
+                              
+                                $sms_response = $this->sendSMS($phones,$email_body);
+                                if($sms_response['status'] == 'success'){
+                                $client = new \GuzzleHttp\Client();
+                                $status_response = $client->request('GET', self::$sms_status_url.$sms_response['messageId'], ['headers'=>self::$header]);
+                                $statusresponseBody = json_decode($status_response->getBody(), true);
+                                if($statusresponseBody['status'] == 'Sent'){
+                                        $success=true;
+                                    }
+                                }
+                            }
+                            $billing_data = Invoice::find($invoice->id);
+                            $billing_data->sent_date = date('j M Y');
+                            $billing_data->sms_sent_status =($success)?"sent":"error";
+                            $billing_data->update();
+                            
+                        }// end of check sms template
+                }// end of check phone exists or not  
+              }//end of foreach invoices
+              return redirect()->back()->with('message', 'Sent SMS Successfully.');
+    }
+
+    public function sendSMS($phone,$message){
+        $postInput  =  [
+            'senderid'=> self::$senderid,
+            'number'=> trim($phone),
+            'message'=> trim($message),
+        ];
+      //$response = Http::withHeaders($header)->post(self::$sms_post_url,$postInput );
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('POST', self::$sms_post_url, ['form_params' => $postInput,'headers'=>self::$header]);
+        $responseBody = json_decode($response->getBody(), true);
+        sleep(1);
+        return $responseBody;
+    }
+    
     public function replaceMarkup($data,$id){
         $invoice = Invoice::find($id);
         

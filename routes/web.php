@@ -101,6 +101,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/billGenerator', 'BillingController@BillGenerator')->name('billGenerator');
 	Route::post('/updateTemp', 'BillingController@updateTemp')->name('updateTemp');
 	Route::post('/updateInvoice', 'BillingController@updateInvoice')->name('updateInvoice');
+	Route::post('/createInvoice', 'BillingController@createInvoice')->name('createInvoice');
 	Route::post('/doGenerate', 'BillingController@doGenerate');
 	Route::post('/saveFinal', 'BillingController@saveFinal');
 	//Route::post('/showbill', 'BillingController@showBill')->name('showbill');
@@ -140,6 +141,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/testCustomer', 'CustomerController@preg_test');
 	//Service Request
 	Route::resource('/servicerequest', ServiceRequestController::class);
+
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

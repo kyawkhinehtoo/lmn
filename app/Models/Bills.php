@@ -17,6 +17,10 @@ class Bills extends Model
      */
     protected $fillable = [
         'name',
+        'default_period_covered',
+        'bill_number',
+        'bill_month',
+        'bill_year',
         'status',
         'created_at',
         'updated_at'
