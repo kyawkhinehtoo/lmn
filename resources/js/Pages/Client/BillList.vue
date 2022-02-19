@@ -268,7 +268,7 @@
                     <div class="mb-4 md:col-span-1">
                       <label for="period_covered" class="block text-gray-700 text-sm font-bold mb-2">Period Covered :</label>
                    
-                          <litepie-datepicker ref="myRef" placeholder="Enter Period Covered" :formatter="formatter" separator=" to " v-model="form_2.period_covered" ></litepie-datepicker>
+                          <litepie-datepicker placeholder="Enter Period Covered" :formatter="formatter" separator=" to " v-model="form_2.period_covered" ></litepie-datepicker>
                       
                         
 
@@ -463,7 +463,6 @@ export default {
       date: "YYYY-MM-DD",
       month: "MMM",
     });
-    const myRef = ref(null);
     let show_search = ref(false);
     let loading = ref(false);
     let parameter = ref("");
@@ -532,7 +531,7 @@ export default {
       id: null,
       bill_id:(props.current_bill)?props.current_bill['id']:null,
       customer_id: null,
-      period_covered: null,
+      period_covered: ref(''),
       bill_number: null,
       ftth_id: null,
       date_issued: null,
@@ -567,7 +566,7 @@ export default {
       form_2.id = data.id;
       form_2.bill_id = data.bill_id;
       form_2.customer_id = data.customer_id;
-      form_2.period_covered = data.period_covered;
+      form_2.period_covered = (data.period_covered.trim() !== "to")?data.period_covered:'';
       form_2.bill_number = data.bill_number;
       form_2.ftth_id = data.ftth_id;
       form_2.date_issued = data.date_issued;
@@ -591,6 +590,26 @@ export default {
       form_2.phone = data.phone;
       form_2.reset_receipt = data.reset_receipt;
       form_2.receipt_id = data.receipt_id;
+    
+        var result = form_2.usage_days.indexOf(' and ');
+        if(result !== -1){
+          var usage = form_2.usage_days.split(' and ');
+          var day = usage[1].match(/\d/g)[0];
+          var month = usage[0].match(/\d/g)[0];
+          form_2.usage_d = parseInt(day);
+          form_2.usage_mo = parseInt(month);
+        }else{
+          if(form_2.usage_days.indexOf('Day') !== -1){
+            var day = form_2.usage_days.match(/\d/g)[0];
+            form_2.usage_d = parseInt(day);
+            form_2.usage_mo = null;
+          }else{
+            var month = usage_day.match(/\d/g)[0];
+            form_2.usage_d = null;
+            form_2.usage_mo = parseInt(month);
+          }
+        }
+  
       editMode.value = true;
       openEdit();
     }
@@ -634,12 +653,14 @@ export default {
       var dt = new Date();
       var month = dt.getMonth();
       var year = dt.getFullYear();
-      var daysInMonth = new Date(year, month, 0).getDate();
+      var daysInMonth = 30;
+      var dailyCost = (form_2.normal_cost)?Math.round(form_2.normal_cost/daysInMonth):0;
+     // var daysInMonth = new Date(year, month, 0).getDate();
       form_2.usage_days = (form_2.usage_mo)?form_2.usage_mo+' Months':'';
       form_2.usage_days += (form_2.usage_d)?' and '+ form_2.usage_d +' Days':'';
-      let daycount = (form_2.usage_d)?(form_2.normal_cost/daysInMonth)*form_2.usage_d:0;
+      let daycount = (form_2.usage_d)?dailyCost*form_2.usage_d:0;
       let monthcount = (form_2.usage_mo)?form_2.usage_mo*form_2.normal_cost:0;
-      form_2.current_charge = Math.round(daycount+monthcount);
+      form_2.current_charge = daycount+monthcount;
       form2_calc();
     }
     function resetEdit() {
@@ -843,6 +864,7 @@ export default {
       form.bill_id = data.bill_id;
       form.customer_id = data.customer_id;
       if(data.period_covered){
+   
         var result = data.period_covered.indexOf(' to ');
         var date_options = {year: 'numeric', month: 'short', day: 'numeric' };
         // date_options.timeZone = 'Asia/Rangoon';
@@ -931,9 +953,9 @@ export default {
             return true;
           }
     }
-    function getMonth(m) {
-      return Intl.DateTimeFormat("en", { month: "long" }).format(new Date(m));
-    }
+    // function getMonth(m) {
+    //   return Intl.DateTimeFormat("en", { month: "long" }).format(new Date(m));
+    // }
      function cal_percent(){
       if(props.paid != 0){
 
@@ -971,7 +993,7 @@ export default {
           parameter.value = parm;
        }
     });
-    return { form, form_2,formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter,sendAllSMS, doExcel, openReceipt, closeModal, getMonth, calc, form2_calc,calTax,isOpen,outstanding,saveReceipt,updateInvoice,generateReceiptPDF ,receipt_number ,editInvoice,edit_invoice, openEdit,closeEdit ,createPrepaid,invoiceEdit,updateData,editMode,myRef,paid_percent,createInvoice,updateUsage};
+    return { form, form_2,formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter,sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc,calTax,isOpen,outstanding,saveReceipt,updateInvoice,generateReceiptPDF ,receipt_number ,editInvoice,edit_invoice, openEdit,closeEdit ,createPrepaid,invoiceEdit,updateData,editMode,paid_percent,createInvoice,updateUsage};
   },
 };
 </script>
