@@ -604,7 +604,7 @@ export default {
             form_2.usage_d = parseInt(day);
             form_2.usage_mo = null;
           }else{
-            var month = usage_day.match(/\d/g)[0];
+            var month = form_2.usage_days.match(/\d/g)[0];
             form_2.usage_d = null;
             form_2.usage_mo = parseInt(month);
           }
