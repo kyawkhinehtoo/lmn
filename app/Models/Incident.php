@@ -46,6 +46,7 @@ class Incident extends Model
         'close_time',
         'description',
         'status',
+        'closed_by',
         'created_at',
         'updated_at'
     ];
@@ -84,6 +85,7 @@ class Incident extends Model
         'close_time'=> 'timestamp',
        'description' => 'string',
        'status' => 'string', 
+       'closed_by'=> 'string',
        'created_at' => 'timestamp', 
        'updated_at' => 'timestamp'
     ];

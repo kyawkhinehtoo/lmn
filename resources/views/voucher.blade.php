@@ -314,7 +314,7 @@ tr td.fix {
         <div style="text-align: center;margin-top:10px;">
                 <h1 style="font-size:1rem;font-weight:800;">(Sales Office)</h1>
                 <p style="text-align: center;font-size: 0.8rem;font-weight: 600;margin-top:5px;">1/91, Bogyoke Street,Sansai (A),Tachileik Township, Eastern Shan State, Myanmar.</p>
-                <p><span style="font-size: 1.5rem;">☎ </span><span style="font-weight: 600;font-size:1rem;">09 777049642, 09 777049644, 09 777049645, 09 777049649</span></p>
+                <p><span style="font-size: 1.5rem;">☎ </span><span style="font-weight: 600;font-size:1rem;">09 408534411, 09 408534422, 09 777049644, 09777049645</span></p>
             </div>
         <div style="height: 5px;width:100%;background:#fed406;"></div>
         <div style="height: 5px;width:100%;background:#000000;"></div>
@@ -422,7 +422,7 @@ tr td.fix {
         <div style="text-align: center;margin-top:10px;">
                 <h1 style="font-size:1rem;font-weight:800;">(Sales Office)</h1>
                 <p style="text-align: center;font-size: 0.8rem;font-weight: 600;margin-top:5px;">1/91, Bogyoke Street,Sansai (A),Tachileik Township, Eastern Shan State, Myanmar.</p>
-                <p><span style="font-size: 1.5rem;">☎ </span><span style="font-weight: 600;font-size:1rem;">09 777049642, 09 777049644, 09 777049645, 09 777049649</span></p>
+                <p><span style="font-size: 1.5rem;">☎ </span><span style="font-weight: 600;font-size:1rem;">09 408534411, 09 408534422, 09 777049644, 09777049645</span></p>
             </div>
         <div style="height: 5px;width:100%;background:#fed406;"></div>
         <div style="height: 5px;width:100%;background:#000000;"></div>

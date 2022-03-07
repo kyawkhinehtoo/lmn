@@ -390,7 +390,7 @@ class IncidentController extends Controller
                 $incident->close_time = $request->close_time;
 
                 $incident->description = $request->description;
-
+                $incident->closed_by = Auth::user()->id;
             
                 $incident->update();
             }
