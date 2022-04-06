@@ -177,7 +177,7 @@ tr td.fix {
     font-weight: bolder;
     border-radius: 0.5rem;
     width: 65%;
-    padding: 5px;
+    padding: 4px;
     margin: 0 auto;
 }
 .round label{
@@ -215,8 +215,8 @@ tr td.fix {
         <div>
             <table style="background:#000000;border:0;border-collapse: collapse;">
                 <tr>
-                    <td style="width:45%;text-align:center;" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
-                    <td style="width:35%;text-align:center;"><label style="display:block;font-size:2.4rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
+                    <td style="width:40%;text-align:center;" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
+                    <td style="width:35%;text-align:center;"><label style="display:block;font-size:2.2rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
                 </tr>
                 <tr>
                 <td style="text-align:center;">
@@ -248,7 +248,7 @@ tr td.fix {
                     <th>No</th>
                     <th style="width: 200px;">Description</th>
                     <th style="width: 100px;">Qty</th>
-                    <th style="width: 100px;">Price (THB)</th>
+                    <th style="width: 100px;">Unit Price (THB)</th>
                     <th style="width: 150px;">Amount (THB)</th>
                 </tr>
                 </thead>
@@ -257,7 +257,7 @@ tr td.fix {
                     <td class="fix">1</td>
                     <td>{{$service_description}}</td>
                     <td class="fix">{{$usage_days}}</td>
-                    <td>{{number_format($sub_total)}}</td>
+                    <td>{{number_format($normal_cost)}}</td>
                     <td>{{number_format($sub_total)}}</td>
                 </tr>
                 @php
@@ -324,8 +324,8 @@ tr td.fix {
         <div>
             <table style="background:#000000;border:0;border-collapse: collapse;">
                 <tr>
-                    <td style="width:45%;text-align:center" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
-                    <td style="width:35%;text-align:center;"><label style="display:block;font-size:2.4rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
+                    <td style="width:40%;text-align:center" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
+                    <td style="width:35%;text-align:center;"><label style="display:block;font-size:2.2rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
                 </tr>
                 <tr>
                 <td style="text-align:center;">
@@ -357,7 +357,7 @@ tr td.fix {
                     <th>No</th>
                     <th style="width: 200px;">Description</th>
                     <th style="width: 100px;">Qty</th>
-                    <th style="width: 100px;">Price (THB)</th>
+                    <th style="width: 100px;">Unit Price (THB)</th>
                     <th style="width: 150px;">Amount (THB)</th>
                 </tr>
                 </thead>
@@ -366,7 +366,7 @@ tr td.fix {
                     <td class="fix">1</td>
                     <td>{{$service_description}}</td>
                     <td class="fix">{{$usage_days}}</td>
-                    <td>{{number_format($sub_total)}}</td>
+                    <td>{{number_format($normal_cost)}}</td>
                     <td>{{number_format($sub_total)}}</td>
                 </tr>
                 @php
