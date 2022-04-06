@@ -317,7 +317,7 @@
                       <div v-if="$page.props.errors.qty" class="text-red-500">{{ $page.props.errors.qty }}</div>
 
                       <label for="normal_cost" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Original Package Price :</label>
-                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="normal_cost" v-model="form_2.normal_cost" disabled />
+                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="normal_cost" v-model="form_2.normal_cost" />
                       <div v-if="$page.props.errors.normal_cost" class="text-red-500">{{ $page.props.errors.normal_cost }}</div>
 
                       <label for="type" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Type :</label>

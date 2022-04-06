@@ -248,7 +248,7 @@ tr td.fix {
                     <th>No</th>
                     <th style="width: 200px;">Description</th>
                     <th style="width: 100px;">Qty</th>
-                    <th style="width: 100px;">Unit Price (THB)</th>
+                    <th style="width: 100px;">Price (THB)</th>
                     <th style="width: 150px;">Amount (THB)</th>
                 </tr>
                 </thead>
@@ -357,7 +357,7 @@ tr td.fix {
                     <th>No</th>
                     <th style="width: 200px;">Description</th>
                     <th style="width: 100px;">Qty</th>
-                    <th style="width: 100px;">Unit Price (THB)</th>
+                    <th style="width: 100px;">Price (THB)</th>
                     <th style="width: 150px;">Amount (THB)</th>
                 </tr>
                 </thead>
