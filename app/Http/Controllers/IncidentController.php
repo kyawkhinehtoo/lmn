@@ -456,7 +456,7 @@ class IncidentController extends Controller
                 else if($key == "incharge_id"){
                     $update .=($old->incharge_id != $value['id'])? $key.':'.$value["name"].',':'';
                 }else if( $key== "date" || $key== "start_date" || $key== "end_date"){
-                    $update .= (date("Y-m-j",$old->$key) != $value)? $key.':'.ucwords($value).',':'';
+                    $update .= (date("Y-m-j",strtotime($old->$key)) != $value)? $key.':'.ucwords($value).',':'';
                 }else  if( $key == "time"){
                     $update .= ($old->$key != strtotime($value))? $key.':'.ucwords($value).',':'';
                 }else if($key == "status"){
