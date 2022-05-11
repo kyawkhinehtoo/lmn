@@ -446,6 +446,13 @@ class BillingController extends Controller
             if ($request->reset_receipt) {
                 if ($request->receipt_id) {
                     ReceiptRecord::find($request->receipt_id)->delete();
+                    for ($i=1; $i <= 12 ; $i++) { 
+                        
+                        ReceiptSummery::where('customer_id','=',$request->customer_id)
+                        ->where('year','=',$invoice->bill_year)
+                        ->where($i,'=',$invoice->id)
+                        ->update([$i => DB::raw("NULL")]);
+                    }           
                 }
             }
             $invoice->update();
