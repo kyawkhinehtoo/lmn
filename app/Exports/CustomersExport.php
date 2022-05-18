@@ -43,70 +43,94 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
         if($request->orderform)
         $orderform['status'] = ($request->orderform == 'signed')?1:0;
 
-        
+        $all_township = Township::select('id')
+        ->get()
+        ->toArray();
+        $all_packages = Package::select('id')
+                ->get()
+                ->toArray();
+
         $mycustomer =  DB::table('customers')
-            ->join('packages', 'customers.package_id', '=', 'packages.id')
-            ->join('townships', 'customers.township_id', '=', 'townships.id')
-            ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
-            ->join('status', 'customers.status_id', '=', 'status.id')
-            ->where(function($query){
-                return $query->where('customers.deleted', '=', 0)
-                ->orWhereNull('customers.deleted');
-            })
-            ->when($request->keyword, function ($query, $search = null) {
-            $query->where(function ($query) use ($search) {
+        ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
+        ->leftjoin('townships', 'customers.township_id', '=', 'townships.id')
+        ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
+        ->leftjoin('sn_ports', 'customers.sn_id', '=', 'sn_ports.id')
+        ->leftjoin('dn_ports', 'sn_ports.dn_id', '=', 'dn_ports.id')
+        ->join('status', 'customers.status_id', '=', 'status.id')
+        ->where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })
+        ->when($request->keyword, function ($query, $search = null) {
+        $query->where(function ($query) use ($search) {
                 $query->where('customers.name', 'LIKE', '%' . $search . '%')
                     ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
                     ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
                     ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
                 });
-            })->when($request->general, function ($query, $general) {
-                $query->where(function ($query) use($general) {
-                    $query->where('customers.name','LIKE', '%'.$general.'%')
-                    ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
-                    ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                    ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
-                });
-            })
-            ->when($request->installation, function ($query, $installation) {
-                    $query->whereBetween('customers.installation_date', [$installation['from'], $installation['to']]);
-            })
-            ->when($request->order, function ($query, $order) {
-                $query->whereBetween('customers.order_date', [$order['from'], $order['to']]);
-            })
-            ->when($request->package, function ($query, $package) {
+        })->when($request->general, function ($query, $general) {
+            $query->where(function ($query) use($general) {
+                $query->where('customers.name','LIKE', '%'.$general.'%')
+                ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
+                ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
+                ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
+            });
+        })
+        ->when($request->installation, function ($query, $installation) {
+                $query->whereBetween('customers.installation_date', [$installation['from'], $installation['to']]);
+        })
+        ->when($request->order, function ($query, $order) {
+            $query->whereBetween('customers.order_date', [$order['from'], $order['to']]);
+        })
+        ->when($request->dn, function ($query, $dn) {
+            $query->where('dn_ports.id','=',$dn);
+        })
+        ->when($request->sn, function ($query, $sn) {
+            $query->where('sn_ports.id','=',$sn);
+        })
+        ->when($request->package, function ($query, $package) use ($all_packages)  {
+            if($package == 'empty'){
+                $query->whereNotIn('customers.package_id',$all_packages);
+            }else{
                 $query->where('customers.package_id','=',$package);
-            })
-            ->when($request->township, function ($query, $township) {
+            }
+          
+        })
+        ->when($request->township, function ($query, $township) use ($all_township) {
+            if($township == 'empty'){
+                $query->whereNotIn('customers.township_id',$all_township);
+            }else{
                 $query->where('customers.township_id','=',$township);
-            })
-            ->when($request->status, function ($query, $status) {
-                $query->where('customers.status_id','=',$status);
-            })
-            ->when($request->order, function ($query, $order) {
-                $query->whereBetween('customers.order_date',$order);
-            })
-            ->when($request->installation, function ($query, $installation) {
-                $query->whereBetween('customers.installation_date',$installation);
-            })
-            ->when($request->sort, function ($query, $sort = null) {
+            }
+            
+        })
+        ->when($request->status, function ($query, $status) {
+            $query->where('customers.status_id','=',$status);
+        })
+        ->when($request->order, function ($query, $order) {
+            $query->whereBetween('customers.order_date',$order);
+        })
+        ->when($request->installation, function ($query, $installation) {
+            $query->whereBetween('customers.installation_date',$installation);
+        })
+        ->when($request->sort, function ($query, $sort = null) {
+            $sort_by = 'customers.id';
+            if ($sort == 'cid') {
                 $sort_by = 'customers.id';
-                if ($sort == 'cid') {
-                    $sort_by = 'customers.id';
-                } elseif ($sort == 'cname') {
-                    $sort_by = 'customers.name';
-                } elseif ($sort == 'township') {
-                    $sort_by = 'townships.name';
-                } elseif ($sort == 'package') {
-                    $sort_by = 'packages.name';
-                } elseif ($sort == 'order') {
-                    $sort_by = 'customers.order_date';
-                }
+            } elseif ($sort == 'cname') {
+                $sort_by = 'customers.name';
+            } elseif ($sort == 'township') {
+                $sort_by = 'townships.name';
+            } elseif ($sort == 'package') {
+                $sort_by = 'packages.name';
+            } elseif ($sort == 'order') {
+                $sort_by = 'customers.order_date';
+            }
 
-                $query->orderBy($sort_by,'desc');
-            },function ($query){
-                $query->orderBy('customers.id','desc');
-            })
+            $query->orderBy($sort_by,'desc');
+        },function ($query){
+            $query->orderBy('customers.id','desc');
+        })
             ->select('customers.*');
         return $mycustomer;
     
@@ -171,11 +195,11 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             $mycustomer->phone_2,                
             $mycustomer->address,               
             $mycustomer->location,
-            $township->name,
-            $package->name,
-            $package->speed.' Mbps',
+            (isset($township->name))?$township->name:'',
+            (isset($package->name))?$package->name:'',
+            (isset($package->speed))?$package->speed.' Mbps':'',
             ($mycustomer->extra_bandwidth)?$mycustomer->extra_bandwidth.' Mbps':'',   
-            $package->contract_period.' Months',
+            (isset($package->contract_period))?$package->contract_period.' Months':'',
             (isset($subcom->name))?$subcom->name:'',
             (isset($sale_person->name))?$sale_person->name:'', 
             $mycustomer->sale_channel,  

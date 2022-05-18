@@ -22,6 +22,7 @@
             </span>
             <select id="sh_package" v-model="sh_package" name="sh_package" class="pl-10 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="2">
               <option value="0">-Choose Package-</option>
+              <option value="empty">-No Package-</option>
               <option v-for="row in packages" v-bind:key="row.id" :value="row.id">{{ row.item_data }}</option>
             </select>
           </div>
@@ -36,6 +37,7 @@
             </span>
             <select id="sh_township" v-model="sh_township" name="sh_township" class="pl-10 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="3">
               <option value="0">-Choose Township -</option>
+              <option value="empty">-No Township -</option>
               <option v-for="row in townships" v-bind:key="row.id" :value="row.id">{{ row.name }}</option>
             </select>
           </div>

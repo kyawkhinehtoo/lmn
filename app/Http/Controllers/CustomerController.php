@@ -31,6 +31,7 @@ class CustomerController extends Controller
     }
     public function show(Request $request)
     {
+     //   dd($request);
         $active = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', 'LIKE', '%Activ%')
@@ -80,11 +81,16 @@ class CustomerController extends Controller
         $orderform = null;
         if($request->orderform)
         $orderform['status'] = ($request->orderform == 'signed')?1:0;
-
+        $all_township = Township::select('id')
+                    ->get()
+                    ->toArray();
+        $all_packages = Package::select('id')
+                    ->get()
+                    ->toArray();
         
         $customers =  DB::table('customers')
-            ->join('packages', 'customers.package_id', '=', 'packages.id')
-            ->join('townships', 'customers.township_id', '=', 'townships.id')
+            ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
+            ->leftjoin('townships', 'customers.township_id', '=', 'townships.id')
             ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
             ->leftjoin('sn_ports', 'customers.sn_id', '=', 'sn_ports.id')
             ->leftjoin('dn_ports', 'sn_ports.dn_id', '=', 'dn_ports.id')
@@ -120,11 +126,21 @@ class CustomerController extends Controller
             ->when($request->sn, function ($query, $sn) {
                 $query->where('sn_ports.id','=',$sn);
             })
-            ->when($request->package, function ($query, $package) {
-                $query->where('customers.package_id','=',$package);
+            ->when($request->package, function ($query, $package) use ($all_packages)  {
+                if($package == 'empty'){
+                    $query->whereNotIn('customers.package_id',$all_packages);
+                }else{
+                    $query->where('customers.package_id','=',$package);
+                }
+              
             })
-            ->when($request->township, function ($query, $township) {
-                $query->where('customers.township_id','=',$township);
+            ->when($request->township, function ($query, $township) use ($all_township) {
+                if($township == 'empty'){
+                    $query->whereNotIn('customers.township_id',$all_township);
+                }else{
+                    $query->where('customers.township_id','=',$township);
+                }
+                
             })
             ->when($request->status, function ($query, $status) {
                 $query->where('customers.status_id','=',$status);

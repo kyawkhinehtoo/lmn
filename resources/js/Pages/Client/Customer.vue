@@ -183,7 +183,7 @@ export default {
        function goActive(){
       let url = "/customer/search";
       let parm = Object.create({});
-      parm.status = [2,3,10,11];
+      parm.status = [2];
       Inertia.post(url, parm, { preserveState: true });
     }
       function goRequest(){
