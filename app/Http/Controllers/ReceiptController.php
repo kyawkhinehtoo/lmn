@@ -142,7 +142,8 @@ class ReceiptController extends Controller
                     $receipt->status = "under_paid";
             }
             $receipt->save();
-            $this->updateRRS($request->id, $request->customer_id, $request->bill_month, $request->bill_year);
+            $this->ReceiptPaid($receipt->id, $request->customer_id);
+            //$this->updateRRS($request->id, $request->customer_id, $request->bill_month, $request->bill_year);
             //$this->runReceiptSummery();
         }
         // {"id":2,"customer_id":5,"period_covered":"2021-10-01 to 2021-10-31","bill_number":"2110-A0006-FTTH","ftth_id":"A0006-190425-TCL-FTTH","date_issued":"2021-11-09","bill_to":"Sar Pay Law Ka","attn":"Shop 4, The Central Boulevard, Kabar Aye Pagoda Road, Yangon","previous_balance":"0","current_charge":"46900","compensation":"0","otc":"0","sub_total":"46900","payment_duedate":"2021-11-16","service_description":"Business Fiber","qty":"10 Mbps","usage_days":"1 Month","normal_cost":"46900","total_payable":"46900","discount":"0","email":null,"phone":"959515313","bill_year":"2021","bill_month":"10","device_rental_amount":null,"device_rental_price":null,"device_rental_qty":0,"product_id_amount":null,"product_id_price":null,"product_id_qty":0,"foc_amount":null,"foc_price":null,"foc_qty":0,"setup_fees_amount":null,"setup_fees_price":null,"setup_fees_qty":0,"lan_amount":null,"lan_price":null,"lan_qty":0,"device_amount":null,"device_price":null,"device_name_qty":0,"commercial_tax":5,"final_payment":null,"amount_in_word":"Amount in words: Forty-six Thousand Nine Hundred Kyats Only","user":null,"type":"cash","currency":"mmk","collected_amount":"46900","extra_amount":0,"customer_status":"Suspend"}
@@ -192,6 +193,36 @@ class ReceiptController extends Controller
 
         // download PDF file with download method
         return redirect()->back()->with('message', 'PDF Generated Successfully.');
+    }
+    public function ReceiptPaid($receipt_id, $customer_id)
+    {
+        $receipt_records = ReceiptRecord::join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+            ->where('receipt_records.id','=',$receipt_id)
+            ->where('receipt_records.customer_id','=',$customer_id)
+            ->select('receipt_records.*', 'invoices.period_covered as period_covered')
+            ->get();
+  
+        if ($receipt_records) {
+
+            foreach ($receipt_records as $receipt_record) {
+
+                if ($receipt_record->period_covered) {
+                    if (strpos($receipt_record->period_covered, ' to ')) {
+                        $p_months = explode(" to ", $receipt_record->period_covered);
+
+                        $from = (new DateTime($p_months[0]))->modify('first day of this month');
+
+                        $to = (new DateTime($p_months[1]))->modify('first day of next month');
+                        $interval = DateInterval::createFromDateString('1 month');
+                        $period   = new DatePeriod($from, $interval, $to);
+                        foreach ($period as $dt) {
+
+                            $this->updateRRS($receipt_record->invoice_id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
+                        }
+                    }
+                }
+            }
+        }
     }
     public function runReceiptSummery()
     {
