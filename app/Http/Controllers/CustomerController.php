@@ -231,6 +231,8 @@ class CustomerController extends Controller
         $users = User::find(Auth::user()->id);
         $max_tcl_id = $this->getmaxtclid();
         $max_mk_id = $this->getmaxmkid();
+        $max_vip_tcl_id = $this->getmaxtclvipid();
+        $max_vip_mk_id = $this->getmaxmkvipid();
         return Inertia::render(
             'Client/AddCustomer',
             [
@@ -245,6 +247,8 @@ class CustomerController extends Controller
                 'dn' => $dn,
                 'max_tcl_id' => $max_tcl_id,
                 'max_mk_id' => $max_mk_id,
+                'max_vip_tcl_id' => $max_vip_tcl_id,
+                'max_vip_mk_id' => $max_vip_mk_id,
             ]
         );
     }
@@ -308,11 +312,23 @@ class CustomerController extends Controller
             //already exists
             
             if($request->township['name'] == "Mong Koe"){
-                $max_id = $this->getmaxmkid();
-                $auto_ftth_id = 'gghmk6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
+                if($request->customer_type == 2){
+                    $max_id = $this->getmaxmkvipid();
+                    $auto_ftth_id = 'ggmkvip'.str_pad($max_id+1, 3, '0', STR_PAD_LEFT);
+                }else{
+                    $max_id = $this->getmaxmkid();
+                    $auto_ftth_id = 'gghmk6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
+                }
+              
               }else{
-                $max_id = $this->getmaxtclid();
-                $auto_ftth_id = 'gghtcl6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
+                if($request->customer_type == 2){
+                    $max_id = $this->getmaxtclvipid();
+                    $auto_ftth_id = 'ggtclvip'.str_pad($max_id+1, 3, '0', STR_PAD_LEFT);
+                }else{
+                    $max_id = $this->getmaxtclid();
+                    $auto_ftth_id = 'gghtcl6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
+                }
+               
               }
    
         }
@@ -598,6 +614,7 @@ class CustomerController extends Controller
         $cid = array();
         //gghtcl688803770
         //gghmk688803770
+        //gghtclvip005
         foreach($customers as $customer){
             if(preg_match("/(^[a-z]{6}[0-9]{9})$/",$customer->ftth_id)){
                 $num = substr($customer->ftth_id,-4,4);
@@ -613,9 +630,43 @@ class CustomerController extends Controller
         $cid = array();
         //gghtcl688803770
         //gghmk688803770
+        //gghtclvip005
         foreach($customers as $customer){
             if(preg_match("/(^[a-z]{5}[0-9]{9})$/",$customer->ftth_id)){
                 $num = substr($customer->ftth_id,-4,4);
+                array_push($cid,(int)$num);
+            }
+        }
+        if(sizeof($cid))
+        return max($cid);
+        return 0;
+    }
+    public function getmaxtclvipid(){
+        $customers = Customer::all();
+        $cid = array();
+        //gghtcl688803770
+        //gghmk688803770
+        //gghtclvip005
+        foreach($customers as $customer){
+            if(preg_match("/(^[a-z]{9}[0-9]{3})$/",$customer->ftth_id)){
+                $num = substr($customer->ftth_id,-3,3);
+                array_push($cid,(int)$num);
+            }
+        }
+        if(sizeof($cid))
+        return max($cid);
+        return 0;
+    }
+    public function getmaxmkvipid(){
+        $customers = Customer::all();
+        $cid = array();
+        //gghtcl688803770
+        //gghmk688803770
+        //gghtclvip005
+        //gghmkvip005
+        foreach($customers as $customer){
+            if(preg_match("/(^[a-z]{8}[0-9]{3})$/",$customer->ftth_id)){
+                $num = substr($customer->ftth_id,-3,3);
                 array_push($cid,(int)$num);
             }
         }

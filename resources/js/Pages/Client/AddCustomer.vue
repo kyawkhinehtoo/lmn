@@ -181,7 +181,19 @@
                     </div>
                      
                   </div>
-                  <div class="col-span-3 sm:col-span-3">
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="customer_type" class="block text-sm font-medium text-gray-700"> Customer Type </label>
+                    <div class="mt-1 flex rounded-md" >
+                     <select name="customer_type" id="customer_type" v-model="form.customer_type"  class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" @change="goID" :disabled="checkPerm('customer_type')">
+                       <option value="1">Normal Customer</option>
+                       <option value="2">VIP Customer</option>
+                       <option value="3">Partner Customer</option>
+                       <option value="4">Office Staff</option>
+                     </select>
+                    </div>
+                     
+                  </div>
+                  <div class="col-span-2 sm:col-span-2">
                     <label for="sale_remark" class="block text-sm font-medium text-gray-700"> Sale Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
@@ -404,6 +416,8 @@ export default {
     dn:Object,
     max_mk_id:Object,
     max_tcl_id:Object,
+    max_vip_tcl_id:Object,
+    max_vip_mk_id:Object,
     errors: Object,
   },
   setup(props) {
@@ -445,6 +459,7 @@ export default {
       fiber_distance:"",
       pppoe_account:"",
       pppoe_password:"",
+      customer_type:1,
     });
 
     function resetForm() {
@@ -483,6 +498,7 @@ export default {
       form.fiber_distance="";
       form.pppoe_account="";
       form.pppoe_password="";
+      form.customer_type=1;
     }
     function submit() {
       form._method = "POST";
@@ -547,13 +563,29 @@ export default {
       if(form.township){
         
         if(form.township.name == "Mong Koe"){
-          form.ftth_id = 'gghmk6888'+('00000'+(parseInt(props.max_mk_id)+1)).slice(-5);
+          if(form.customer_type == 2){
+            form.ftth_id = 'gghmkvip'+('000'+(parseInt(props.max_vip_mk_id)+1)).slice(-3);
+          }else{
+            form.ftth_id = 'gghmk6888'+('00000'+(parseInt(props.max_mk_id)+1)).slice(-5);
+          }
+         
         }else{
+          if(form.customer_type == 2){
+          form.ftth_id = 'gghtclvip'+('000'+(parseInt(props.max_vip_tcl_id)+1)).slice(-3);
+         }else{
           form.ftth_id = 'gghtcl6888'+('00000'+(parseInt(props.max_tcl_id)+1)).slice(-5);
+         }
+          
         }
         
       }else{
-        form.ftth_id = 'gghtcl6888'+('00000'+(parseInt(props.max_id)+1)).slice(-5);
+         if(form.customer_type == 2){
+          form.ftth_id = 'gghtclvip'+('000'+(parseInt(props.max_vip_tcl_id)+1)).slice(-3);
+         }
+         else{
+          form.ftth_id = 'gghtcl6888'+('00000'+(parseInt(props.max_id)+1)).slice(-5);
+         }
+       
       }
     }
     

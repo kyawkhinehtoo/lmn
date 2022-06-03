@@ -191,7 +191,19 @@
                     </div>
                      
                   </div>
-                  <div class="col-span-3 sm:col-span-3">
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="customer_type" class="block text-sm font-medium text-gray-700"> Customer Type </label>
+                    <div class="mt-1 flex rounded-md" >
+                     <select name="customer_type" id="customer_type" v-model="form.customer_type"  class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
+                       <option value="1">Normal Customer</option>
+                       <option value="2">VIP Customer</option>
+                       <option value="3">Partner Customer</option>
+                       <option value="4">Office Staff</option>
+                     </select>
+                    </div>
+                     
+                  </div>
+                  <div class="col-span-2 sm:col-span-2">
                     <label for="sale_remark" class="block text-sm font-medium text-gray-700"> Sale Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
@@ -492,6 +504,7 @@ export default {
       fiber_distance:props.customer.fiber_distance,
       pppoe_account:props.customer.pppoe_account,
       pppoe_password:"",
+      customer_type:props.customer.customer_type,
     });
 
     function submit() {
