@@ -21,34 +21,45 @@ class DashboardController extends Controller
     
         $total = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('status.name', '<>', 'Terminate')
+        ->join('packages', 'customers.package_id', '=', 'packages.id')
+        ->whereIn('status.type', ['active','disabled'])
         ->where(function($query){
-            return $query->where('customers.deleted', '=', 0)
-            ->orWhereNull('customers.deleted');
-        })
+                return $query->where('customers.deleted', '=',0)
+                ->orWhereNull('customers.deleted');
+            })
         ->count();
         $to_install = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('status.name', '=', 'Installation Request')
+        ->join('packages', 'customers.package_id', '=', 'packages.id')
+        ->where('status.type','=','new')
         ->where(function($query){
-            return $query->where('customers.deleted', '=', 0)
-            ->orWhereNull('customers.deleted');
-        })
+                return $query->where('customers.deleted', '=', 0)
+                ->orwherenull('customers.deleted');
+            })
         ->count();
-        $pending = DB::table('customers')
+        $suspense = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('status.name', 'like', '%Pending%')
+        ->join('packages', 'customers.package_id', '=', 'packages.id')
+        ->where('status.type', '=', 'suspense')
         ->where(function($query){
-            return $query->where('customers.deleted', '=', 0)
-            ->orWhereNull('customers.deleted');
-        })
+                return $query->where('customers.deleted', '=', 0)
+                ->orwherenull('customers.deleted');
+            })
+        ->count();
+        $terminate = DB::table('customers')
+        ->join('status', 'customers.status_id', '=', 'status.id')
+        ->join('packages', 'customers.package_id', '=', 'packages.id')
+        ->where('status.type', '=', 'terminate')
+        ->where(function($query){
+                return $query->where('customers.deleted', '=', 0)
+                ->orwherenull('customers.deleted');
+            })
         ->count();
         $install_week = DB::table('customers')
-        ->join('status', 'customers.status_id', '=', 'status.id')
         ->where(function($query){
-            return $query->where('customers.deleted', '=', 0)
-            ->orWhereNull('customers.deleted');
-        })
+                return $query->where('customers.deleted', '=', 0)
+                ->orwherenull('customers.deleted');
+            })
         ->whereRaw('week(installation_date)=week(now()) AND year(installation_date)=year(NOW())')
         ->count();
 
@@ -59,7 +70,7 @@ class DashboardController extends Controller
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
         })
-        ->where('status.name', '<>', 'Terminate')
+        ->whereIn('status.type', ['active','disabled'])
         ->where('packages.type', '=', 'ftth')
         ->count();
 
@@ -70,7 +81,7 @@ class DashboardController extends Controller
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
         })
-        ->where('status.name', '<>', 'Terminate')
+        ->whereIn('status.type', ['active','disabled'])
         ->where('packages.type', '=', 'b2b')
         ->count();
         
@@ -81,7 +92,7 @@ class DashboardController extends Controller
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
         })
-        ->where('status.name', '<>', 'Terminate')
+        ->whereIn('status.type', ['active','disabled'])
         ->where('packages.type', '=', 'dia')
         ->count();
         //SELECT p.name,COUNT(c.ftth_id) AS customers FROM packages p JOIN customers c ON c.package_id=p.id  WHERE p.`type`='ftth' GROUP BY p.name;
@@ -92,7 +103,7 @@ class DashboardController extends Controller
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
         })
-        ->where('status.name', '<>', 'Terminate')
+        ->whereIn('status.type', ['active','disabled'])
         ->where('packages.type', '=', 'ftth')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
         ->groupBy('packages.name')
@@ -106,7 +117,7 @@ class DashboardController extends Controller
             return $query->where('customers.deleted', '=', 0)
             ->orwherenull('customers.deleted');
         })
-        ->where('status.name', '<>', 'Terminate')
+        ->whereIn('status.type', ['active','disabled'])
         ->where('packages.type', '=', 'b2b')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
         ->groupBy('packages.name')
@@ -120,7 +131,7 @@ class DashboardController extends Controller
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
         })
-        ->where('status.name', '<>', 'Terminate')
+        ->whereIn('status.type', ['active','disabled'])
         ->where('packages.type', '=', 'dia')
         ->select('packages.name',DB::raw('COUNT(customers.ftth_id) AS customers'))
         ->groupBy('packages.name')
@@ -131,7 +142,8 @@ class DashboardController extends Controller
        return Inertia::render("Dashboard",[
             'total' => $total,
             'to_install' => $to_install,
-            'pending' => $pending,
+            'suspense' => $suspense,
+            'terminate' => $terminate,
             'install_week'=>$install_week,
             'ftth'=>$ftth,
             'b2b'=>$b2b,

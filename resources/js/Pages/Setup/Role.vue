@@ -63,6 +63,10 @@
                           <input class="text-gray-500 text-sm w-6 h-6 mr-2 focus:ring-gray-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.read_customer" />
                           Read Only to Customer Data
                         </label>
+                         <label class="inline-flex ml-2 text-sm">
+                          <input class="text-gray-500 text-sm w-6 h-6 mr-2 focus:ring-gray-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.delete_customer" />
+                          Enable Delete Customer
+                        </label>  
                         <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission :</label>
                         <!-- <select multiple>
                           <option v-for="row in col" v-bind:key="row.id" class="capitalize"> {{ row.name.replace(/_/g, " ") }}</option>
@@ -163,6 +167,7 @@ export default {
       id: null,
       name: null,
       permission: null,
+      delete_customer : null,
       read_customer: null,
       read_incident: null,
       write_incident: null,
@@ -178,6 +183,7 @@ export default {
       form.name = null;
       form.permission = null;
       form.read_customer = null;
+      form.delete_customer = null;
       form.read_incident = null;
       form.write_incident = null;
       form.edit_invoice = null;
@@ -228,7 +234,8 @@ export default {
         let permission_array = data.permission.split(",");
         form.permission = props.col.filter((d) => permission_array.includes(d.name));
       }
-      form.read_customer =(data.read_customer)?true:false;
+      form.read_customer = (data.read_customer) ? true : false;
+      form.delete_customer =(data.delete_customer)?true:false;
       form.read_incident =(data.read_incident)?true:false;
       form.write_incident = (data.write_incident)?true:false;
       form.edit_invoice = (data.edit_invoice)?true:false;

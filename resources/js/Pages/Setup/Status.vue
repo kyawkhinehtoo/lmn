@@ -28,6 +28,7 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
                             </tr>
                         </thead>
@@ -36,6 +37,7 @@
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap"><span :class='"text-sm fas fa-circle text-"+row.color'></span> {{ row.color }}  </td>
+                                <td class="px-6 py-3 whitespace-nowrap capitalize">{{ row.type }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="#" @click="edit(row)"  class="text-indigo-600 hover:text-indigo-900">Edit</a> | 
                                     <a href="#" @click="deleteRow(row)"  class="text-red-600 hover:text-red-900">Delete</a>
@@ -69,6 +71,23 @@
                                       <div v-if="$page.props.errors.color" class="text-red-500">{{ $page.props.errors.color[0] }}</div>
                                
                                   </div>
+                                   <div class="mb-4">
+                                      <label for="type" class="block text-gray-700 text-sm font-bold mb-2">Type :</label>
+                                          <div class="mt-1 flex rounded-md">
+                                          <select name="type" id="type" v-model="form.type" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"  required>
+                                            <option value="" selected>Please Choose Type</option>
+                                            <option value="new">New Order</option>
+                                            <option value="active">Active</option>
+                                            <option value="suspense">Suspended</option>
+                                            <option value="terminate">Terminated</option>
+                                            <option value="cancel">Cancel</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="disabled">Disabled</option>
+                                          </select>
+                                        </div>
+                                      <div v-if="$page.props.errors.type" class="text-red-500">{{ $page.props.errors.type[0] }}</div>
+                               
+                                  </div>
                                   <div class="mb-4 flex justify-between">
                                     <div class="flex">
                                     <label for="start_date" class=" text-gray-700 text-sm font-bold mb-2 inline-flex">Start Date :</label>
@@ -77,10 +96,6 @@
                                     <div class="flex">
                                     <label for="end_date" class="ml-2 text-gray-700 text-sm font-bold mb-2 inline-flex">End Date :</label>
                                     <input type="checkbox" class="inline-flex ml-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md" id="end_date" v-model="form.end_date">
-                                    </div>
-                                    <div class="flex">
-                                    <label for="relocation" class="ml-2 text-gray-700 text-sm font-bold mb-2 inline-flex">Relocation :</label>
-                                    <input type="checkbox" class="inline-flex ml-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md" id="relocation" v-model="form.relocation">
                                     </div>
                                   </div>
                             </div>
@@ -140,7 +155,7 @@
           color: null,
           start_date: null,
           end_date: null,
-          relocation: null,
+          type: null,
         })
         const search = ref('')
         let editMode = ref(false)
@@ -151,7 +166,7 @@
               form.color = null
               form.start_date = null
               form.end_date = null
-              form.relocation = null
+              form.type = null
         }
         function submit() {
            if(! editMode.value){
@@ -203,9 +218,9 @@
               form.id = data.id
               form.name = data.name
               form.color = data.color
-              form.start_date = data.start_date
-              form.end_date = data.end_date
-              form.relocation = (data.relocation)?true:false;
+              form.start_date = (data.start_date)?true:false;
+              form.end_date = (data.end_date)?true:false;
+              form.type = data.type
               editMode.value = true
               openModal()
         }

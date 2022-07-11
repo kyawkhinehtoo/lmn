@@ -10,10 +10,10 @@
         <div class="flex justify-between space-x-2 items-end mb-2 px-1 md:px-0">
           <div class="relative flex flex-wrap">
             <span class="z-10 h-full leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3"><i class="fas fa-search"></i></span>
-            <input type="text" placeholder="Search here..." class="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full pl-10 py-2.5" id="search" v-model="search" v-on:keyup.enter="searchTsp" />
-             <a href="#" class="mt-1 w-full text-right font-semibold text-xs underline" v-on:click="toggleAdv">Advance Search</a>
-             <i class="fas fa-chevron-right text-blueGray-400" v-show="!show_search"></i>
-              <i class="fas fa-chevron-down text-blueGray-400" v-show="show_search"></i>
+            <input type="text" placeholder="Search here..." class="mb-2 border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full pl-10 py-2.5" id="search" v-model="search" v-on:keyup.enter="searchTsp" />
+             <a href="#" class="text-left font-semibold text-xs " v-on:click="toggleAdv">Advance Search</a>
+             <i class="ml-2 fas fa-chevron-down text-blueGray-400" v-show="!show_search"></i>
+              <i class="ml-2 fas fa-chevron-up text-blueGray-400" v-show="show_search"></i>
           </div>
          <inertia-link :href="'/customer/create'" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Create</inertia-link>
         </div>
@@ -85,9 +85,10 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Customer ID</th>
+                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" v-if="radius">Radius</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >ID</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Order Date</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Prefer Install Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Prefer Date</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" >Name</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Township</th>
@@ -97,6 +98,16 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 text-sm">
               <tr v-for="row in customers.data" v-bind:key="row.id" :class='" text-"+row.color'>
+              <td class="px-3 py-3 text-xs font-medium whitespace-nowrap" v-if="radius">
+                <div class="text-xs inline-flex items-center font-medium leading-sm capitalize  px-3 py-1 rounded-full"
+                :class="{'bg-green-200 text-green-700 ': row.radius_status == 'online',
+                         'bg-blue-200 text-blue-700': row.radius_status == 'offline',
+                         'bg-red-200 text-red-700': row.radius_status == 'disabled',
+                         'bg-orange-200 text-orange-700': row.radius_status == 'not found',
+                         'bg-white text-gray-700 border': row.radius_status == 'no account'
+                
+                }">{{ row.radius_status}}</div>
+                 </td> 
                 <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.ftth_id }}</td>
                 <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.order_date }}</td>
                 <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.prefer_install_date }}</td>
@@ -106,8 +117,10 @@
                 <td class="px-6 py-3 text-xs font-medium  whitespace-nowrap">{{ row.status }}</td>
 
                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
-                  <inertia-link :href="route('customer.edit', row.id)" class="text-indigo-600 hover:text-indigo-900">Edit</inertia-link> |
-                  <a href="#" @click="deleteRow(row)" class="text-red-600 hover:text-red-900">Delete</a>
+                 <inertia-link :href="route('customer.edit', row.id)" class="text-indigo-400 hover:text-indigo-600 mr-2"><i class="fas fa-folder"></i></inertia-link> 
+                  <span v-if="user.delete_customer">  |
+               <a href="#" @click="deleteRow(row)" class="text-yellow-600 hover:text-yellow-900 ml-2"><i class="fas fa-trash"></i></a>
+                  </span>
                 </td>
               </tr>
             </tbody>
@@ -150,7 +163,9 @@ export default {
     active: Object,
     suspense: Object,
     installation_request: Object,
-    terminate: Object
+    terminate: Object,
+    radius: Object,
+    user: Object
   },
   setup(props) {
      provide('packages', props.packages);

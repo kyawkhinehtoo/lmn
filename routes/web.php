@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -136,11 +137,54 @@ Route::group(['middleware'=> 'auth'], function(){
 	//Email Template
 	Route::resource('/template', EmailTemplateController::class);
 
+	//SMS Gatweay
+	Route::resource('/smsgateway', SmsGatewayController::class);
+	
+	//Radius Gateway
+	Route::resource('/radiusconfig', RadiusController::class);
+	Route::get('/fillAllRadius', 'RadiusController@autofillRadius');
+
+	//Radius
+	Route::get('/getRadiusInfo/{id}', 'RadiusController@getRadiusInfo');
+	Route::get('/getRadiusServices', 'RadiusController@getRadiusServices');
+	Route::post('/enableRadius/{id}', 'RadiusController@enableRadiusUser');
+	Route::post('/saveRadius/{id}', 'RadiusController@saveRadius');
+	Route::post('/createRadius/{id}', 'RadiusController@createRadius');
+	Route::post('/disableRadius/{id}', 'RadiusController@disableRadiusUser');
+	Route::get('/showRadius', 'RadiusController@display')->name('showRadius');
+	Route::post('/showRadius', 'RadiusController@display');
+	Route::post('/RadiusExport', 'ExcelController@exportRadiusReportExcel')->name('RadiusExport'); 
+	Route::post('/tempDeactivate/{id}', 'RadiusController@tempDeactivate');
+	Route::post('/tempActivate/{id}', 'RadiusController@tempActivate');
+
+	//Announcement
+	Route::get('/announcement/listall', 'AnnouncementController@listAll')->name('announcement.list');
+	Route::get('/announcement/show', 'AnnouncementController@showAll');
+	Route::resource('/announcement', AnnouncementController::class);
+	Route::post('/announcement/show', 'AnnouncementController@showAll');
+	Route::get('/announcement/detail/{id}', 'AnnouncementController@detail')->name('announcement.detail');
+	Route::post('/announcement/detail/{id}', 'AnnouncementController@detail');
+	Route::get('/announcement/log/{id}', 'AnnouncementController@log')->name('announcement.log');
+	Route::post('/announcement/detail/{id}/update', 'AnnouncementController@update');
+	Route::post('/announcement/detail/{id}/send', 'AnnouncementController@send');
+	Route::post('/exportAnnouncementLogExcel', 'ExcelController@exportAnnouncementLog')->name('exportAnnouncementLog');
 
 	//test
 	Route::get('/testCustomer', 'CustomerController@preg_test');
 	//Service Request
 	Route::resource('/servicerequest', ServiceRequestController::class);
+
+	//Reports 
+
+	Route::resource('/dailyreceipt', DailyReceiptController::class);
+	Route::post('/dailyreceipt/show', 'DailyReceiptController@index');
+	Route::get('/dailyreceipt/show', 'DailyReceiptController@index')->name('dailyreceipt');
+	Route::post('/exportReceipt', 'ExcelController@exportReceipt')->name('exportReceipt');
+
+	Route::get('/incidentReport','ReportController@incidentReport')->name('incidentReport');
+	Route::post('/incidentReport','ReportController@incidentReport');
+	Route::get('/getIncidentDetail/{id}/{date}','ReportController@getIncidentDetail');
+	Route::post('/exportIncidentReportExcel', 'ExcelController@exportIncidentReportExcel')->name('exportIncidentReportExcel');
 
 });
 

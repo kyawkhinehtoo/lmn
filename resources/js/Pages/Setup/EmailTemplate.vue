@@ -1,7 +1,7 @@
 <template>
   <app-layout>
     <template #header>
-      <h2 class="font-semibold text-xl text-white leading-tight">Billing Email Template Setup</h2>
+      <h2 class="font-semibold text-xl text-white leading-tight">SMS - Email Template Setup</h2>
     </template>
 
     <div class="py-2">
@@ -24,6 +24,7 @@
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Template Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default</th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
               </tr>
@@ -32,6 +33,7 @@
               <tr v-for="row in templates" v-bind:key="row.id" :class="{ 'text-gray-400': !row.status }">
                 <td class="px-6 py-3 text-left text-sm font-medium whitespace-nowrap">{{ row.id }}</td>
                 <td class="px-6 py-3 text-left text-sm font-medium whitespace-nowrap">{{ row.name }}</td>
+                <td class="px-6 py-3 text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
                 <td class="px-6 py-3 text-left text-sm font-medium whitespace-nowrap"><i class="fa fas fa-star" :class="row.default==1? 'text-yellow-600':'text-gray-200'"></i></td>
                 <td class="px-6 py-3 text-left text-sm font-medium whitespace-nowrap text-right">
                   <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
@@ -57,7 +59,18 @@
                           <input type="text" v-model="form.name" name="name" id="name" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Template Name" required />
                         </div>
                       </div>
-                      
+                       
+                      <div class="py-2">
+                      <label for="name" class="block text-sm font-medium text-gray-700"> Template Type</label>
+                       <div class="mt-1">
+                      <label class="flex-auto items-center text-sm font-medium text-gray-700 " >SMS</label>
+                          <Switch v-model="form.type" :class="form.type ? 'bg-green-700' : 'bg-indigo-700'" class="relative inline-flex items-center h-6 rounded-full w-11 mx-2">
+                            <span class="sr-only">Template Type </span>
+                            <span :class="form.type ? 'translate-x-6' : 'translate-x-1'" class="inline-block w-4 h-4 transform bg-white rounded-full" />
+                          </Switch>
+                        <label class="flex-auto items-center text-sm font-medium text-gray-700 ">Email</label>
+                        </div>
+                      </div>
                         <div class="py-2" v-if="form.type">
                         <label for="name" class="block text-sm font-medium text-gray-700"> Emails Title </label>
                         <div class="mt-1 rounded-md shadow-sm">

@@ -19,10 +19,12 @@ class UserController extends Controller
     public function index(Request $request)
     {
    
-        $users = User::when($request->user, function($query, $tsp){
-            $query->where('name','LIKE','%'.$tsp.'%')
-            ->orWhere('phone','LIKE','%'.$tsp.'%');
+        $users = User::join('roles','users.role','roles.id')->when($request->user, function($query, $tsp){
+            $query->where('users.name','LIKE','%'.$tsp.'%')
+            ->orWhere('roles.name','LIKE','%'.$tsp.'%')
+            ->orWhere('users.phone','LIKE','%'.$tsp.'%');
         })
+        ->select('users.*')
         ->orderby('users.role','asc')
         ->paginate(10);
         $roles = Role::get();
@@ -52,6 +54,7 @@ class UserController extends Controller
             'email' => $request['email'],
             'phone' => $request['phone'],
             'role' => $request['role'],
+            'disabled' => $request['disabled'],
             'password' => Hash::make($request['password']),
         ]);
   
@@ -96,6 +99,7 @@ class UserController extends Controller
             $user->email = $request['email'];
             $user->phone = $request['phone'];
             $user->role = $request['role'];
+            $user->disabled = $request['disabled'];
             if(!empty($request['password'])){
                 $user->password =Hash::make($request['password']);
             }

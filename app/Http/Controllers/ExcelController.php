@@ -10,7 +10,10 @@ use App\Imports\ContractUpdate;
 use App\Imports\TownshipUpdate;
 use App\Imports\PaymentImport;
 
+use App\Exports\ReceiptExport;
 use App\Exports\BillingExport;
+use App\Exports\IncidentExport;
+use App\Exports\RadiusExport;
 use App\Exports\TempBillingExport;
 use App\Exports\RevenueExport; 
 use App\Imports\CustomersUpdate;
@@ -63,6 +66,18 @@ class ExcelController extends Controller
     public function exportRevenue(Request $request) 
     { 
      return (new RevenueExport($request))->download('revenue.csv');
+    }
+    public function exportReceipt(Request $request) 
+    { 
+     return (new ReceiptExport($request))->download('receipts.csv');
+    }
+    public function exportIncidentReportExcel (Request $request) 
+    { 
+     return (new IncidentExport($request))->download('incidents.csv');
+    }
+    public function exportRadiusReportExcel (Request $request) 
+    { 
+     return (new RadiusExport($request))->download('radius_users.csv');
     }
     /**
     * @return \Illuminate\Support\Collection

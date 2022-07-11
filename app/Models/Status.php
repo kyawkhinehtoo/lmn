@@ -31,7 +31,7 @@ class Status extends Model
      * @var array
      */
     protected $fillable = [
-        'name','color','start_date','end_date','relocation', 'created_at', 'updated_at'
+        'name','color','start_date','end_date','type', 'created_at', 'updated_at'
     ];
 
     /**

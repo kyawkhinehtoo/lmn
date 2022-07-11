@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -50,7 +51,7 @@ class ReceiptRecord extends Model
     * @var array
     */
    protected $dates = [
-       'created_at', 'updated_at'
+       'receipt_date','created_at', 'updated_at'
    ];
 
    /**
@@ -65,5 +66,13 @@ class ReceiptRecord extends Model
    // Functions ...
 
    // Relations ...
+   public function getCreatedAtAttribute($date)
+    {
+        return Carbon::parse($date)->format('d-M-Y H:i:s');
+    }
+    public function getReceiptDateAttribute($date)
+    {
+        return Carbon::parse($date)->format('d-M-Y H:i:s');
+    }
  
 }

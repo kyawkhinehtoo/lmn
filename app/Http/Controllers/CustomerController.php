@@ -32,6 +32,7 @@ class CustomerController extends Controller
     public function show(Request $request)
     {
      //   dd($request);
+     $user = User::join('roles','roles.id','=','users.role')->find(Auth::user()->id);
         $active = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where('status.name', 'LIKE', '%Activ%')
@@ -169,8 +170,17 @@ class CustomerController extends Controller
             },function ($query){
                 $query->orderBy('customers.id','desc');
             })
-            ->select('customers.id as id', 'customers.ftth_id as ftth_id', 'customers.name as name', 'customers.prefer_install_date as prefer_install_date','customers.order_date as order_date', 'customers.phone_1 as phone', 'townships.name as township', 'packages.name as package', 'status.name as status', 'status.color as color')
+            ->select('customers.id as id', 'customers.ftth_id as ftth_id', 'customers.name as name', 'customers.prefer_install_date as prefer_install_date','customers.order_date as order_date', 'customers.phone_1 as phone', 'townships.name as township', 'packages.name as package', 'status.name as status', 'status.color as color','customers.pppoe_account as pppoe_account')
             ->paginate(10);
+            $radius = RadiusController::checkRadiusEnable();
+            if($radius){
+                foreach ($customers as $key => $value) {
+                    if ($value->pppoe_account)
+                        $value->radius_status = RadiusController::checkCustomer($value->pppoe_account);
+                    else
+                        $value->radius_status = 'no account';
+                }
+            }
       // dd($customers->toSQL(), $customers->getBindings());
         $customers->appends($request->all())->links();
         return Inertia::render('Client/Customer', [
@@ -183,6 +193,8 @@ class CustomerController extends Controller
             'suspense' => $suspense,
             'installation_request' => $installation_request,
             'terminate' => $terminate,
+            'radius' => $radius,
+            'user' => $user,
             ]);
     }
   
@@ -276,36 +288,7 @@ class CustomerController extends Controller
 
         ])->validate();
        
-        // $customer = new Customer();
-        // $customer->ftth_id = $request->ftth_id;
-        // $customer->name = $request->name;
-        // $customer->nrc = $request->nrc;
-        // $customer->dob = $request->dob;
-        // $customer->phone_1 = $request->phone_1;
-        // $customer->phone_2 = $request->phone_2;
-        // $customer->email = $request->email;
-        // $customer->address = $request->address;
-        // $customer->location = $request->latitude . ',' . $request->longitude;
-        // $customer->order_date = $request->order_date;
-        // $customer->installation_date = $request->installation_date;
-        // $customer->deposit_receive_date = $request->deposit_receive_date;
-        // $customer->bill_start_date = $request->bill_start_date;
-        // $customer->deposit_status = $request->deposit_status;
-        // $customer->deposit_receive_from = $request->deposit_receive_from;
-        // $customer->deposit_receive_amount = $request->deposit_receive_amount;
-        // $customer->order_form_sign_status = $request->order_form_sign_status;
-        // $customer->sale_channel = $request->sale_channel;
-        // $customer->remark = $request->remark;
-        // $customer->status_id = $request->status['id'];
-        // if (!empty($request->subcom))
-        //     $customer->subcom_id = $request->subcom['id'];
-        // if (!empty($request->project))
-        //     $customer->project_id = $request->project['id'];
-        // $customer->township_id = $request->township['id'];
-        // $customer->package_id = $request->package['id'];
-        // $customer->sale_person_id = $request->sale_person['id'];
         
-        // $customer->save();
         $auto_ftth_id = $request->ftth_id;
         $check_id = Customer::where('ftth_id','=',$auto_ftth_id)->first();
         if($check_id){
@@ -390,6 +373,9 @@ class CustomerController extends Controller
             $new_history->new_package =$request->package['id']; 
         }
         $new_history->save();
+        if(RadiusController::checkRadiusEnable()){
+            RadiusController::createRadius($customer->id);
+        }
         return redirect()->route('customer.index')->with('message', 'Customer Created Successfully.');
     }
 
@@ -454,6 +440,7 @@ class CustomerController extends Controller
             $status_list = Status::get();
             $roles = Role::get();
             $users = User::find(Auth::user()->id);
+            $radius = RadiusController::checkRadiusEnable();
             return Inertia::render(
                 'Client/EditCustomer',
                 [
@@ -467,7 +454,8 @@ class CustomerController extends Controller
                     'users' => $users,
                     'sn' => $sn,
                     'dn' => $dn,
-                    'customer_history' => $customer_history
+                    'customer_history' => $customer_history,
+                    'radius'=>$radius
                 ]
             );
         }
@@ -589,6 +577,9 @@ class CustomerController extends Controller
                 }
             }
             $customer->update();
+            if(RadiusController::checkRadiusEnable()){
+                RadiusController::updateRadius($customer->id);
+            }
         }
 
 

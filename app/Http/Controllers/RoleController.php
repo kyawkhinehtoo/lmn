@@ -44,6 +44,7 @@ class RoleController extends Controller
         }
         $role->read_customer = $request->read_customer;
         $role->read_incident = $request->read_incident;
+        $role->delete_customer = $request->delete_customer;
         $role->write_incident = $request->write_incident;
         $role->bill_generation = $request->bill_generation;
         $role->edit_invoice = $request->edit_invoice;
@@ -82,6 +83,7 @@ class RoleController extends Controller
             // }
             $role->read_customer = $request->read_customer;
             $role->read_incident = $request->read_incident;
+            $role->delete_customer = $request->delete_customer;
             $role->write_incident = $request->write_incident;
             $role->bill_generation = $request->bill_generation;
             $role->edit_invoice = $request->edit_invoice;

@@ -91,7 +91,16 @@
                 <jet-nav-link :href="route('status.index')" :active="route().current('status.index')"> <i class="fas fa-user-tag opacity-75 mr-2 text-sm w-6"></i> Customer Status </jet-nav-link>
               </li>
               <li>
-                <jet-nav-link :href="route('template.index')" :active="route().current('template.index')"> <i class="fas fa-envelope opacity-75 mr-2 text-sm w-6"></i> SMS Template </jet-nav-link>
+                <jet-nav-link :href="route('template.index')" :active="route().current('template.index')"> <i class="fas fa-envelope opacity-75 mr-2 text-sm w-6"></i> Template </jet-nav-link>
+              </li>
+              <li>
+                <jet-nav-link :href="route('announcement.list')" :active="route().current('announcement.*')"> <i class="fas fa-bullhorn opacity-75 mr-2 -mt-1 text-sm w-6"></i> Announcement </jet-nav-link>
+              </li>
+              <li>
+                <jet-nav-link :href="route('smsgateway.index')" :active="route().current('smsgateway.*')"> <i class="fas fa-sms opacity-75 mr-2 -mt-1 text-sm w-6"></i> SMS Gateway </jet-nav-link>
+              </li>
+              <li>
+                <jet-nav-link :href="route('radiusconfig.index')" :active="route().current('radiusconfig.*')"> <i class="fas fa-sms opacity-75 mr-2 -mt-1 text-sm w-6"></i> Radius Config </jet-nav-link>
               </li>
             </ul>
              </TransitionRoot>
@@ -136,6 +145,25 @@
           </ul>
            </TransitionRoot>
             </span>
+              <hr class="my-4 md:min-w-full" />
+        
+          <h6 @click="toggleMenu('report')" class="mb-2 text-gray-600 hover:gray-blue-500 text-xs uppercase py-3 font-bold block px-4 rounded-md bg-blueGray-100 shadow-sm cursor-pointer flex justify-between z-10"><label class="flex"> Report Panel </label> <i class="fa fas text-right flex" :class="{ 'fa-caret-right': !report, 'fa-caret-down': report }"></i></h6>
+             <TransitionRoot :show="report" enter="transition ease-in duration-300 transform" enter-from="opacity-0" 
+                    leave="ease-out duration-150"
+                    enter-to="opacity-100" leave-from="opacity-100" leave-to="opacity-0" >
+          <ul class="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
+            <li>
+              <jet-nav-link :href="route('incidentReport')" :active="route().current('incidentReport')"> <i class="fas fa-users opacity-75 mr-2 text-sm w-6"></i> Incident Report </jet-nav-link>
+            </li>
+           <li>
+              <jet-nav-link :href="route('dailyreceipt')" :active="route().current('dailyreceipt')"> <i class="fa fa-money-bill opacity-75 mr-2 text-sm w-6"></i> Bill Report </jet-nav-link>
+            </li>
+             <li>
+              <jet-nav-link :href="route('showRadius')" :active="route().current('showRadius')"> <i class="fas fa-server opacity-75 mr-2 text-sm w-6"></i> Radius User Report </jet-nav-link>
+            </li>
+           
+          </ul>
+             </TransitionRoot>
         </div>
       </div>
     </nav>
@@ -240,6 +268,7 @@ export default {
       billing: false,
       admin: false,
       user: false,
+      report: false,
     };
   },
 
@@ -271,6 +300,13 @@ export default {
         this.user = false;
         this.admin = (this.admin)?false:true;
       }
+       if(menu == 'report'){
+        this.billing = false;
+        this.user = false;
+        this.admin = false;
+        this.report = (this.report)?false:true;
+      }
+      
     
     },
     logout() {
@@ -288,10 +324,16 @@ export default {
             this.user = true;
             this.admin = false;
      }
-     else if(route().current('user.*') || route().current('role.*') || route().current('township.*') || route().current('equiptment.*') || route().current('sla.*') || route().current('package.*') || route().current('project.*') || route().current('status.*') || route().current('template.*') || route().current('port.*') || route().current('snport.*') ){
+     else if(route().current('user.*') || route().current('role.*') || route().current('township.*') || route().current('equiptment.*') || route().current('sla.*') || route().current('package.*') || route().current('project.*') || route().current('status.*') || route().current('template.*') || route().current('port.*') || route().current('snport.*') || route().current('announcement.*') || route().current('smsgateway.*') || route().current('radiusconfig.*') ){
             this.billing = false;
             this.user = false;
             this.admin = true;
+      }
+     else if(route().current('incidentReport') || route().current('dailyreceipt.*')  || route().current('showRadius')){
+            this.billing = false;
+            this.user = false;
+            this.admin = false;
+            this.report = true;
      }
   },
 };

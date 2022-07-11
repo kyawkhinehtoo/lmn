@@ -24,14 +24,15 @@ class StatusController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'color' => ['required'],
+            'type' => ['required'],
         ])->validate();
 
         $status = new Status();
         $status->name = $request->name;
         $status->color = $request->color;
         $status->start_date = $request->start_date;
-            $status->end_date = $request->end_date;
-            $status->relocation = $request->relocation;
+        $status->end_date = $request->end_date;
+        $status->type = $request->type;
         $status->save();
          return redirect()->route('status.index')->with('message', 'Status Created Successfully.');
     }
@@ -40,6 +41,7 @@ class StatusController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'color' => ['required'],
+            'type' => ['required'],
         ])->validate();
   
         if ($request->has('id')) {
@@ -48,7 +50,7 @@ class StatusController extends Controller
             $status->color = $request->color;
             $status->start_date = $request->start_date;
             $status->end_date = $request->end_date;
-            $status->relocation = $request->relocation;
+            $status->type = $request->type;
             $status->update();
             return redirect()->back()
                     ->with('message', 'Status Updated Successfully.');

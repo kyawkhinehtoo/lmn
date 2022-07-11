@@ -13,7 +13,8 @@
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 1 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(1)" preserve-state>Genaral</a></li>
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 2 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(2)" preserve-state>Documents</a></li>
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 3 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(3)" preserve-state>History</a></li>
-
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 5 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']" v-if="radius"><a href="#" @click="tabClick(5)" preserve-state>Radius</a></li>
+                  
                      
                     </ul>
                   </div>
@@ -332,24 +333,24 @@
                 </div>
                  <div class="grid grid-cols-4 gap-2">
                    <div class="col-span-1 sm:col-span-1">
-                    <label for="pppoe_account" class="block text-sm font-medium text-gray-700"> PPPoE ID </label>
+                    <label for="pppoe_account" class="block text-sm font-medium text-gray-700"> PPPoE Account <i v-if="pppoe_auto" class="text-red-600 text-xs">(Auto Generated)</i> </label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span :class="pppoe_auto?'text-blueGray-700':'text-blueGray-300'" class="z-10 leading-snug font-normal absolute text-center absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                        <i class="fas fa-tools"></i>
+                      </span>
+                      <input @click="fillPppoe" v-model="form.pppoe_account" type="text" name="pppoe_account" id="pppoe_account" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :class="pppoe_auto?'bg-yellow-200':'bg-white'" :disabled="checkPerm('pppoe_account')" />
+                    </div>
+                    <p v-show="$page.props.errors.pppoe_account" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_account }}</p>
+                  </div>
+                   <div class="col-span-1 sm:col-span-1">
+                    <label for="pppoe_password" class="block text-sm font-medium text-gray-700"> PPPoE Password <i class="ml-2 fa fas fa-sync text-gray-400 hover:text-gray-600 cursor-pointer" @click="generatePassword()"></i> </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
                         <i class="fas fa-tools"></i>
                       </span>
-                      <input v-model="form.pppoe_account" type="text" name="pppoe_account" id="pppoe_account" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('pppoe_account')" />
-                    </div>
-                     <p v-show="$page.props.errors.splitter_no" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_account }}</p>
-                  </div>
-                   <div class="col-span-1 sm:col-span-1">
-                    <label for="pppoe_password" class="block text-sm font-medium text-gray-700"> PPPoE Password </label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                      <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-                        <i class="fas fa-key"></i>
-                      </span>
                       <input v-model="form.pppoe_password" type="text" name="pppoe_password" id="pppoe_password" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" :disabled="checkPerm('pppoe_password')" />
                     </div>
-                     <p v-show="$page.props.errors.splitter_no" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_password }}</p>
+                    <p v-show="$page.props.errors.pppoe_password" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_password }}</p>
                   </div>
                  <div class="col-span-1 sm:col-span-1">
                     <label for="latitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Latitude </label>
@@ -414,7 +415,16 @@
                  
                   </div>
                </div>
-             
+             <div class="p-4" :class="[tab == 5 ? '': 'hidden']" v-if="radius">
+                  <div class="px-4 py-5 bg-white space-y-6 sm:p-6"  >
+                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Radius</h6>
+                  <hr class="my-4 md:min-w-full" />
+                
+                   <customer-radius :data="form.id" :permission="!checkPerm('order_date')"  v-if="tab== 5"/>
+               
+                 
+                  </div>
+               </div>
               </div> <!-- Tab Contents -->
             </div>
           </form>
@@ -432,12 +442,14 @@ import { reactive,ref, onMounted } from "vue";
 import { Inertia } from "@inertiajs/inertia";
 import CustomerFile from "@/Components/CustomerFile";
 import CustomerHistory from "@/Components/CustomerHistory";
+import CustomerRadius from "@/Components/CustomerRadius";
 export default {
   name: "EditCustomer",
   components: {
     AppLayout,
     CustomerFile,
     Multiselect,
+    CustomerRadius,
     CustomerHistory,
   },
   props: {
@@ -452,10 +464,12 @@ export default {
     users: Object,
     sn:Object,
     dn:Object,
+    radius: Object,
     customer_history: Object,
   },
   setup(props) {
-      let lat_long = '';
+    let lat_long = '';
+       let pppoe_auto = ref(false);
       if(props.customer.location){
         console.log('hello');
         lat_long = props.customer.location.split(",", 2); 
@@ -569,6 +583,31 @@ export default {
       }
       
     }
+    function fillPppoe(){
+          if(!form.pppoe_account){
+            if(form.ftth_id ){
+              var pppoe = form.ftth_id;
+              form.pppoe_account = pppoe.toLowerCase();
+              pppoe_auto.value = true;
+            }  
+          }
+         
+    }
+    function generatePassword() { 
+        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var passwordLength = 8;
+        var password = "";
+        for (var i = 0; i <= passwordLength; i++) {
+        var randomNumber = Math.floor(Math.random() * chars.length);
+        password += chars.substring(randomNumber, randomNumber +1);
+        }
+       if(!form.pppoe_password){
+            if(form.ftth_id ){
+            form.pppoe_password = password;
+            }
+          }
+    }
+    
     onMounted(() => {
       props.sn.map(function (x) {
            x.item_data = `${x.name} / ${x.port}`;
@@ -586,7 +625,7 @@ export default {
       form.status = props.status_list.filter((d) => d.id == props.customer.status_id)[0];
       form.subcom = props.subcoms.filter((d) => d.id == props.customer.subcom_id)[0];
     });
-    return { form,submit,isNumber,checkPerm,res_sn,DNSelect,tab,tabClick };
+    return { form,submit,isNumber,checkPerm,res_sn,DNSelect,tab,tabClick,fillPppoe,pppoe_auto,generatePassword };
   },
 };
 </script>

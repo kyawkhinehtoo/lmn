@@ -25,15 +25,17 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="row in users.data" v-bind:key="row.id">
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
+              <tr v-for="(row,index) in users.data" v-bind:key="row.id">
+                <td class="px-6 py-3 whitespace-nowrap">{{ (index+users.from) }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.phone }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ getRole(row.role) }}</td>
+                <td class="px-6 py-3 whitespace-nowrap">{{ (row.disabled)?'Disabled':'Enabled' }}</td>
 
                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                   <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
@@ -90,6 +92,16 @@
                        <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name[0] }}</div>
                       </div>
                     </div>
+                      <div class="mb-4">
+                        <label for="disabled" class="block text-gray-700 text-sm font-bold mb-2">User Status:</label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.disabled" />
+                          Disabled
+                        </label>
+
+                       <div v-if="$page.props.errors.disabled" class="text-red-500">{{ $page.props.errors.disabled[0] }}</div>
+                      </div>
+                   
                   </div>
                   <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
@@ -140,6 +152,7 @@ export default {
       email: null,
       phone: null,
       role:null,
+      disabled:null,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -154,6 +167,7 @@ export default {
       form.email = null;
       form.phone = null;
       form.role = null;
+      form.disabled = null;
     }
     function checkPsw(){
       if(form.password != form.confirm_password){
@@ -209,6 +223,7 @@ export default {
       form.email = data.email;
       form.phone = data.phone;
       form.role = data.role;
+      form.disabled = (data.disabled==1)?true:false;
       editMode.value = true;
       openModal();
     }
