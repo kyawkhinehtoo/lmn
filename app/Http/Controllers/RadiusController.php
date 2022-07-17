@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillingConfig;
 use Illuminate\Http\Request;
 use App\Models\RadiusConfig;
 use App\Models\Customer;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\Status;
 use App\Models\Township;
 use App\Models\Role;
+use DateTime;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -404,11 +406,16 @@ class RadiusController extends Controller
         $data = DB::table('customers')
                 ->join('townships','customers.township_id','townships.id')
                 ->join('status','customers.status_id','status.id')
+                ->leftjoin('sn_ports','customers.sn_id','sn_ports.id')
+                ->leftjoin('dn_ports','sn_ports.dn_id','dn_ports.id')
                 ->where('customers.id','=',$request->id)
-                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city')
+                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name')
                 ->first();
-       
+        $billconfig = BillingConfig::first();
         if(isset($data->pppoe_account) && isset($data->pppoe_password)){
+
+            $dn = ($data->dn_name)?$data->dn_name:null;
+            $sn = ($data->sn_name)?'/'.$data->ds_name:null;
 
             $user_data['username'] = $data->pppoe_account;
             $user_data['password'] = md5($data->pppoe_password);
@@ -418,6 +425,7 @@ class RadiusController extends Controller
             $user_data['downlimit'] = 0;
             $user_data['comblimit'] = 0;
             $user_data['firstname'] = $data->name;
+            $user_data['lastname'] = ($dn && $sn)?$dn.$sn:'';
             $user_data['phone'] = $data->phone_1;
             $user_data['mobile'] = $data->phone_2;
             $user_data['address'] = $data->address;
@@ -427,7 +435,10 @@ class RadiusController extends Controller
             $user_data['gpslat'] = $location[0];
             $user_data['gpslong'] = $location[1];
             $user_data['usemacauth'] = 0;
-            $user_data['expiration'] = '2030-12-01 00:00:00';
+            $today = new DateTime('now');
+            // $today->modify('last day of this month');
+            // $today->modify('+ '.$billconfig->mrc_day.' day');
+            $user_data['expiration'] =  date('Y-m-d H:i:s');
             $user_data['uptimelimit'] = 0;
             $user_data['srvid'] = 0;
             $user_data['ipmodecm'] = 0;
@@ -479,12 +490,16 @@ class RadiusController extends Controller
         $data = DB::table('customers')
                 ->join('townships','customers.township_id','townships.id')
                 ->join('status','customers.status_id','status.id')
+                ->leftjoin('sn_ports','customers.sn_id','sn_ports.id')
+                ->leftjoin('dn_ports','sn_ports.dn_id','dn_ports.id')
                 ->where('customers.id','=',$id)
-                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city')
+                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name')
                 ->first();
        
         if(isset($data->pppoe_account) ){
 
+            $dn = ($data->dn_name)?$data->dn_name:null;
+            $sn = ($data->sn_name)?'/'.$data->ds_name:null;
             $user_data['username'] = $data->pppoe_account;
             
             if(isset($data->pppoe_password))
@@ -514,6 +529,7 @@ class RadiusController extends Controller
             $user_data['enableuser'] = ($data->status_type == 'active')?1:0;
           
             $user_data['firstname'] = $data->name;
+            $user_data['lastname'] = ($dn && $sn)?$dn.$sn:'';
             $user_data['phone'] = $data->phone_1;
             $user_data['mobile'] = $data->phone_2;
             $user_data['address'] = $data->address;
