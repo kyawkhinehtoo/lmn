@@ -60,7 +60,6 @@ class ServiceRequestController extends Controller
                     ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                     ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
                     ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                    ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
                     ->orWhere('customers.address', 'LIKE', '%' . $general . '%')
                     ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%')
                     ->orWhere('incidents.type', 'LIKE', '%' . $general . '%')
@@ -191,16 +190,19 @@ class ServiceRequestController extends Controller
                     // $new_history->new_status = $status->id;
                     $myDateTime = new DateTime;
                     $newtime = clone $myDateTime;
-                    if ($request->start_date)
-                    $myDateTime = new DateTime($request->start_date);
-                    if($myDateTime->format('d') <= 7){
-                        $newtime->modify('first day of this month');
-                        $new_history->start_date = $newtime->format('Y-m-j h:m:s');
-                    }else{
-                        $newtime->modify('+1 month');
-                        $newtime->modify('first day of this month');
+                    if ($request->start_date){
+                        $myDateTime = new DateTime($request->start_date);
                         $new_history->start_date = $newtime->format('Y-m-j h:m:s');
                     }
+                   
+                    // if($myDateTime->format('d') <= 7){
+                    //     $newtime->modify('first day of this month');
+                    //     $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+                    // }else{
+                    //     $newtime->modify('+1 month');
+                    //     $newtime->modify('first day of this month');
+                    //     $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+                    // }
                 }
                 $new_history->save();
 

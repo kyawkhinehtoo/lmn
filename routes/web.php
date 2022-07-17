@@ -67,7 +67,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/customer/search/', 'CustomerController@show');
 	Route::resource('/incident', IncidentController::class);
 	Route::get('/incidentlist', 'IncidentController@getIncident');
-
+	Route::get('/getCustomer/{id}', 'IncidentController@getCustomer');
 	Route::get('importExportView', 'ExcelController@importExportView')->name('importExportView');
 	// Route for export/download tabledata to .csv, .xls or .xlsx
 	Route::post('/exportExcel', 'ExcelController@exportExcel')->name('exportExcel');
@@ -186,6 +186,8 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/getIncidentDetail/{id}/{date}','ReportController@getIncidentDetail');
 	Route::post('/exportIncidentReportExcel', 'ExcelController@exportIncidentReportExcel')->name('exportIncidentReportExcel');
 
+	//Bill Configuration
+	Route::resource('/billconfig', BillingConfiguration::class);
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

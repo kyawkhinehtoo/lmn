@@ -69,12 +69,16 @@
               <dt class="text-sm font-medium text-gray-500">Caller ID</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-3">{{ radius_data.callingstationid }}</dd>
             </div>
+            <div class="bg-gray-50 px-2 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-6" v-if="radius_data.expiration">
+              <dt class="text-sm font-medium text-gray-500">Expiration</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-3">{{ formatDate(radius_data.expiration) }}</dd>
+            </div>
            
            
           </dl>
         </div>
        <div class="w-full flex justify-end mt-2">
-                  <button @click="saveRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150">SAVE <i class="fa fas fa-save ml-2"></i></button>
+                  <button @click="saveRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150" v-if="user.radius_write">SAVE <i class="fa fas fa-save ml-2"></i></button>
 
                   <!-- <button @click="disableRadius" type="button" class="ml-2 inline-flex py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150">Disable</button> -->
                 </div>
@@ -84,14 +88,14 @@
     </div>
     <div v-else>
       <h2 class="text-center text-gray-600 text-sm font-semibold mt-2">No Data</h2>
-       <button @click="createRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150">CREATE <i class="fa fas fa-save ml-2"></i></button>
+       <button @click="createRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150"  v-if="user.radius_write">CREATE <i class="fa fas fa-save ml-2"></i></button>
 
     </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUpdated } from "vue";
+import { ref, onMounted, onUpdated,inject } from "vue";
 import { Inertia } from "@inertiajs/inertia";
 import { Switch } from "@headlessui/vue";
 import { useForm } from "@inertiajs/inertia-vue3";
@@ -104,7 +108,7 @@ export default {
         Multiselect,
   },
   setup(props) {
-    
+    const user = inject("user");
     const radius_srv = ref();
     const radius_data = ref();
      const form = useForm({
@@ -266,7 +270,7 @@ export default {
       
     });
 
-    return { radius_data,radius_srv, formatDate, enableRadius, disableRadius,saveRadius,createRadius ,formatSecond,form };
+    return { radius_data,radius_srv, formatDate, enableRadius, disableRadius,saveRadius,createRadius ,formatSecond,form ,user};
   },
 };
 </script>

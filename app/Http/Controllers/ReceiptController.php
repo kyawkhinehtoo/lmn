@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillingConfig;
 use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\Bills;
@@ -104,9 +105,8 @@ class ReceiptController extends Controller
 
         ])->validate();
         if ($request) {
-            $max_receipt_id =  DB::table('invoices')
-                ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
-                ->where('invoices.bill_id', '=', $request->bill_id)
+            $max_receipt_id =  DB::table('receipt_records')
+                ->where('receipt_records.bill_id', '=', $request->bill_id)
                 ->select(DB::raw('max(receipt_records.receipt_number) as max_receipt_number'))
                 ->first();
 
@@ -149,6 +149,43 @@ class ReceiptController extends Controller
         // {"id":2,"customer_id":5,"period_covered":"2021-10-01 to 2021-10-31","bill_number":"2110-A0006-FTTH","ftth_id":"A0006-190425-TCL-FTTH","date_issued":"2021-11-09","bill_to":"Sar Pay Law Ka","attn":"Shop 4, The Central Boulevard, Kabar Aye Pagoda Road, Yangon","previous_balance":"0","current_charge":"46900","compensation":"0","otc":"0","sub_total":"46900","payment_duedate":"2021-11-16","service_description":"Business Fiber","qty":"10 Mbps","usage_days":"1 Month","normal_cost":"46900","total_payable":"46900","discount":"0","email":null,"phone":"959515313","bill_year":"2021","bill_month":"10","device_rental_amount":null,"device_rental_price":null,"device_rental_qty":0,"product_id_amount":null,"product_id_price":null,"product_id_qty":0,"foc_amount":null,"foc_price":null,"foc_qty":0,"setup_fees_amount":null,"setup_fees_price":null,"setup_fees_qty":0,"lan_amount":null,"lan_price":null,"lan_qty":0,"device_amount":null,"device_price":null,"device_name_qty":0,"commercial_tax":5,"final_payment":null,"amount_in_word":"Amount in words: Forty-six Thousand Nine Hundred Kyats Only","user":null,"type":"cash","currency":"mmk","collected_amount":"46900","extra_amount":0,"customer_status":"Suspend"}
         return redirect()->back()->with('message', 'Receipt Made Successfully.');
     }
+    // public function setExpiry($receipt_id, $customer_id){
+    //     $rr_invoice = ReceiptRecord::join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+    //         ->where('receipt_records.id','=',$receipt_id)
+    //         ->where('receipt_records.customer_id','=',$customer_id)
+    //         ->select('receipt_records.*', 'invoices.period_covered as period_covered')
+    //         ->first();
+    //     $rr_adjust = ReceiptRecord::join('bill_adjustment', 'bill_adjustment.invoice_id', '=', 'receipt_records.invoice_id')
+    //         ->where('receipt_records.id','=',$receipt_id)
+    //         ->where('receipt_records.customer_id','=',$customer_id)
+    //         ->select('receipt_records.*', 'bill_adjustment.period_covered as period_covered')
+    //         ->latest('id')
+    //         ->first();
+    //     $receipt_record = ($rr_adjust)?$rr_adjust:$rr_invoice;
+    //     if ($receipt_record) {
+
+         
+
+    //         if ($receipt_record->period_covered) {
+    //             if (strpos($receipt_record->period_covered, ' to ')) {
+    //                 $p_months = explode(" to ", $receipt_record->period_covered);
+
+    //                 $from = (new DateTime($p_months[0]))->modify('first day of this month');
+
+    //                 $to = (new DateTime($p_months[1]))->modify('first day of next month');
+    //                 $interval = DateInterval::createFromDateString('1 month');
+    //                 $period   = new DatePeriod($from, $interval, $to);
+    //                 foreach ($period as $dt) {
+
+    //                     $this->updateRRS($receipt_record->id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
+    //                 }
+    //             }
+    //         }
+        
+    // }
+        
+        
+    // }
     public function template(Request $request)
     {
         $receipt = ReceiptRecord::where('receipt_records.id', '=', $request->id)
@@ -196,32 +233,79 @@ class ReceiptController extends Controller
     }
     public function ReceiptPaid($receipt_id, $customer_id)
     {
-        $receipt_records = ReceiptRecord::join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+        $billconfig = BillingConfig::first();
+        $rr_invoice = ReceiptRecord::join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+            ->join('customers','customers.id','receipt_records.customer_id')
             ->where('receipt_records.id','=',$receipt_id)
             ->where('receipt_records.customer_id','=',$customer_id)
-            ->select('receipt_records.*', 'invoices.period_covered as period_covered')
-            ->get();
-  
-        if ($receipt_records) {
+            ->select('receipt_records.*', 'invoices.period_covered as period_covered','invoices.ftth_id as ftth_id','customers.customer_type as customer_type')
+            ->first();
+        $rr_adjust = ReceiptRecord::join('bill_adjustment', 'bill_adjustment.invoice_id', '=', 'receipt_records.invoice_id')
+            ->join('customers','customers.id','receipt_records.customer_id')
+            ->where('receipt_records.id','=',$receipt_id)
+            ->where('receipt_records.customer_id','=',$customer_id)
+            ->select('receipt_records.*', 'bill_adjustment.period_covered as period_covered','bill_adjustment.ftth_id as ftth_id','customers.customer_type as customer_type')
+            ->latest('id')
+            ->first();
+        $receipt_record = ($rr_adjust)?$rr_adjust:$rr_invoice; 
+        if ($receipt_record) {
 
-            foreach ($receipt_records as $receipt_record) {
+         
 
                 if ($receipt_record->period_covered) {
                     if (strpos($receipt_record->period_covered, ' to ')) {
+                        
+
                         $p_months = explode(" to ", $receipt_record->period_covered);
-
                         $from = (new DateTime($p_months[0]))->modify('first day of this month');
-
                         $to = (new DateTime($p_months[1]))->modify('first day of next month');
                         $interval = DateInterval::createFromDateString('1 month');
                         $period   = new DatePeriod($from, $interval, $to);
-                        foreach ($period as $dt) {
+                        $count = 0;
 
-                            $this->updateRRS($receipt_record->invoice_id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
+                        foreach ($period as $dt) {
+                            $count ++;
+                            $this->updateRRS($receipt_record->id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
+                        }
+                        if($count > 2){
+                            //Prepaid Customer
+                            if($billconfig->prepaid_day > 0)
+                            $to->modify('+ '.$billconfig->prepaid_day.' day');
+
+                            if($billconfig->prepaid_month > 0)
+                            $to->modify('+'.$billconfig->prepaid_month.' month');
+
+                            if($billconfig->exclude_list){
+                                $billconfig_type =  explode(",",$billconfig->exclude_list);
+                                if(in_array(strval($receipt_record->customer_type),$billconfig_type)){
+                                    $to->modify('+1 month');
+                                }
+                            }
+                            
+                            
+                            if($receipt_record->customer_type )
+
+                            RadiusController::setExpiry($receipt_record->ftth_id , $to->format('Y-m-d 00:00:00'));
+                        }else{
+                            //MRC Customer
+                            if($billconfig->mrc_day > 0)
+                            $to->modify('+ '.$billconfig->mrc_day.' day');
+
+                            if($billconfig->mrc_month > 0)
+                            $to->modify('+'.$billconfig->mrc_month.' month');
+
+                            
+                            if($billconfig->exclude_list){
+                                $billconfig_type =  explode(",",$billconfig->exclude_list);
+                                if(in_array(strval($receipt_record->customer_type),$billconfig_type)){
+                                    $to->modify('+1 month');
+                                }
+                            }
+                            RadiusController::setExpiry($receipt_record->ftth_id , $to->format('Y-m-d 00:00:00'));
                         }
                     }
                 }
-            }
+            
         }
     }
     public function runReceiptSummery()

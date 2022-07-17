@@ -49,6 +49,11 @@ class RoleController extends Controller
         $role->bill_generation = $request->bill_generation;
         $role->edit_invoice = $request->edit_invoice;
         $role->bill_receipt = $request->bill_receipt;
+        $role->radius_read = $request->radius_read;
+        $role->radius_write = $request->radius_write;
+        $role->incident_report = $request->incident_report;
+        $role->bill_report = $request->bill_report;
+        $role->radius_report = $request->radius_report;
         
         $role->save();
          return redirect()->route('role.index')->with('message', 'Role Created Successfully.');
@@ -88,6 +93,11 @@ class RoleController extends Controller
             $role->bill_generation = $request->bill_generation;
             $role->edit_invoice = $request->edit_invoice;
             $role->bill_receipt = $request->bill_receipt;
+            $role->radius_read = $request->radius_read;
+            $role->radius_write = $request->radius_write;
+            $role->incident_report = $request->incident_report;
+            $role->bill_report = $request->bill_report;
+            $role->radius_report = $request->radius_report;
             
             $role->update();
             return redirect()->back()

@@ -33,14 +33,14 @@ class CustomerController extends Controller
     {
      //   dd($request);
      $user = User::join('roles','roles.id','=','users.role')->find(Auth::user()->id);
-        $active = DB::table('customers')
-        ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('status.name', 'LIKE', '%Activ%')
-        ->where(function($query){
-            return $query->where('customers.deleted', '=', 0)
-            ->orWhereNull('customers.deleted');
-        })
-        ->count();
+     $active = DB::table('customers')
+     ->join('status', 'customers.status_id', '=', 'status.id')
+     ->whereIn('status.type',['active','disabled'])
+     ->where(function($query){
+         return $query->where('customers.deleted', '=', 0)
+         ->orWhereNull('customers.deleted');
+     })
+     ->count();
 
         // $relocation = DB::table('customers')
         // ->join('status', 'customers.status_id', '=', 'status.id')
@@ -49,7 +49,7 @@ class CustomerController extends Controller
         // ->count();
         $suspense = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('status.name', 'LIKE', '%Suspen%')
+        ->where('status.type','=','suspense')
         ->where(function($query){
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
@@ -57,7 +57,7 @@ class CustomerController extends Controller
         ->count();
         $installation_request = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('status.name', 'LIKE', '%Install%')
+        ->where('status.type','=','new')
         ->where(function($query){
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
@@ -65,7 +65,7 @@ class CustomerController extends Controller
         ->count();
         $terminate = DB::table('customers')
         ->join('status', 'customers.status_id', '=', 'status.id')
-        ->where('status.name', 'LIKE', '%Termina%')
+        ->where('status.type','=','terminate')
         ->where(function($query){
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
@@ -74,7 +74,6 @@ class CustomerController extends Controller
         
         $packages = Package::get();
         $townships = Township::get();
-        $projects = Project::get();
         $status = Status::get();
     
         $dn = DnPorts::get();
@@ -440,6 +439,7 @@ class CustomerController extends Controller
             $status_list = Status::get();
             $roles = Role::get();
             $users = User::find(Auth::user()->id);
+            $user = User::join('roles','roles.id','=','users.role')->find(Auth::user()->id);
             $radius = RadiusController::checkRadiusEnable();
             return Inertia::render(
                 'Client/EditCustomer',
@@ -452,6 +452,7 @@ class CustomerController extends Controller
                     'subcoms' => $subcoms,
                     'roles' => $roles,
                     'users' => $users,
+                    'user' => $user,
                     'sn' => $sn,
                     'dn' => $dn,
                     'customer_history' => $customer_history,

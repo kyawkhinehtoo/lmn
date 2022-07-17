@@ -538,8 +538,10 @@ class BillingController extends Controller
     {
         $billings = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
             ->join('users', 'users.id', '=', 'receipt_records.collected_person')
+            ->join('customers','receipt_records.customer_id','customers.id')
+            ->join('packages','customers.package_id','packages.id')
             ->where('invoices.id', '=', $request->id)
-            ->select('invoices.*', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
+            ->select('invoices.*','packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
             ->first();
         return view('voucher', $billings);
     }

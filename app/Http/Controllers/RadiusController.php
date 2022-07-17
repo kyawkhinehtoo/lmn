@@ -633,7 +633,30 @@ class RadiusController extends Controller
             'radius' => $radius,
             ]);
     }
-
+    public static function setExpiry($username , $expiration){
+      
+            $radius_config = RadiusConfig::first();
+            if(self::checkRadiusEnable()){
+                    $client = new \GuzzleHttp\Client();
+                    $url = 'http://' . $radius_config->server . ':' . $radius_config->port . '/api/set-expiry';
+                    $data['username'] = $username;
+                    $data['expiration'] = $expiration;
+                    $response = null;
+                    try {
+                        self::loginRadius();
+                        $header = ['Authorization' => 'Bearer ' . session('token')];
+                        $client->post($url, ['headers' => $header, 'form_params' => $data], ['connect_timeout' => 1]);
+                      //  $response = json_decode($res->getBody());
+                      
+                        } catch (\Throwable $e) {
+                          //  return redirect()->back()
+                            //        ->with('message', 'Updated Radius Information Fail.');
+                            dd($e);
+                        }
+                        
+                }
+        
+    }
     public function tempDeactivate(Request $request)
     {
         

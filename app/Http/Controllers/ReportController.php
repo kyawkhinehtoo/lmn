@@ -303,21 +303,12 @@ class ReportController extends Controller
     }
 
     public function contractReport(Request $request){
-        $projects = Project::get();
+      
         $packages = Package::get();
 
         $customers = DB::table('customers')
                     ->join('packages','customers.package_id','=','packages.id')
-                    ->join('projects','customers.project_id','=','projects.id')
                     ->join('status','customers.status_id','=','status.id')
-                 
-                    ->when($request->project, function ($query, $projects) {
-                    $project_list = array();
-                    foreach($projects as $value){
-                        array_push($project_list, $value['id']);
-                    }
-                    $query->whereIn('projects.id', $project_list);
-                    })
                     ->when($request->packages, function ($query, $packages) {
                     $package_list = array();
                     foreach($packages as $value){
@@ -348,7 +339,7 @@ class ReportController extends Controller
                 ->paginate(15);
             $customers->appends($request->all())->links();
         return Inertia::render('Client/contractReport', [
-            'projects' => $projects,
+       
             'packages' => $packages,
             'customers' => $customers,
             

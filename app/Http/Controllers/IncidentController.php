@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use DateTime;
 
+
 class IncidentController extends Controller
 {
     public function index(Request $request)
@@ -44,6 +45,7 @@ class IncidentController extends Controller
             ->join('roles', 'users.role', '=', 'roles.id')
             ->select('users.name as name', 'users.id as id')
             ->get();
+   
         $customers = Customer::select('id','ftth_id')->where(function($query){
             return $query->where('customers.deleted', '=', 0)
             ->orWhereNull('customers.deleted');
@@ -52,12 +54,66 @@ class IncidentController extends Controller
         if($request->sort && $request->order){
             $orderby = $request->sort .' '.$request->order;
         }
+
+        
         $incidents =  DB::table('incidents')
         ->join('customers', 'incidents.customer_id', '=', 'customers.id')
+        ->join('townships', 'customers.township_id', '=', 'townships.id')
+        ->join('users', 'incidents.incharge_id', '=', 'users.id')
         ->when($request->status, function ($query, $status) {
             $query->where('incidents.status', '=', $status );
         },function ($query) {
-             $query->whereRaw('incidents.status in (1,2)');
+             $query->whereRaw('incidents.status in (1,2,5)');
+        })
+        ->when($request->keyword, function ($query, $search) {
+            $query->where(function ($query) use($search) {
+                $query->where('customers.ftth_id','LIKE', '%'.$search.'%')
+                    ->orWhere('incidents.code','LIKE', '%'.$search.'%');
+            });
+        })
+        ->when($request->type, function($query,$type){
+            $query->where('incidents.type','=', $type);
+        })
+        ->when($request->member, function($query,$member){
+            $query->where('users.id','=', $member);
+        })
+        ->when($request->priority, function($query,$priority){
+            $query->where('incidents.priority','=', $priority);
+        })
+        ->when($request->date, function($query,$date){
+            $d = explode(',',$date);
+            $from = date($d[0]);
+            $to = date($d[1]);
+            $query->whereBetween('incidents.date', [$from,$to]);
+        })
+        ->when($orderby, function ($query, $sort) {
+            $query->orderByRaw($sort);
+        },function ($query) {
+            $query->orderBy('incidents.id','DESC');
+        })
+        ->select(
+            'incidents.*',
+            'incidents.status as status',
+            'customers.ftth_id as ftth_id',
+            'townships.short_code as township_short',
+            'customers.id as customer_id',
+            'users.name as incharge'
+        )
+        ->paginate(10);
+        
+        // foreach ($incidents as $value) {
+        //     $max_invoice_id =  DB::table('tasks')
+        //                                 ->where('tasks.invoice_id', '=', $value->id)
+        //                                 ->latest('id')->first();
+        // }
+        
+        $incidents_2 =  DB::table('incidents')
+        ->join('customers', 'incidents.customer_id', '=', 'customers.id')
+        ->join('users', 'incidents.incharge_id', '=', 'users.id')
+        ->when($request->status, function ($query, $status) {
+            $query->where('incidents.status', '=', $status );
+        },function ($query) {
+             $query->whereRaw('incidents.status in (1,2,5)');
         })
         ->when($request->keyword, function ($query, $search) {
             $query->where(function ($query) use($search) {
@@ -75,12 +131,14 @@ class IncidentController extends Controller
             'incidents.status as status',
             'customers.ftth_id as ftth_id',
             'customers.id as customer_id',
+            'users.name as incharge',
         )
-        ->paginate(10);
+        ->get();
         $incidents->appends($request->all())->links();
         return Inertia::render('Client/Incident',
          [
              'incidents' => $incidents,
+             'incidents_2' => $incidents_2,
              'packages' => $packages,
              'noc' => $noc,
              'team' => $team,
@@ -105,6 +163,25 @@ class IncidentController extends Controller
         }
 
     }
+    public function getIncident($id){
+        if($id){
+        $incident = DB::table('incidents')
+        ->join('customers', 'incidents.customer_id', '=', 'customers.id')
+        ->join('users', 'incidents.incharge_id', '=', 'users.id')
+        ->where('incidents.id', '=', $id)
+        ->select(
+            'incidents.*',
+            'incidents.status as status',
+            'customers.ftth_id as ftth_id',
+            'customers.id as customer_id',
+            'users.name as incharge',
+        )
+        
+        ->first();
+        return response()->json($incident,200);
+        }
+
+    }
     public function getLog($id){
         if($id){
         $tasks = DB::table('incident_histories')
@@ -114,6 +191,18 @@ class IncidentController extends Controller
         ->select('users.name as name','incident_histories.*')
         ->get();
         return response()->json($tasks,200);
+        }
+
+    }
+    public function getCustomer($id){
+        if($id){
+        $customer = DB::table('incidents')
+                    ->join('customers','incidents.customer_id','=','customers.id')
+                    ->join('packages','packages.id','=','customers.package_id')
+                    ->where('incidents.id', '=', $id)
+                    ->select('customers.*','packages.name as package_name','packages.speed as package_speed','packages.price as package_price','packages.currency as package_currency','packages.contract_period as package_contract_period')
+                    ->get();
+        return response()->json($customer,200);
         }
 
     }
@@ -187,11 +276,14 @@ class IncidentController extends Controller
         $task->description = $request->description;
         $task->status = $request->status;
         $task->save();
+       
+            
             $data = array();
             $data['incident_id'] = $request->incident_id;
             $data['action'] = 'Task Created:'.$request->description;
             $data['datetime'] = date('Y-m-j h:m:s');
             $data['actor_id'] = Auth::id();
+            $this->updateStatus($request->incident_id);
             $this->insertHistory($data);
         return redirect()->back()->with('message', 'Task Created Successfully.');
     }
@@ -213,14 +305,41 @@ class IncidentController extends Controller
         $task->status = $request->status;
         $task->update();
         $data = array();
+
             $data['incident_id'] = $request->incident_id;
             $data['action'] = 'Task Updated:'.$request->description;
             $data['datetime'] = date('Y-m-j h:m:s');
             $data['actor_id'] = Auth::id();
+            $this->updateStatus($request->incident_id);
             $this->insertHistory($data);
         return redirect()->back()->with('message', 'Task Updated Successfully.');
         }
 
+    }
+    public function updateStatus($incident_id){
+       
+        $tasks = Task::where('incident_id','=',$incident_id)->get();
+        if($tasks){
+            $completed = true;
+            foreach($tasks as $task){
+               if($task->status != 2)
+                $completed = false;
+            }
+            if($completed){
+                
+               $update = Incident::where('id','=',$incident_id)->whereNotIn('status',[3,4])->update(['status'=>5]);
+            //    if($update){
+            //     broadcast(new UpdateIncident($incident_id,5))->toOthers();
+            //    }
+            }else{
+               
+                $update =Incident::where('id','=',$incident_id)->whereNotIn('status',[3,4])->update(['status'=>2]);
+                // if($update){
+                //     broadcast(new UpdateIncident($incident_id,2))->toOthers();
+                // }
+            }
+        }
+       
     }
     // public function getIncidentById($id){
     //     $incidents =  DB::table('incidents')
@@ -260,19 +379,18 @@ class IncidentController extends Controller
         $incident->status = $request->status;
         
         if($request->type == 'plan_change'){
-            //$myDateTime = new DateTime;
-            //$newtime = clone $myDateTime;
+            $myDateTime = new DateTime;
+            $newtime = clone $myDateTime;
             if ($request->start_date)
-            $incident->start_date = $request->start_date;
-            ///$myDateTime = new DateTime($request->start_date);
-            // if($myDateTime->format('d') <= 7){
-            //     $newtime->modify('first day of this month');
-            //     $incident->start_date = $newtime->format('Y-m-j h:m:s');
-            // }else{
-            //     $newtime->modify('+1 month');
-            //     $newtime->modify('first day of this month');
-            //     $incident->start_date = $newtime->format('Y-m-j h:m:s');
-            // }
+            $myDateTime = new DateTime($request->start_date);
+            if($myDateTime->format('d') <= 7){
+                $newtime->modify('first day of this month');
+                $incident->start_date = $newtime->format('Y-m-j h:m:s');
+            }else{
+                $newtime->modify('+1 month');
+                $newtime->modify('first day of this month');
+                $incident->start_date = $newtime->format('Y-m-j h:m:s');
+            }
         }else{
             $incident->start_date = $request->start_date;
         }
@@ -295,6 +413,13 @@ class IncidentController extends Controller
                 
         if(isset($request->close_time) && $request->status == 3)
         $incident->close_time = $request->close_time;
+
+        if(isset($request->resolved_date) && $request->status == 5)
+        $incident->resolved_date = $request->resolved_date;
+                
+        if(isset($request->resolved_time) && $request->status == 5)
+        $incident->resolved_time = $request->resolved_time;
+
         $incident->date = $request->date;
         $incident->time = $request->time;
         $incident->description = $request->description;
@@ -309,8 +434,15 @@ class IncidentController extends Controller
             $data['datetime'] = date('Y-m-j h:m:s');
             $data['actor_id'] = Auth::id();
             $this->insertHistory($data);
-        
-        
+            $incident_data =  DB::table('incidents')
+            ->join('customers', 'incidents.customer_id', '=', 'customers.id')
+            ->select(
+                'incidents.*',
+                'incidents.status as status',
+                'customers.ftth_id as ftth_id',
+                'customers.id as customer_id',
+            )->first();
+      // broadcast(new AddIncident($incident_data))->toOthers();
         return redirect()->route('incident.index')->with('message', 'Incident Created Successfully.')
         ->with('id',$incident->id);
        }
@@ -338,7 +470,7 @@ class IncidentController extends Controller
             'status' => ['required'],
             'description' => ['required'],
         ])->validate();
-            
+      
         if ($request->has('id')) {
             $old_incident = Incident::find($request->input('id'));
             
@@ -364,8 +496,18 @@ class IncidentController extends Controller
                 $incident->topic = $request->topic;
                 $incident->status = $request->status;
                 if($request->type == 'plan_change'){
+                    $myDateTime = new DateTime;
+                    $newtime = clone $myDateTime;
                     if ($request->start_date)
-                    $incident->start_date = $request->start_date;
+                    $myDateTime = new DateTime($request->start_date);
+                    if($myDateTime->format('d') <= 7){
+                        $newtime->modify('first day of this month');
+                        $incident->start_date = $newtime->format('Y-m-j h:m:s');
+                    }else{
+                        $newtime->modify('+1 month');
+                        $newtime->modify('first day of this month');
+                        $incident->start_date = $newtime->format('Y-m-j h:m:s');
+                    }
                 }else{
                     $incident->start_date = $request->start_date;
                 }
@@ -389,25 +531,37 @@ class IncidentController extends Controller
                 if(isset($request->close_time) && $request->status == 3)
                 $incident->close_time = $request->close_time;
 
+                if(isset($request->resolved_date) && $request->status == 5)
+                $incident->resolved_date = $request->resolved_date;
+                        
+                if(isset($request->resolved_time) && $request->status == 5)
+                $incident->resolved_time = $request->resolved_time;
+
                 $incident->description = $request->description;
+
+              
+              //  broadcast(new UpdateIncident($request->input('id'),$request->status))->toOthers();
+             
                 $incident->closed_by = Auth::user()->id;
-            
                 $incident->update();
+               
             }
             
             return redirect()->route('incident.index')->with('message', 'Incident Updated Successfully.');
         }
     }
     public function getStatus($data) {
-        $status = "WIP";
+        $status = "Open";
         if ($data == 1) {
-          $status = "WIP";
+          $status = "Open";
         } else if ($data == 2) {
           $status = "Escalated";
         } else if ($data == 3){
           $status = "Closed";
         } else if ( $data == 4){
           $status = "Deleted";
+        } else if ( $data == 5){
+            $status = "Resolved";
         }
         return $status;
     }
@@ -451,7 +605,7 @@ class IncidentController extends Controller
             if(isset($old->$key) && !empty($key) ){
     
                 if($key == "customer_id"){
-                    $update .=($old->customer_id != $value['id'])? $key.':'.$value["ftth_id"].',':'';
+                    $update .=($old->customer_id != $value['id'])? $key.':'.$value["name"].',':'';
                 }
                 else if($key == "incharge_id"){
                     $update .=($old->incharge_id != $value['id'])? $key.':'.$value["name"].',':'';
@@ -484,6 +638,7 @@ class IncidentController extends Controller
     {
         if ($request->has('id')) {
             Incident::find($request->input('id'))->delete();
+         
             return redirect()->back();
         }
     }

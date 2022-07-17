@@ -62,7 +62,7 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             },function($query){
                 $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');
             })
-            ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','users.name as user_name');
+            ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','receipt_records.status as receipt_status','receipt_records.payment_channel');
   
         return $receipt_records;
     
@@ -79,7 +79,9 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             'Receipt Amount',
             'Receipt Date',
             'Customer Paid Date',
-            'Receipt By'
+            'Receipt By',
+            'Receipt Status',
+            'Payment Channel'
         ];
     }
 
@@ -97,6 +99,8 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             $receipt_records->created_at,
             $receipt_records->receipt_date,
             ($receipt_records->user_name)?$receipt_records->user_name:'',
+            $receipt_records->receipt_status,
+            $receipt_records->payment_channel,
         ];
     }
    

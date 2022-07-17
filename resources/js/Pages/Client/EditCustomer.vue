@@ -13,7 +13,7 @@
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 1 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(1)" preserve-state>Genaral</a></li>
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 2 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(2)" preserve-state>Documents</a></li>
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 3 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(3)" preserve-state>History</a></li>
-                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 5 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']" v-if="radius"><a href="#" @click="tabClick(5)" preserve-state>Radius</a></li>
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 5 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']" v-if="radius && user.radius_read"><a href="#" @click="tabClick(5)" preserve-state>Radius</a></li>
                   
                      
                     </ul>
@@ -392,7 +392,7 @@
 
                 <button @click="resetForm" type="button" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150">Reset</button>
 
-                <button wire:click.prevent="submit" type="submit" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" >Save</button>
+                <button  type="submit" class="ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" >Save</button>
               </div>
                 </div> <!-- tab1 -->
                <div class="p-4" :class="[tab == 2 ? '': 'hidden']">
@@ -438,7 +438,7 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import Multiselect from "@suadelabs/vue3-multiselect";
-import { reactive,ref, onMounted } from "vue";
+import { reactive,ref, onMounted,provide } from "vue";
 import { Inertia } from "@inertiajs/inertia";
 import CustomerFile from "@/Components/CustomerFile";
 import CustomerHistory from "@/Components/CustomerHistory";
@@ -462,12 +462,14 @@ export default {
     subcoms: Object,
     roles: Object,
     users: Object,
+    user: Object,
     sn:Object,
     dn:Object,
     radius: Object,
     customer_history: Object,
   },
   setup(props) {
+    provide('user', props.user);
     let lat_long = '';
        let pppoe_auto = ref(false);
       if(props.customer.location){

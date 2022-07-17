@@ -22,7 +22,7 @@
               <label for="sh_type" class="block text-sm font-medium text-gray-700">Ticket Type </label>
               <div class="mt-1 flex rounded-md shadow-sm">
                 <select id="sh_type" v-model="form.type" name="sh_type" class="py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="2">
-                  <option selected>Please Choose Ticket Type</option>
+                  <option value="" selected>Please Choose Ticket Type</option>
                   <option value="service_complaint">Service Complaint</option>
                   <option value="relocation">Relocation</option>
                   <option value="plan_change">Plan Change</option>
@@ -133,10 +133,13 @@ export default {
     });
     const form = useForm({
       general: null,
-      type: null,
+      type: "",
       period: null,
     });
+    const clearSearch = () => {
 
+      form.reset();
+    }
     function submit() {
       form.post(
         "/incidentReport",
@@ -201,7 +204,7 @@ const showTime =(mins)=>{
            })
     };
 
-    return { getStatus,  loading, formatter, form, submit, doExcel,showTime };
+    return { getStatus,  loading, formatter, form, submit, doExcel,showTime,clearSearch };
   },
 };
 </script>

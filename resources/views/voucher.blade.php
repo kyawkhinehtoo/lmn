@@ -239,7 +239,7 @@ tr td.fix {
         <div class="center" style="margin-top:2px;" >
             <div class="bg-image">
             <table class="collapse" style="margin-top:0px; border-top:0; width:100%; ">
-                <tr><td style="text-align:left;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
+                <tr><td style="text-align:left;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{strtoupper($service_type)}} </td></tr>
                 <tr><td style="text-align:left;" colspan="4">Client ID : {{$ftth_id}}</td></tr>
                 <tr><td style="text-align:left;" colspan="4">Address : {{$attn}}</td><td rowspan="2">Internet Speed: <br />{{$qty}}</td></tr>
                 <tr><td style="text-align:left;" colspan="4">Contact No : {{$phone}}</td></tr>

@@ -116,7 +116,46 @@
                       </div>
                   </fieldset>
                       </div>
-                
+                        <div class="mb-4">
+                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Radius Control </legend>
+                     
+                      <div class="max-w-full text-sm flex">
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.radius_read" />
+                          Read Radius Information
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.radius_write" />
+                          Update Radius Information
+                        </label>
+                      
+                 
+                      </div>
+                  </fieldset>
+                      </div>
+                 <div class="mb-4">
+                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Report Control </legend>
+                     
+                      <div class="max-w-full text-sm flex">
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.incident_report" />
+                          View Incident Report
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.bill_report" />
+                         View Bill Receipt Report
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.radius_report" />
+                         View Radius User Report
+                        </label>
+                      
+                 
+                      </div>
+                  </fieldset>
+                      </div>
                     </div>
                   </div>
                   <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -174,6 +213,11 @@ export default {
       edit_invoice: null,
       bill_generation: null,
       bill_receipt: null,
+      radius_read: null,
+      radius_write: null,
+      incident_report: null,
+      bill_report: null,
+      radius_report: null,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -189,6 +233,11 @@ export default {
       form.edit_invoice = null;
       form.bill_generation = null;
       form.bill_receipt = null;
+      form.radius_read = null;
+      form.radius_write = null;
+      form.incident_report = null;
+      form.bill_report = null;
+      form.radius_report = null;
     }
     function submit() {
       if (!editMode.value) {
@@ -241,6 +290,11 @@ export default {
       form.edit_invoice = (data.edit_invoice)?true:false;
       form.bill_generation = (data.bill_generation)?true:false;
       form.bill_receipt = (data.bill_receipt)?true:false;
+      form.radius_read = (data.radius_read)?true:false;
+      form.radius_write = (data.radius_write)?true:false;
+      form.incident_report = (data.incident_report)?true:false;
+      form.bill_report = (data.bill_report)?true:false;
+      form.radius_report = (data.radius_report)?true:false;
 
       editMode.value = true;
       openModal();
