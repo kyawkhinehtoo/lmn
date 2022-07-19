@@ -26,7 +26,7 @@ class Role
      **/
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user()->role == 1 || Auth::user()->role == 2) { // if the current role is Administrator
+       // if (Auth::user()->role == 1 || Auth::user()->role == 2) { // if the current role is Administrator
 
             $user = User::join('roles','users.role','roles.id')->find(Auth::user()->id);
             if($user->incident_only == 1){
@@ -48,7 +48,7 @@ class Role
            
 
             return $next($request);
-        }
+    //    }
         abort(403, "Cannot access to restricted page");
     }
 }
