@@ -90,6 +90,10 @@
                           <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.write_incident" />
                           Incident Write Permission
                         </label>
+                          <label class="inline-flex ml-2">
+                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.incident_only" />
+                          Incident Only Access Permission
+                        </label>
                
                   
                       </div>
@@ -218,6 +222,7 @@ export default {
       incident_report: null,
       bill_report: null,
       radius_report: null,
+      incident_only: null,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -238,6 +243,7 @@ export default {
       form.incident_report = null;
       form.bill_report = null;
       form.radius_report = null;
+      form.incident_only = null;
     }
     function submit() {
       if (!editMode.value) {
@@ -295,6 +301,7 @@ export default {
       form.incident_report = (data.incident_report)?true:false;
       form.bill_report = (data.bill_report)?true:false;
       form.radius_report = (data.radius_report)?true:false;
+      form.incident_only = (data.incident_only)?true:false;
 
       editMode.value = true;
       openModal();

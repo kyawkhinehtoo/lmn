@@ -137,7 +137,13 @@ class DashboardController extends Controller
         ->groupBy('packages.name')
         ->orderBy('packages.name','DESC')
         ->get();
-
+        $user = User::join('roles','roles.id','users.role')
+                        ->where('users.id','=',Auth::User()->id)
+                        ->first();
+     
+        if($user->incident_only){
+            return redirect()->route('customer.index');
+        }
 
        return Inertia::render("Dashboard",[
             'total' => $total,

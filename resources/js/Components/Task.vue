@@ -23,7 +23,7 @@
       <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64  w-full overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white  flex flex-col justify-between text-left">
         <tr v-for="row in task_list" v-bind:key="row.id"  class="flex">
           <td class="px-6 py-3 whitespace-nowrap w-1/12"><input type="checkbox" name="status"  :checked="row.status==2" @click="completeTask(row)" :disabled="!permission[0].write_incident" /></td>
-          <td class="px-6 py-3 whitespace-nowrap w-3/5">{{ row.description }}</td>
+          <td class="px-6 py-3 whitespace-nowrap w-3/5">{{ (row.description.length > 50)?row.description.substring(0,50) +' ...':row.description }}</td>
           <td class="px-6 py-3 whitespace-nowrap w-1/4 ">{{ getName(row.assigned) }}</td>
           <td class="px-6 py-3 whitespace-nowrap w-1/6 ">{{ row.target }}</td>
           <td class="px-6 py-3 whitespace-nowrap w-1/12">{{ getStatus(row.status) }}</td>

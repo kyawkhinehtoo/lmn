@@ -54,6 +54,7 @@ class RoleController extends Controller
         $role->incident_report = $request->incident_report;
         $role->bill_report = $request->bill_report;
         $role->radius_report = $request->radius_report;
+        $role->incident_only = $request->incident_only;
         
         $role->save();
          return redirect()->route('role.index')->with('message', 'Role Created Successfully.');
@@ -98,6 +99,7 @@ class RoleController extends Controller
             $role->incident_report = $request->incident_report;
             $role->bill_report = $request->bill_report;
             $role->radius_report = $request->radius_report;
+            $role->incident_only = $request->incident_only;
             
             $role->update();
             return redirect()->back()

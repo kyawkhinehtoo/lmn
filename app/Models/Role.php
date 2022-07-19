@@ -37,6 +37,7 @@ class Role extends Model
         'incident_report',
         'bill_report',
         'radius_report',
+        'incident_only',
         'created_at', 'updated_at'
     ];
 
@@ -62,6 +63,7 @@ class Role extends Model
         'incident_report' => 'integer',
         'bill_report' => 'integer',
         'radius_report' => 'integer',
+        'incident_only' => 'integer',
         'created_at' => 'timestamp', 'updated_at' => 'timestamp'
     ];
 

@@ -698,8 +698,7 @@ class BillingController extends Controller
                 ->get()
                 ->toArray();
 
-            $billings =  DB::table('invoices')
-                ->join('customers', 'customers.id', '=', 'invoices.customer_id')
+            $billings =  Invoice::join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->join('packages', 'customers.package_id', '=', 'packages.id')
                 ->join('townships', 'customers.township_id', '=', 'townships.id')
                 ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
