@@ -120,6 +120,10 @@ class CustomerController extends Controller
             ->when($request->order, function ($query, $order) {
                 $query->whereBetween('customers.order_date', [$order['from'], $order['to']]);
             })
+            ->when($request->prefer, function ($query, $prefer) {
+       
+                $query->whereBetween('customers.prefer_install_date', [$prefer['from'], $prefer['to']]);
+            })
             ->when($request->dn, function ($query, $dn) {
                 $query->where('dn_ports.id','=',$dn);
             })

@@ -61,9 +61,9 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
       <div class="col-span-1 sm:col-span-1">
         <div class="py-2">
-          <label for="sh_package" class="block text-sm font-medium text-gray-700">Order Date </label>
+          <label for="sh_package" class="block text-sm font-medium text-gray-700">Prefer Date </label>
           <div class="mt-1 flex rounded-md shadow-sm">
-            <litepie-datepicker placeholder="Please choose Order Date" :formatter="formatter" separator=" to " v-model="sh_order" tabindex="5"></litepie-datepicker>
+            <litepie-datepicker placeholder="Please choose Prefer Installation  Date" :formatter="formatter" separator=" to " v-model="sh_prefer" tabindex="5"></litepie-datepicker>
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default {
       from: "",
       to: "",
     });
-    let sh_order = ref({
+    let sh_prefer = ref({
       from: "",
       to: "",
     });
@@ -140,7 +140,6 @@ export default {
     let sh_township = ref(0);
     let sh_status = ref(0);
     let sh_partner = ref(0);
-    let sh_orderform = ref(0);
     let sh_dn = ref(0);
     let sh_sn = ref(0);
 
@@ -150,12 +149,11 @@ export default {
       sh_package.value = 0;
       sh_township.value = 0;
       sh_partner.value = 0;
-      sh_orderform.value = 0;
       sh_status.value = 0;
       sh_dn.value = 0;
       sh_sn.value = 0;
       sh_installation.value = Object({ from: "", to: "" });
-      sh_order.value = Object({ from: "", to: "" });
+      sh_prefer.value = Object({ from: "", to: "" });
       res_sn.value = null;
       context.emit("search_parameter", myurl);
     };
@@ -174,9 +172,7 @@ export default {
       if (sh_partner.value != 0) {
         myurl.project = sh_partner.value;
       }
-      if (sh_orderform.value != 0) {
-        myurl.orderform = sh_orderform.value;
-      }
+  
       if (sh_status.value != 0) {
         myurl.status = sh_status.value;
       }
@@ -189,8 +185,8 @@ export default {
       if (sh_installation.value.from != "" && sh_installation.value.to != "") {
         myurl.installation = sh_installation.value;
       }
-      if (sh_order.value.from != "" && sh_order.value.to != "") {
-        myurl.order = sh_order.value;
+      if (sh_prefer.value.from != "" && sh_prefer.value.to != "") {
+        myurl.prefer = sh_prefer.value;
       }
       axios.post("/exportExcel", myurl).then((response) => {
         console.log(response);
@@ -220,9 +216,7 @@ export default {
       if (sh_partner.value != 0) {
         myurl.project = sh_partner.value;
       }
-      if (sh_orderform.value != 0) {
-        myurl.orderform = sh_orderform.value;
-      }
+  
       if (sh_status.value != 0) {
         myurl.status = sh_status.value;
       }
@@ -235,8 +229,8 @@ export default {
       if (sh_installation.value.from != "" && sh_installation.value.to != "") {
         myurl.installation = sh_installation.value;
       }
-      if (sh_order.value.from != "" && sh_order.value.to != "") {
-        myurl.order = sh_order.value;
+      if (sh_prefer.value.from != "" && sh_prefer.value.to != "") {
+        myurl.prefer = sh_prefer.value;
       }
 
       context.emit("search_parameter", myurl);
@@ -271,12 +265,11 @@ export default {
       sh_general,
       sh_general,
       sh_installation,
-      sh_order,
+      sh_prefer,
       sh_package,
       sh_township,
       sh_status,
       sh_partner,
-      sh_orderform,
       sh_dn,
       sh_sn,
       packages,

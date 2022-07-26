@@ -283,7 +283,7 @@ class ReceiptController extends Controller
                             }
                             
                             
-                            if($receipt_record->customer_type )
+                            //if($receipt_record->customer_type )
 
                             RadiusController::setExpiry($receipt_record->ftth_id , $to->format('Y-m-d 00:00:00'));
                         }else{
@@ -310,12 +310,25 @@ class ReceiptController extends Controller
     }
     public function runReceiptSummery()
     {
+        ini_set('max_execution_time', '0'); 
+        $rr_invoices = ReceiptRecord::join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+            ->select('receipt_records.*', 'invoices.period_covered as period_covered')
+            ->get();
+
         $receipt_records = ReceiptRecord::join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
             ->select('receipt_records.*', 'invoices.period_covered as period_covered')->get();
-        if ($receipt_records) {
+        if ($rr_invoices) {
+//check modified invoice
 
-            foreach ($receipt_records as $receipt_record) {
-
+            foreach ($rr_invoices as $rr_invoice) {
+                $rr_adjust = ReceiptRecord::join('bill_adjustment', 'bill_adjustment.invoice_id', '=', 'receipt_records.invoice_id')
+                ->where('bill_adjustment.invoice_id','=',$rr_invoice->id)
+                ->select('receipt_records.*', 'bill_adjustment.period_covered as period_covered')
+                ->latest('id')
+                ->first();
+            
+                //replace with modified invoice
+                $receipt_record = ($rr_adjust)?$rr_adjust:$rr_invoice;
                 if ($receipt_record->period_covered) {
                     if (strpos($receipt_record->period_covered, ' to ')) {
                         $p_months = explode(" to ", $receipt_record->period_covered);

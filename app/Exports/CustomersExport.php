@@ -110,6 +110,10 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
         ->when($request->order, function ($query, $order) {
             $query->whereBetween('customers.order_date',$order);
         })
+        ->when($request->prefer, function ($query, $prefer) {
+       
+            $query->whereBetween('customers.prefer_install_date', [$prefer['from'], $prefer['to']]);
+        })
         ->when($request->installation, function ($query, $installation) {
             $query->whereBetween('customers.installation_date',$installation);
         })
@@ -165,6 +169,8 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             'ONU Power',
             'DN',
             'SN',
+            'PPPOE Account',
+            'PPPOE Password',
             'Status',
             
         ];
@@ -214,7 +220,9 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             $mycustomer->onu_serial,      
             $mycustomer->onu_power, 
             (isset($sn_dn))?$sn_dn->dn_name:"",
-            (isset($sn_dn))?$sn_dn->sn_name:"",     
+            (isset($sn_dn))?$sn_dn->sn_name:"",  
+            $mycustomer->pppoe_account,    
+            $mycustomer->pppoe_password,    
             $status->name,       
          ];
     }

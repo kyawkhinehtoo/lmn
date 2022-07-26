@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillAdjustment;
 use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\BillingTemp;
@@ -446,13 +447,13 @@ class BillingController extends Controller
             if ($request->reset_receipt) {
                 if ($request->receipt_id) {
                     ReceiptRecord::find($request->receipt_id)->delete();
-                    for ($i=1; $i <= 12 ; $i++) { 
-                        
-                        ReceiptSummery::where('customer_id','=',$request->customer_id)
-                        ->where('year','=',$invoice->bill_year)
-                        ->where($i,'=',$invoice->id)
-                        ->update([$i => DB::raw("NULL")]);
-                    }           
+                    for ($i = 1; $i <= 12; $i++) {
+
+                        ReceiptSummery::where('customer_id', '=', $request->customer_id)
+                            ->where('year', '=', $invoice->bill_year)
+                            ->where($i, '=', $invoice->id)
+                            ->update([$i => DB::raw("NULL")]);
+                    }
                 }
             }
             $invoice->update();
@@ -536,14 +537,31 @@ class BillingController extends Controller
     }
     public function preview_2(Request $request)
     {
-        $billings = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
-            ->join('users', 'users.id', '=', 'receipt_records.collected_person')
-            ->join('customers','receipt_records.customer_id','customers.id')
-            ->join('packages','customers.package_id','packages.id')
+        // $billings = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
+        //     ->join('users', 'users.id', '=', 'receipt_records.collected_person')
+        //     ->join('customers','receipt_records.customer_id','customers.id')
+        //     ->join('packages','customers.package_id','packages.id')
+        //     ->where('invoices.id', '=', $request->id)
+        //     ->select('invoices.*','packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
+        //     ->first();
+        $billing_invoice = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
+            ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
+            ->join('customers', 'receipt_records.customer_id', 'customers.id')
+            ->join('packages', 'customers.package_id', 'packages.id')
             ->where('invoices.id', '=', $request->id)
             ->select('invoices.*','packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
             ->first();
-        return view('voucher', $billings);
+        // $billing_adjustment = BillAdjustment::join('receipt_records', 'receipt_records.invoice_id', '=', 'bill_adjustment.invoice_id')
+        //     ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
+        //     ->join('customers', 'receipt_records.customer_id', 'customers.id')
+        //     ->join('packages', 'customers.package_id', 'packages.id')
+        //     ->where('receipt_records.invoice_id', '=', $request->id)
+        //     ->select('bill_adjustment.*', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'receipt_records.payment_channel as payment_channel', 'users.name as name')
+        //     ->latest('id')
+        //     ->first();
+        // $billings = ($billing_adjustment) ? $billing_adjustment : $billing_invoice;
+        //dd($billings);
+        return view('voucher', $billing_invoice);
     }
     public function saveSingle(Request $request)
     {
@@ -665,10 +683,10 @@ class BillingController extends Controller
             $packages = Package::orderBy('name', 'ASC')->get();
             $townships = Township::get();
             $status = Status::get();
-            $users = User::join('roles','users.role','roles.id')
-                    ->where('roles.name','=','Cashier Team')
-                    ->select('users.*')
-                    ->orderBy('users.name', 'ASC')->get();
+            $users = User::join('roles', 'users.role', 'roles.id')
+                ->where('roles.name', '=', 'Cashier Team')
+                ->select('users.*')
+                ->orderBy('users.name', 'ASC')->get();
 
             $orderform = null;
             if ($request->orderform)
