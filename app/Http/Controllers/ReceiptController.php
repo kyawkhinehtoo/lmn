@@ -107,7 +107,7 @@ class ReceiptController extends Controller
         if ($request) {
             $max_receipt_id =  DB::table('receipt_records')
                 ->where('receipt_records.bill_id', '=', $request->bill_id)
-                ->select(DB::raw('max(receipt_records.receipt_number) as max_receipt_number'))
+                ->select(DB::raw('max(CONVERT(receipt_records.receipt_number,UNSIGNED INTEGER)) as max_receipt_number'))
                 ->first();
 
             $receipt = new ReceiptRecord();
