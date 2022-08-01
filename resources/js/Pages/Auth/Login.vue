@@ -1,9 +1,10 @@
 <template>
     <jet-authentication-card>
-        <template #logo>
+            <template #logo>
             <span class="flex flex-col items-center align-middle uppercase text-blueGray-400">
-           <i class="fas fa-cat fa-4x flex" ></i>
-           <h2 class="mt-2 font-bold antialiased flex">ISP Manager</h2>
+            <img src="/storage/images/ggh-logo-sm.png" class="w-32 opacity-90 select-none" />
+         
+           <h2 class="mt-2 font-bold antialiased flex">Operation Support System(Tachileik)</h2>
            </span>
         </template>
 

@@ -65,10 +65,8 @@ class AnnouncementController extends Controller
                         ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                         ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
                         ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
                         ->orWhere('customers.address', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                        ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%');
                 });
             })
             ->when($request->package, function ($query, $packages) use ($package_except) {
@@ -318,10 +316,8 @@ class AnnouncementController extends Controller
                             ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.address', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                            ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%');
                     });
                 })
                 ->when($announcement->packages, function ($query, $packages) use ($package_except) {
@@ -480,10 +476,8 @@ class AnnouncementController extends Controller
                             ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.address', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                            ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%');
                     });
                 })
                 ->when($announcement->packages, function ($query, $packages) use ($package_except) {
@@ -859,10 +853,8 @@ class AnnouncementController extends Controller
                             ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.email', 'LIKE', '%' . $general . '%')
                             ->orWhere('customers.address', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.company_name', 'LIKE', '%' . $general . '%');
+                            ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%');
                     });
                 })
                 ->where('announcement_id', '=', $request->id)

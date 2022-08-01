@@ -11,7 +11,6 @@
                             <!-- Logo -->
                             <div class="flex-shrink-0 flex items-center">
                               <jet-application-logo class="block h-12 w-auto" />
-                              <label class="p2 ml-4 mt-2 text-md">(Incident Panel)</label>
                             </div>
                            
                          </div>

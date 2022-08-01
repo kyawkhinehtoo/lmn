@@ -20,7 +20,7 @@
 
           <!-- Advance Search -->
   <div class="bg-white shadow sm:rounded-t-lg flex justify-between space-x-2 items-end py-2 px-2 md:px-2">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
       <div class="col-span-1 sm:col-span-1">
         <div class="py-2">
           <label for="sh_general" class="block text-sm font-medium text-gray-700">General </label>
@@ -93,22 +93,7 @@
           </div>
         </div>
       </div>
-      <div class="col-span-1 sm:col-span-1">
-        <div class="py-2">
-          <label for="sh_partner" class="block text-sm font-medium text-gray-700">Project </label>
-          <div class="mt-1 flex rounded-md shadow-sm">
-            <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
-              <i class="fas fa-user"></i>
-            </span>
-            <select id="sh_partner" v-model="createForm.partner" name="sh_partner" class="pl-10 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="4">
-              <option value="0">-Choose Project/Partner -</option>
-              <option v-for="row in projects" v-bind:key="row.id" :value="row.id">{{ row.name }}</option>
-            </select>
-             <div v-if="$page.props.errors.partner" class="text-red-500">{{ $page.props.errors.partner}}</div>
-          </div>
-        </div>
-      
-      </div>
+    
     </div>
   </div>
 

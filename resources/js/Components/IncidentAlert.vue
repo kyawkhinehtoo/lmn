@@ -18,9 +18,9 @@
                   
              
                 </div>
-                <div class="bg-white rounded-b-lg  divide-y divide-gray-200 text-sm text-center max-h-96 overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white w-full">
+                <div class="bg-white rounded-b-lg  divide-y divide-gray-200 text-sm text-center max-h-80 overflow-auto block scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-white w-full">
                   <div v-for="row in bundle" v-bind:key="row.id" class="cursor-pointer inline-grid grid-cols-4 gap-2 w-full" >
-                   <div class="px-2 py-2 whitespace-nowrap col-span-1" >{{ row.code }}</div>
+                   <div class="px-2 py-2 whitespace-nowrap col-span-1"  @click="doEdit(row)">{{ row.code }}</div>
                    <div class="px-2 py-2 whitespace-nowrap col-span-1">{{getDay(row.over)}}</div>
                    <div class="px-2 py-2 whitespace-nowrap col-span-1"> {{getDay(row.diff)}}</div>
                    <div class="px-2 py-2 whitespace-nowrap col-span-1">{{ row.percentage }}</div>
@@ -39,7 +39,8 @@ import Label from '../Jetstream/Label.vue';
 export default {
   components: { Label },
   name: "IncidentAlert",
-  setup() {
+  emits: ["show_edit"],
+  setup(props,context) {
     let bundle = ref("Loading ..");
     let remain = ref("Loading ..");
     const getData = async () => {
@@ -105,6 +106,9 @@ export default {
       let second = a_month - (data/100) * a_month;
       return second;
     }
+    function doEdit(row){
+      context.emit("show_edit", row);
+    }
     function getList(){
         getData().then((d) => {
         bundle.value = d
@@ -118,7 +122,7 @@ export default {
       getList();
       //let timer = setInterval(getList, 60000);
     });
-    return { bundle, remain, getList ,getDay,percenttosecond};
+    return { bundle, remain, getList ,getDay,percenttosecond,doEdit};
   },
 };
 </script>
