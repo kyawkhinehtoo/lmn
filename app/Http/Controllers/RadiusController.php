@@ -380,6 +380,27 @@ class RadiusController extends Controller
                     }
                     return null;
     }
+    public function getExpiredUser()
+    {
+           $radius_config = RadiusConfig::first();
+                if(self::checkRadiusEnable()){
+                        $client = new \GuzzleHttp\Client();
+                        $url = 'http://' . $radius_config->server . ':' . $radius_config->port . '/api/get-expiry';
+                        $response = null;
+                        try {
+                            self::loginRadius();
+                            $header = ['Authorization' => 'Bearer ' . session('token')];
+                            $res = $client->post($url, ['headers' => $header], ['connect_timeout' => 1]);
+                            $response = json_decode($res->getBody());
+                            if ($response) {
+                                return json_encode($response->data,200);
+                            }
+                            } catch (\Throwable $e) {
+                                return null;
+                            }
+                    }
+                    return null;
+    }
     public function getRadiusUser()
     {
            $radius_config = RadiusConfig::first();
@@ -585,6 +606,10 @@ class RadiusController extends Controller
             $radius_users = RadiusController::getRadiusUser();
             $radius_users = json_decode($radius_users,true);
         }
+        if( $request->radius_status == 'expired' ){
+            $radius_users = RadiusController::getExpiredUser();
+            $radius_users = json_decode($radius_users,true);
+        }
 
         $customers =  DB::table('customers')
             ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
@@ -610,20 +635,23 @@ class RadiusController extends Controller
                    return $query->whereNull('customers.pppoe_account');
                 }
                 if($radius_users){
-                    $online_users = array();
+                    $user_result = array();
                     foreach($radius_users as $user){
-                        array_push($online_users,$user['username']);
+                        array_push($user_result,$user['username']);
                        
                     }
                     if($radius_status == 'online'){
-                        return  $query->whereIn('customers.pppoe_account',$online_users);
+                        return  $query->whereIn('customers.pppoe_account',$user_result);
                     }elseif($radius_status == 'offline'){
-                        return $query->whereIn('customers.pppoe_account',$online_users);
+                        return $query->whereIn('customers.pppoe_account',$user_result);
                     }elseif($radius_status == 'disabled'){
-                        return $query->whereIn('customers.pppoe_account',$online_users);
+                        return $query->whereIn('customers.pppoe_account',$user_result);
+                    
+                    }elseif($radius_status == 'expired'){
+                        return $query->whereIn('customers.pppoe_account',$user_result);
                     
                     }elseif($radius_status == 'not found'){
-                        return $query->whereNotIn('customers.pppoe_account',$online_users);
+                        return $query->whereNotIn('customers.pppoe_account',$user_result);
                     }
                     
                 }

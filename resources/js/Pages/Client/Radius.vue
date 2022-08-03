@@ -25,6 +25,7 @@
                     <label class="flex-auto items-center mt-1 ml-4"> <input type="radio" class="form-radio h-5 w-5 text-green-600" checked name="type" v-model="form.radius_status" value="online" /><span class="ml-2 text-gray-700">Online</span> </label>
                     <label class="flex-auto items-center mt-1 ml-4"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" name="type" v-model="form.radius_status" value="offline" /><span class="ml-2 text-gray-700">Offline</span> </label>
                     <label class="flex-auto items-center mt-1 ml-4"> <input type="radio" class="form-radio h-5 w-5 text-red-500" name="type" v-model="form.radius_status" value="disabled" /><span class="ml-2 text-gray-700">Disabled</span> </label>
+                    <label class="flex-auto items-center mt-1 ml-4"> <input type="radio" class="form-radio h-5 w-5 text-indigo-600" name="type" v-model="form.radius_status" value="expired" /><span class="ml-2 text-gray-700">Expired</span> </label>
                     <label class="flex-auto items-center mt-1 ml-4"> <input type="radio" class="form-radio h-5 w-5 text-yellow-600" name="type" v-model="form.radius_status" value="not found" /><span class="ml-2 text-gray-700">Not Found</span> </label>
                     <label class="flex-auto items-center mt-1 ml-4"> <input type="radio" class="form-radio h-5 w-5 text-gray-600" name="type" v-model="form.radius_status" value="no account" /><span class="ml-2 text-gray-700">No Account</span> </label>
                  
@@ -73,6 +74,7 @@
                 :class="{'bg-green-200 text-green-700 ': row.radius_status == 'online',
                          'bg-blue-200 text-blue-700': row.radius_status == 'offline',
                          'bg-red-200 text-red-700': row.radius_status == 'disabled',
+                         'bg-indigo-400 text-white border': row.radius_status == 'expired',
                          'bg-orange-200 text-orange-700': row.radius_status == 'not found',
                          'bg-white text-gray-700 border': row.radius_status == 'no account'
                 

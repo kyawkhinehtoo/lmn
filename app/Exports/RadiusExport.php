@@ -50,6 +50,10 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
             $radius_users = $radius_controller->getRadiusUser();
             $radius_users = json_decode($radius_users,true);
         }
+        if( $request->radius_status == 'expired' ){
+            $radius_users = $radius_controller->getExpiredUser();
+            $radius_users = json_decode($radius_users,true);
+        }
         $mycustomer =  DB::table('customers')
         ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
         ->leftjoin('townships', 'customers.township_id', '=', 'townships.id')
@@ -84,6 +88,9 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
                 }elseif($radius_status == 'offline'){
                     return $query->whereIn('customers.pppoe_account',$online_users);
                 }elseif($radius_status == 'disabled'){
+                    return $query->whereIn('customers.pppoe_account',$online_users);
+                
+                }elseif($radius_status == 'expired'){
                     return $query->whereIn('customers.pppoe_account',$online_users);
                 
                 }elseif($radius_status == 'not found'){

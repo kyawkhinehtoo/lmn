@@ -104,6 +104,7 @@
                          'bg-blue-200 text-blue-700': row.radius_status == 'offline',
                          'bg-red-200 text-red-700': row.radius_status == 'disabled',
                          'bg-orange-200 text-orange-700': row.radius_status == 'not found',
+                         'bg-indigo-400 text-white border': row.radius_status == 'expired',
                          'bg-white text-gray-700 border': row.radius_status == 'no account'
                 
                 }">{{ row.radius_status}}</div>

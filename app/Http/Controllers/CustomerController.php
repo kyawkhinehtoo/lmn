@@ -553,14 +553,15 @@ class CustomerController extends Controller
                                     $myDateTime = new DateTime($request->start_date);
                                 }
                                     $newtime = clone $myDateTime;
-                                    if($myDateTime->format('d') <= 7){
-                                        $newtime->modify('first day of this month');
-                                        $new_history->start_date = $newtime->format('Y-m-j h:m:s');
-                                    }else{
-                                        $newtime->modify('+1 month');
-                                        $newtime->modify('first day of this month');
-                                        $new_history->start_date = $newtime->format('Y-m-j h:m:s');
-                                    }
+                                    // if($myDateTime->format('d') <= 7){
+                                    //     $newtime->modify('first day of this month');
+                                    //     $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+                                    // }else{
+                                    //     $newtime->modify('+1 month');
+                                    //     $newtime->modify('first day of this month');
+                                    //     $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+                                    // }
+                                    $new_history->start_date = $newtime->format('Y-m-j h:m:s');
                             }
                             
                         }
