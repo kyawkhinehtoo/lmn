@@ -255,6 +255,11 @@ class ReceiptController extends Controller
                 if ($receipt_record->period_covered) {
                     if (strpos($receipt_record->period_covered, ' to ')) {
                         
+                        //to get exact end date to use in radius
+                        $bill_period = explode(" to ", $receipt_record->period_covered);
+                        $bill_from = (new DateTime($bill_period[0]));
+                        $bill_to = (new DateTime($bill_period[1]));
+
 
                         $p_months = explode(" to ", $receipt_record->period_covered);
                         $from = (new DateTime($p_months[0]))->modify('first day of this month');
@@ -269,39 +274,40 @@ class ReceiptController extends Controller
                         }
                         if($count > 2){
                             //Prepaid Customer
+                           
                             if($billconfig->prepaid_day > 0)
-                            $to->modify('+ '.$billconfig->prepaid_day.' day');
+                            $bill_to->modify('+ '.$billconfig->prepaid_day.' day');
 
                             if($billconfig->prepaid_month > 0)
-                            $to->modify('+'.$billconfig->prepaid_month.' month');
+                            $bill_to->modify('+'.$billconfig->prepaid_month.' month');
 
                             if($billconfig->exclude_list){
                                 $billconfig_type =  explode(",",$billconfig->exclude_list);
                                 if(in_array(strval($receipt_record->customer_type),$billconfig_type)){
-                                    $to->modify('+1 month');
+                                    $bill_to->modify('+1 month');
                                 }
                             }
                             
                             
                             //if($receipt_record->customer_type )
 
-                            RadiusController::setExpiry($receipt_record->ftth_id , $to->format('Y-m-d 00:00:00'));
+                            RadiusController::setExpiry($receipt_record->ftth_id , $bill_to->format('Y-m-d 00:00:00'));
                         }else{
                             //MRC Customer
                             if($billconfig->mrc_day > 0)
-                            $to->modify('+ '.$billconfig->mrc_day.' day');
+                            $bill_to->modify('+ '.$billconfig->mrc_day.' day');
 
                             if($billconfig->mrc_month > 0)
-                            $to->modify('+'.$billconfig->mrc_month.' month');
+                            $bill_to->modify('+'.$billconfig->mrc_month.' month');
 
                             
                             if($billconfig->exclude_list){
                                 $billconfig_type =  explode(",",$billconfig->exclude_list);
                                 if(in_array(strval($receipt_record->customer_type),$billconfig_type)){
-                                    $to->modify('+1 month');
+                                    $bill_to->modify('+1 month');
                                 }
                             }
-                            RadiusController::setExpiry($receipt_record->ftth_id , $to->format('Y-m-d 00:00:00'));
+                            RadiusController::setExpiry($receipt_record->ftth_id , $bill_to->format('Y-m-d 00:00:00'));
                         }
                     }
                 }

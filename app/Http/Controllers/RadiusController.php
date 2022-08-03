@@ -401,21 +401,21 @@ class RadiusController extends Controller
                     }
                     return null;
     }
-    public static function createRadius(Request $request){
+    public static function createRadius($customer_id){
   
         $data = DB::table('customers')
                 ->join('townships','customers.township_id','townships.id')
                 ->join('status','customers.status_id','status.id')
                 ->leftjoin('sn_ports','customers.sn_id','sn_ports.id')
                 ->leftjoin('dn_ports','sn_ports.dn_id','dn_ports.id')
-                ->where('customers.id','=',$request->id)
+                ->where('customers.id','=',$customer_id)
                 ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name')
                 ->first();
         $billconfig = BillingConfig::first();
         if(isset($data->pppoe_account) && isset($data->pppoe_password)){
 
             $dn = ($data->dn_name)?$data->dn_name:null;
-            $sn = ($data->sn_name)?'/'.$data->ds_name:null;
+            $sn = ($data->sn_name)?'/'.$data->sn_name:null;
 
             $user_data['username'] = $data->pppoe_account;
             $user_data['password'] = md5($data->pppoe_password);
@@ -426,14 +426,15 @@ class RadiusController extends Controller
             $user_data['comblimit'] = 0;
             $user_data['firstname'] = $data->name;
             $user_data['lastname'] = ($dn && $sn)?$dn.$sn:'';
+            $user_data['company'] = ($data->onu_serial)?$data->onu_serial:'';
             $user_data['phone'] = $data->phone_1;
-            $user_data['mobile'] = $data->phone_2;
+            $user_data['mobile'] = ($data->phone_2)?$data->phone_2:'';
             $user_data['address'] = $data->address;
             $user_data['city'] = $data->township_name;
             $user_data['country'] = $data->city;
             $location = explode (",", $data->location); 
-            $user_data['gpslat'] = $location[0];
-            $user_data['gpslong'] = $location[1];
+            $user_data['gpslat'] = ($location[0]=='.')?'0.0':$location[0];
+            $user_data['gpslong'] = ($location[1]=='.')?'0.0':$location[1];
             $user_data['usemacauth'] = 0;
             $today = new DateTime('now');
             // $today->modify('last day of this month');
@@ -449,8 +450,8 @@ class RadiusController extends Controller
             $user_data['acctype'] = 0;
             $user_data['credits'] = 0.00;
             $user_data['cardfails'] = 0;
-            $user_data['createdby'] = 'admin';
-            $user_data['owner'] = 'admin';
+            $user_data['createdby'] = 'gghbilling';
+            $user_data['owner'] = 'gghbilling';
             $user_data['email'] = '';
             $user_data['warningsent'] = 0;
             $user_data['verified'] = 0;
@@ -499,7 +500,7 @@ class RadiusController extends Controller
         if(isset($data->pppoe_account) ){
 
             $dn = ($data->dn_name)?$data->dn_name:null;
-            $sn = ($data->sn_name)?'/'.$data->ds_name:null;
+            $sn = ($data->sn_name)?'/'.$data->sn_name:null;
             $user_data['username'] = $data->pppoe_account;
             
             if(isset($data->pppoe_password))
@@ -530,14 +531,15 @@ class RadiusController extends Controller
           
             $user_data['firstname'] = $data->name;
             $user_data['lastname'] = ($dn && $sn)?$dn.$sn:'';
+            $user_data['company'] = ($data->onu_serial)?$data->onu_serial:'';
             $user_data['phone'] = $data->phone_1;
-            $user_data['mobile'] = $data->phone_2;
+            $user_data['mobile'] = ($data->phone_2)?$data->phone_2:'';
             $user_data['address'] = $data->address;
             $user_data['city'] = $data->township_name;
             $user_data['country'] = $data->city;
             $location = explode (",", $data->location); 
-            $user_data['gpslat'] = $location[0];
-            $user_data['gpslong'] = $location[1];
+            $user_data['gpslat'] = ($location[0]=='.')?'0.0':$location[0];
+            $user_data['gpslong'] = ($location[1]=='.')?'0.0':$location[1];
            
             $user_data['email'] = '';
            
