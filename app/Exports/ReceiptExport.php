@@ -55,7 +55,7 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             ->when($request->date, function ($query, $date) {
                 if(isset($date['startDate']) && isset($date['endDate'])){
                     if($date['startDate'] != null && $date['endDate'] != null){
-                        return $query->whereBetween('receipt_records.created_at', [$date['startDate'], $date['endDate']]);
+                        return $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
                     }
                 }
                 return $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');

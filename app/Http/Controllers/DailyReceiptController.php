@@ -40,7 +40,7 @@ class DailyReceiptController extends Controller
                                     $query->whereIn('bills.id',  $b_list );
                                 })
                                 ->when($request->date, function ($query, $date) {
-                                    $query->whereBetween('receipt_records.created_at', [$date['startDate'], $date['endDate']]);
+                                    $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
                                 },function($query){
                                     $query->whereDate('receipt_records.created_at',Carbon::today());
                                 })

@@ -10,6 +10,7 @@ use App\Models\Project;
 use App\Models\SnPorts;
 use App\Models\User;
 use App\Models\Status;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -32,18 +33,22 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
     public function query()
     {
         $request = $this->request;
-        $radius_users = null; 
+        $expiration_from = (isset($request->expiration['from']))?$request->expiration['from'].' 00:00:00':'2000-01-01 00:00:00';
+        $expiration_to = (isset($request->expiration['to']))?$request->expiration['to'].' 23:59:59':'2100-01-01 00:00:00';
+        $expiration = array('from'=>$expiration_from,'to'=>$expiration_to);
+        $radius_users = null;
+      
         $radius_controller = new RadiusController();
         if($request->radius_status == 'online' ){
-            $radius_users = $radius_controller->getOnlineUser();
+            $radius_users = $radius_controller->getOnlineUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'offline' ){
-            $radius_users = $radius_controller->getOfflineUser();
+            $radius_users = $radius_controller->getOfflineUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'disabled' ){
-            $radius_users = $radius_controller->getDisabledUser();
+            $radius_users = $radius_controller->getDisabledUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'not found' ){
@@ -51,7 +56,7 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'expired' ){
-            $radius_users = $radius_controller->getExpiredUser();
+            $radius_users = $radius_controller->getExpiredUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
         $mycustomer =  DB::table('customers')
@@ -97,6 +102,20 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
                     return $query->whereNotIn('customers.pppoe_account',$online_users);
                 }
                 
+            }else{
+                if($radius_status != 'any'){
+                    return $query->where('customers.pppoe_account','=','');
+                }
+            }
+            
+        },function($query) use ($radius_users){
+            if($radius_users){
+                $user_result = array();
+                foreach($radius_users as $user){
+                    array_push($user_result,$user['username']);
+                   
+                }
+            return  $query->whereIn('customers.pppoe_account',$user_result);
             }
             
         })
@@ -136,6 +155,8 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
             'DN',
             'SN',
             'Status',
+            'Radius Status',
+            'Radius Expiration',
             
         ];
     }
@@ -155,7 +176,21 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
                 ->select('dn_ports.name as dn_name','sn_ports.name as sn_name')
                 ->first();
         }
-        
+        $radius = RadiusController::checkRadiusEnable();
+            if($radius){
+               
+                    if ($mycustomer->pppoe_account){
+                        $mycustomer->radius_status = RadiusController::checkCustomer($mycustomer->pppoe_account);
+                        $radius_controller = new RadiusController();
+                        $radius_info = $radius_controller->getRadiusInfo($mycustomer->id);
+                        
+                        $mycustomer->expiration =(isset($radius_info[0]))?Carbon::parse($radius_info[0]->expiration,'UTC')->setTimezone('Asia/Yangon')->format('d-M-Y H:i:s'):'';
+                    }else{
+                        $mycustomer->radius_status = 'no account';
+                    }
+                        
+                
+            }
     
         return [
             $mycustomer->ftth_id,
@@ -185,7 +220,10 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
             $mycustomer->onu_power, 
             (isset($sn_dn))?$sn_dn->dn_name:"",
             (isset($sn_dn))?$sn_dn->sn_name:"",     
-            $status->name,       
+            $status->name,    
+            (isset($mycustomer->radius_status))?$mycustomer->radius_status:"",
+            (isset($mycustomer->expiration))?$mycustomer->expiration:"",
+               
          ];
     }
 }

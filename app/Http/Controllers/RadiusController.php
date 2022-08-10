@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Status;
 use App\Models\Township;
 use App\Models\Role;
+use Carbon\Carbon;
 use DateTime;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
@@ -317,7 +318,7 @@ class RadiusController extends Controller
                             }
                     }
     }
-    public function getOnlineUser()
+    public function getOnlineUser($expiration)
     {
            $radius_config = RadiusConfig::first();
                 if(self::checkRadiusEnable()){
@@ -327,7 +328,7 @@ class RadiusController extends Controller
                         try {
                             self::loginRadius();
                             $header = ['Authorization' => 'Bearer ' . session('token')];
-                            $res = $client->post($url, ['headers' => $header], ['connect_timeout' => 1]);
+                            $res = $client->post($url, ['headers' => $header,'form_params' => $expiration], ['connect_timeout' => 1]);
                             $response = json_decode($res->getBody());
                             if ($response) {
                                 return json_encode($response->data,200);
@@ -338,7 +339,7 @@ class RadiusController extends Controller
                     }
                     return null;
     }
-    public function getOfflineUser()
+    public function getOfflineUser($expiration)
     {
            $radius_config = RadiusConfig::first();
                 if(self::checkRadiusEnable()){
@@ -348,7 +349,7 @@ class RadiusController extends Controller
                         try {
                             self::loginRadius();
                             $header = ['Authorization' => 'Bearer ' . session('token')];
-                            $res = $client->post($url, ['headers' => $header], ['connect_timeout' => 1]);
+                            $res = $client->post($url, ['headers' => $header,'form_params' => $expiration], ['connect_timeout' => 1]);
                             $response = json_decode($res->getBody());
                             if ($response) {
                                 return json_encode($response->data,200);
@@ -359,7 +360,7 @@ class RadiusController extends Controller
                     }
                     return null;
     }
-    public function getDisabledUser()
+    public function getDisabledUser($expiration)
     {
            $radius_config = RadiusConfig::first();
                 if(self::checkRadiusEnable()){
@@ -369,7 +370,7 @@ class RadiusController extends Controller
                         try {
                             self::loginRadius();
                             $header = ['Authorization' => 'Bearer ' . session('token')];
-                            $res = $client->post($url, ['headers' => $header], ['connect_timeout' => 1]);
+                            $res = $client->post($url, ['headers' => $header,'form_params' => $expiration], ['connect_timeout' => 1]);
                             $response = json_decode($res->getBody());
                             if ($response) {
                                 return json_encode($response->data,200);
@@ -380,7 +381,7 @@ class RadiusController extends Controller
                     }
                     return null;
     }
-    public function getExpiredUser()
+    public function getExpiredUser($expiration)
     {
            $radius_config = RadiusConfig::first();
                 if(self::checkRadiusEnable()){
@@ -390,7 +391,7 @@ class RadiusController extends Controller
                         try {
                             self::loginRadius();
                             $header = ['Authorization' => 'Bearer ' . session('token')];
-                            $res = $client->post($url, ['headers' => $header], ['connect_timeout' => 1]);
+                            $res = $client->post($url, ['headers' => $header,'form_params' => $expiration], ['connect_timeout' => 1]);
                             $response = json_decode($res->getBody());
                             if ($response) {
                                 return json_encode($response->data,200);
@@ -589,17 +590,23 @@ class RadiusController extends Controller
     }
 
     public function display(Request $request){
-        $radius_users = null; 
+  
+    
+      
+        $expiration_from = (isset($request->expiration['from']))?$request->expiration['from'].' 00:00:00':'2000-01-01 00:00:00';
+        $expiration_to = (isset($request->expiration['to']))?$request->expiration['to'].' 23:59:59':'2100-01-01 00:00:00';
+        $expiration = array('from'=>$expiration_from,'to'=>$expiration_to);
+        $radius_users = null;
         if($request->radius_status == 'online' ){
-            $radius_users = RadiusController::getOnlineUser();
+            $radius_users = RadiusController::getOnlineUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'offline' ){
-            $radius_users = RadiusController::getOfflineUser();
+            $radius_users = RadiusController::getOfflineUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'disabled' ){
-            $radius_users = RadiusController::getDisabledUser();
+            $radius_users = RadiusController::getDisabledUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'not found' ){
@@ -607,9 +614,10 @@ class RadiusController extends Controller
             $radius_users = json_decode($radius_users,true);
         }
         if( $request->radius_status == 'expired' ){
-            $radius_users = RadiusController::getExpiredUser();
+            $radius_users = RadiusController::getExpiredUser($expiration);
             $radius_users = json_decode($radius_users,true);
         }
+  
 
         $customers =  DB::table('customers')
             ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
@@ -648,12 +656,28 @@ class RadiusController extends Controller
                         return $query->whereIn('customers.pppoe_account',$user_result);
                     
                     }elseif($radius_status == 'expired'){
+                     
                         return $query->whereIn('customers.pppoe_account',$user_result);
                     
-                    }elseif($radius_status == 'not found'){
+                    }elseif($radius_status == 'not found' ){
                         return $query->whereNotIn('customers.pppoe_account',$user_result);
                     }
                     
+                }else{
+                    if($radius_status != 'any'){
+                        return $query->where('customers.pppoe_account','=','');
+                    }
+                    
+                }
+                
+            },function($query) use ($radius_users){
+                if($radius_users){
+                    $user_result = array();
+                    foreach($radius_users as $user){
+                        array_push($user_result,$user['username']);
+                       
+                    }
+                return  $query->whereIn('customers.pppoe_account',$user_result);
                 }
                 
             })
@@ -666,6 +690,10 @@ class RadiusController extends Controller
                 foreach ($customers as $key => $value) {
                     if ($value->pppoe_account){
                         $value->radius_status = RadiusController::checkCustomer($value->pppoe_account);
+                        $radius_info = RadiusController::getRadiusInfo($value->id);
+                        
+                      //  $value->expiration = (isset($radius_info[0]))?$radius_info[0]->expiration:'';
+                        $value->expiration = (isset($radius_info[0]))?Carbon::parse($radius_info[0]->expiration,'UTC')->setTimezone('Asia/Yangon')->format('d-M-Y H:i:s'):'';
                     }else{
                         $value->radius_status = 'no account';
                     }
