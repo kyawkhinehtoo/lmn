@@ -47,7 +47,7 @@ class DailyReceiptController extends Controller
                                 ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date')
                                 ->paginate(10);
         
-        
+                                $receipt_records->appends($request->all())->links();
         return Inertia::render("Client/DailyReceipt",
                 [
                     'today_collection' => $today_collection,
