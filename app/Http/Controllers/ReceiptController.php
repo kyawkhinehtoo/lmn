@@ -291,7 +291,7 @@ class ReceiptController extends Controller
                             
                             //if($receipt_record->customer_type )
 
-                            RadiusController::setExpiry($receipt_record->ftth_id , $bill_to->format('Y-m-d 00:00:00'));
+                            RadiusController::setExpiry($receipt_record->ftth_id , $bill_to->format('Y-m-d 09:00:00'));
                         }else{
                             //MRC Customer
                             if($billconfig->mrc_day > 0)
@@ -307,7 +307,7 @@ class ReceiptController extends Controller
                                     $bill_to->modify('+1 month');
                                 }
                             }
-                            RadiusController::setExpiry($receipt_record->ftth_id , $bill_to->format('Y-m-d 00:00:00'));
+                            RadiusController::setExpiry($receipt_record->ftth_id , $bill_to->format('Y-m-d 09:00:00'));
                         }
                     }
                 }
