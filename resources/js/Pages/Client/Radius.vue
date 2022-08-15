@@ -116,6 +116,11 @@
         </span>
       </div>
     </div>
+     <div v-if="loading" class="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+      <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+      <h2 class="text-center text-white text-xl font-semibold">Loading...</h2>
+      <p class="w-1/3 text-center text-white">This may take a few seconds, please don't close this page.</p>
+    </div>
   </app-layout>
 </template>
 
@@ -139,6 +144,7 @@ export default {
     radius: Object
   },
   setup(props) {
+    const loading = ref(false);
     const formatter = ref({
       date: "YYYY-MM-DD",
       month: "MMM",
@@ -173,10 +179,12 @@ export default {
     }
  
    const doExcel = () => {
+        loading.value = true;
          axios.post("/RadiusExport", 
           form)
           .then(response => {
             console.log(response)
+            loading.value = false;
              var a = document.createElement("a");
               document.body.appendChild(a);
               a.style = "display: none";
@@ -199,7 +207,7 @@ export default {
     // };
      
      
-   return { submit,form,doExcel,formatter,resetFrom};
+   return { submit,form,doExcel,formatter,resetFrom,loading};
   },
 };
 </script>

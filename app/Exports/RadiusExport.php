@@ -28,6 +28,7 @@ class RadiusExport implements FromQuery, WithMapping,WithHeadings
     protected $request;
     public function __construct(Request $request)
     {
+        set_time_limit(300);
         $this->request = $request;
     }
     public function query()
