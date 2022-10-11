@@ -73,6 +73,6 @@ class ReceiptRecord extends Model
     public function getReceiptDateAttribute($date)
     {
         return Carbon::parse($date)->format('d-M-Y H:i:s');
-    }
+    }   
  
 }

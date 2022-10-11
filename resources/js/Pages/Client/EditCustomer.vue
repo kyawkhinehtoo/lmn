@@ -165,6 +165,7 @@
                        <option value="3">3 Months</option>
                        <option value="4">4 Months</option>
                        <option value="5">5 Months</option>
+                       <option value="6">6 Months</option>
                        <option value="7">7 Months</option>
                        <option value="8">8 Months</option>
                        <option value="9">9 Months</option>
@@ -225,7 +226,7 @@
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
                         <i class="fas fa-id-badge"></i>
                       </span>
-                      <input v-model="form.ftth_id" type="text" name="ftth_id" id="ftth_id" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" required  :disabled="checkPerm('ftth_id')" />
+                      <input v-model="form.ftth_id" type="text" name="ftth_id" id="ftth_id" class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" required  :disabled="form.ftth_id" />
                     </div>
                      <p v-show="$page.props.errors.ftth_id" class="mt-2 text-sm text-red-500">{{ $page.props.errors.ftth_id }}</p>
                   </div>
@@ -470,8 +471,9 @@ export default {
   },
   setup(props) {
     provide('user', props.user);
+    let pppoe_auto = ref(false);
     let lat_long = '';
-       let pppoe_auto = ref(false);
+      
       if(props.customer.location){
         console.log('hello');
         lat_long = props.customer.location.split(",", 2); 
@@ -542,12 +544,16 @@ export default {
     }
     function checkPerm(data){
       const my_role = props.roles.filter((d)=> d.id == props.users.role)[0];
+  
       if(my_role.read_customer){
         return true;
       }
+   
       let role_arr = my_role.permission.split(',');
       let disable = role_arr.includes(data);
     //  console.log('check for : '+data+' , result: '+ disable);
+
+    
       return !disable;
     }
       function isNumber(evt) {

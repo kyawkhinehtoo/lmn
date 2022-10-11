@@ -21,3 +21,9 @@ mix.js('resources/js/app.js', 'public/js').vue()
 if (mix.inProduction()) {
     mix.version();
 }
+mix.options({
+    hmrOptions: {
+        host: 'ggh1.test',
+        port: 8081
+    }
+});

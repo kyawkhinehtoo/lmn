@@ -240,14 +240,15 @@ class ReceiptController extends Controller
             ->where('receipt_records.customer_id','=',$customer_id)
             ->select('receipt_records.*', 'invoices.period_covered as period_covered','invoices.ftth_id as ftth_id','customers.customer_type as customer_type')
             ->first();
-        $rr_adjust = ReceiptRecord::join('bill_adjustment', 'bill_adjustment.invoice_id', '=', 'receipt_records.invoice_id')
-            ->join('customers','customers.id','receipt_records.customer_id')
-            ->where('receipt_records.id','=',$receipt_id)
-            ->where('receipt_records.customer_id','=',$customer_id)
-            ->select('receipt_records.*', 'bill_adjustment.period_covered as period_covered','bill_adjustment.ftth_id as ftth_id','customers.customer_type as customer_type')
-            ->latest('id')
-            ->first();
-        $receipt_record = ($rr_adjust)?$rr_adjust:$rr_invoice; 
+        // $rr_adjust = ReceiptRecord::join('bill_adjustment', 'bill_adjustment.invoice_id', '=', 'receipt_records.invoice_id')
+        //     ->join('customers','customers.id','receipt_records.customer_id')
+        //     ->where('receipt_records.id','=',$receipt_id)
+        //     ->where('receipt_records.customer_id','=',$customer_id)
+        //     ->select('receipt_records.*', 'bill_adjustment.period_covered as period_covered','bill_adjustment.ftth_id as ftth_id','customers.customer_type as customer_type')
+        //     ->latest('id')
+        //     ->first();
+       // $receipt_record = ($rr_adjust)?$rr_adjust:$rr_invoice;
+       $receipt_record = $rr_invoice; 
         if ($receipt_record) {
 
          
@@ -272,6 +273,26 @@ class ReceiptController extends Controller
                             $count ++;
                             $this->updateRRS($receipt_record->id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
                         }
+
+                        
+                        $days  = cal_days_in_month(CAL_GREGORIAN,$bill_to->format('n'),$bill_to->format('Y'));
+                        if($bill_to->format('d') <> $days && $count == 3 ){
+                            //check customer paid for months and days 
+                            //ရက်တွက်ဖြင့် ပေးသည့် customer ဖြစ်လျင် 'to' လ အတွက် ရက်သည် ရက်အပြည့်မဟုတ်ဘဲ ကြားရက်ဖြစ်နေမည်။
+                            if($bill_to->format('d') <= $billconfig->mrc_day ) // ရက်တွက်သွင်းထားသော ရက်သည် လအစ ၏ ၁၀ ရက်ထက် ငယ်နေတယ် ဆိုလျင် 
+                              $count = $count - 1; 
+                              $bill_to->modify('last day of last month');
+                             
+                        }else if($bill_from->format('d') <> $days && $count == 3 ){
+                            //check customer paid for months and days 
+                            //ရက်တွက်ဖြင့် ပေးသည့် customer ဖြစ်လျင် 'from' လ အတွက် ရက်သည် ရက်အပြည့်မဟုတ်ဘဲ ကြားရက်ဖြစ်နေမည်။
+                            if($bill_from->format('d') <= $billconfig->mrc_day ) // ရက်တွက်သွင်းထားသော ရက်သည် လအစ ၏ ၁၀ ရက်ထက် ငယ်နေတယ် ဆိုလျင် 
+                              $count = $count - 1; 
+                              $bill_to->modify('last day of last month');
+                             
+                        }
+
+
                         if($count > 2){
                             //Prepaid Customer
                            
@@ -327,14 +348,15 @@ class ReceiptController extends Controller
 //check modified invoice
 
             foreach ($rr_invoices as $rr_invoice) {
-                $rr_adjust = ReceiptRecord::join('bill_adjustment', 'bill_adjustment.invoice_id', '=', 'receipt_records.invoice_id')
-                ->where('bill_adjustment.invoice_id','=',$rr_invoice->id)
-                ->select('receipt_records.*', 'bill_adjustment.period_covered as period_covered')
-                ->latest('id')
-                ->first();
+                // $rr_adjust = ReceiptRecord::join('bill_adjustment', 'bill_adjustment.invoice_id', '=', 'receipt_records.invoice_id')
+                // ->where('bill_adjustment.invoice_id','=',$rr_invoice->id)
+                // ->select('receipt_records.*', 'bill_adjustment.period_covered as period_covered')
+                // ->latest('id')
+                // ->first();
             
                 //replace with modified invoice
-                $receipt_record = ($rr_adjust)?$rr_adjust:$rr_invoice;
+               // $receipt_record = ($rr_adjust)?$rr_adjust:$rr_invoice;
+               $receipt_record = $rr_invoice;
                 if ($receipt_record->period_covered) {
                     if (strpos($receipt_record->period_covered, ' to ')) {
                         $p_months = explode(" to ", $receipt_record->period_covered);
@@ -346,25 +368,25 @@ class ReceiptController extends Controller
                         $period   = new DatePeriod($from, $interval, $to);
                         foreach ($period as $dt) {
 
-                            $this->updateRRS($receipt_record->invoice_id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
+                            $this->updateRRS($receipt_record->id, $receipt_record->customer_id, $dt->format("n"), $dt->format("Y"));
                         }
                     }
                 }
             }
         }
     }
-    public function updateRRS($invoice_id, $customer_id, $month, $year)
+    public function updateRRS($receipt_id, $customer_id, $month, $year)
     {
         $rs = ReceiptSummery::where('customer_id', '=', $customer_id)
             ->where('year', '=', $year)
             ->first();
         if ($rs) {
-            $rs->$month = $invoice_id;
+            $rs->$month = $receipt_id;
             $rs->year = $year;
             $rs->update();
         } else {
             $receipt_summery = new ReceiptSummery();
-            $receipt_summery->$month = $invoice_id;
+            $receipt_summery->$month = $receipt_id;
             $receipt_summery->year = $year;
             $receipt_summery->customer_id = $customer_id;
             $receipt_summery->save();

@@ -444,18 +444,27 @@ class BillingController extends Controller
                 $invoice->file = null;
                 $invoice->url = null;
             }
-            if ($request->reset_receipt) {
-                if ($request->receipt_id) {
-                    ReceiptRecord::find($request->receipt_id)->delete();
-                    for ($i = 1; $i <= 12; $i++) {
+            //if ($request->reset_receipt) {
 
-                        ReceiptSummery::where('customer_id', '=', $request->customer_id)
-                            ->where('year', '=', $invoice->bill_year)
-                            ->where($i, '=', $invoice->id)
-                            ->update([$i => DB::raw("NULL")]);
+
+            $receipt = ReceiptRecord::where('invoice_id', '=', $invoice->id)->first();
+            if ($receipt) {
+                $receipt_id = $receipt->id;
+                ReceiptRecord::find($receipt_id)->delete();
+                $months = 12;
+                while ($months > 0) {
+                    $status =  ReceiptSummery::where($months, '=', $receipt_id)
+                        ->where('customer_id', '=', $invoice->customer_id)
+                        ->first();
+                    if ($status) {
+                        $status->$months = null;
+                        $status->update();
                     }
+                    $months--;
                 }
             }
+
+            // }
             $invoice->update();
             return redirect()->back()->with('message', 'Invoice Updated Successfully.');
         }
@@ -548,8 +557,8 @@ class BillingController extends Controller
             ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
             ->join('customers', 'receipt_records.customer_id', 'customers.id')
             ->join('packages', 'customers.package_id', 'packages.id')
-            ->where('invoices.id', '=', $request->id)
-            ->select('invoices.*','packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
+            ->where('receipt_records.id', '=', $request->id)
+            ->select('invoices.*', 'packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
             ->first();
         // $billing_adjustment = BillAdjustment::join('receipt_records', 'receipt_records.invoice_id', '=', 'bill_adjustment.invoice_id')
         //     ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
@@ -774,6 +783,7 @@ class BillingController extends Controller
                 ->when($request->installation, function ($query, $installation) {
                     $query->whereBetween('customers.installation_date', $installation);
                 })
+
                 ->select(
                     'invoices.id as id',
                     'invoices.bill_id as bill_id',
@@ -805,6 +815,7 @@ class BillingController extends Controller
                     'invoices.discount as discount',
                     'invoices.tax as tax',
                     'invoices.phone as phone',
+                    'receipt_records.collected_currency as currency',
                     'receipt_records.id as receipt_id',
                     'receipt_records.receipt_number as receipt_number',
                     'receipt_records.file as receipt_file',

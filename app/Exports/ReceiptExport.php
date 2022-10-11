@@ -62,7 +62,7 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             },function($query){
                 $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');
             })
-            ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','receipt_records.status as receipt_status','receipt_records.payment_channel');
+            ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','receipt_records.status as receipt_status','receipt_records.payment_channel','invoices.period_covered','invoices.usage_days','invoices.qty','invoices.normal_cost','users.name as user_name');
   
         return $receipt_records;
     
@@ -75,6 +75,10 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             'Invoice Number',
             'Receipt Number',
             'Customer ID',
+            'Package',
+            'Package Price',
+            'QTY',
+            'Covered Period',
             'Issue Amount',
             'Receipt Amount',
             'Receipt Date',
@@ -94,6 +98,10 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             $receipt_records->bill_number,
             ($receipt_records->receipt_number)?'R'.substr($receipt_records->bill_number,0, 4).'-'.$receipt_records->ftth_id.'-'.str_pad($receipt_records->receipt_number,5,"0", STR_PAD_LEFT):null,
             $receipt_records->ftth_id,
+            $receipt_records->qty,
+            $receipt_records->normal_cost,
+            $receipt_records->usage_days,
+            $receipt_records->period_covered,
             $receipt_records->issue_amount,
             $receipt_records->collected_amount,
             $receipt_records->created_at,

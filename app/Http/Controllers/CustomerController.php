@@ -415,6 +415,7 @@ class CustomerController extends Controller
             $sale_persons = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
                 ->where('roles.name', 'LIKE', '%marketing%')
+                ->where('disabled','<>',1)
                 ->select('users.name as name', 'users.id as id')
                 ->get();
             $auth_role = DB::table('users')
@@ -589,7 +590,7 @@ class CustomerController extends Controller
         }
 
 
-        return redirect()->route('customer.index')->with('message', 'Customer Updated Successfully.');
+        return redirect()->back()->with('message', 'Customer Updated Successfully.');
     }
     public function getHistory($id)
     {
