@@ -49,7 +49,7 @@
           </div>
           <form class="mt-6 mb-4 md:hidden">
             <div class="mb-3 pt-0">
-              <input type="text" placeholder="Search" class="border-0 px-3 py-2 h-12 border border-solid border-blueGray-500 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-base leading-snug shadow-none outline-none focus:outline-none w-full font-normal" />
+              <input type="text" placeholder="Search" class="border-0 px-3 py-2 h-12 border-solid border-blueGray-500 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-base leading-snug shadow-none outline-none focus:outline-none w-full font-normal" />
             </div>
           </form>
 
@@ -184,7 +184,7 @@
         <div class="px-4 md:px-10 mx-auto w-full my-4">
           <slot name="header"> </slot>
         </div>
-        <div class="ml-3 absolute absolute top-8 right-8">
+        <div class="ml-3 absolute top-8 right-8">
           <jet-dropdown align="right" width="48">
             <template #trigger>
               <button v-if="$page.props.jetstream.managesProfilePhotos" class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
@@ -240,7 +240,7 @@
             </div>
             <div class="w-full md:w-8/12 px-4">
               <ul class="flex flex-wrap list-none md:justify-end justify-center">
-                <li class="text-sm text-blueGray-500 font-semibold py-1">ISP MANAGER</li>
+                <li class="text-sm text-blueGray-500 font-semibold py-1">GGH ISP MANAGER</li>
               </ul>
             </div>
           </div>
@@ -297,16 +297,19 @@ export default {
         this.billing = (this.billing)?false:true;
         this.user = false;
         this.admin = false;
+        this.report = false;
       }
       if(menu == 'user'){
         this.billing = false;
         this.admin = false;
         this.user = (this.user)?false:true;
+        this.report = false;
       }
       if(menu == 'admin'){
         this.billing = false;
         this.user = false;
         this.admin = (this.admin)?false:true;
+        this.report = false;
       }
        if(menu == 'report'){
         this.billing = false;

@@ -293,7 +293,12 @@ class CustomerController extends Controller
        
         
         $auto_ftth_id = $request->ftth_id;
-        $check_id = Customer::where('ftth_id','=',$auto_ftth_id)->first();
+        $check_id = Customer::where('ftth_id','=',$auto_ftth_id)
+                    ->where(function($query){
+                        return $query->where('customers.deleted', '=', 0)
+                        ->orWhereNull('customers.deleted');
+                    })
+                    ->first();
         if($check_id){
             //already exists
             
