@@ -277,18 +277,20 @@ class ReceiptController extends Controller
                         
                         $days  = cal_days_in_month(CAL_GREGORIAN,$bill_to->format('n'),$bill_to->format('Y'));
                         if($bill_to->format('d') <> $days && $count == 3 ){
+                            //၂ လနှင့် ရက်တွက် ဖြစ်သည်
                             //check customer paid for months and days 
                             //ရက်တွက်ဖြင့် ပေးသည့် customer ဖြစ်လျင် 'to' လ အတွက် ရက်သည် ရက်အပြည့်မဟုတ်ဘဲ ကြားရက်ဖြစ်နေမည်။
-                            if($bill_to->format('d') <= $billconfig->mrc_day ) // ရက်တွက်သွင်းထားသော ရက်သည် လအစ ၏ ၁၀ ရက်ထက် ငယ်နေတယ် ဆိုလျင် 
+                            if($bill_to->format('d') <= $billconfig->mrc_day ) // ရက်တွက်သွင်းထားသော ရက်သည် လအစ ၏ ၁၀ ရက်ထက် ငယ်နေတယ် ဆိုလျင် .11 ထက်ကြီးရင် ၃ ရက်ပေါင်း 11 ထက်ငယ်ရင် 11 ပဲထားဖို့ စစ်တာပါ
                               $count = $count - 1; 
                               $bill_to->modify('last day of last month');
                              
                         }else if($bill_from->format('d') <> $days && $count == 3 ){
+                            //၂ လနှင့် ရက်တွက် ဖြစ်သည်
                             //check customer paid for months and days 
                             //ရက်တွက်ဖြင့် ပေးသည့် customer ဖြစ်လျင် 'from' လ အတွက် ရက်သည် ရက်အပြည့်မဟုတ်ဘဲ ကြားရက်ဖြစ်နေမည်။
-                            if($bill_from->format('d') <= $billconfig->mrc_day ) // ရက်တွက်သွင်းထားသော ရက်သည် လအစ ၏ ၁၀ ရက်ထက် ငယ်နေတယ် ဆိုလျင် 
+                            //if($bill_from->format('d') <= $billconfig->mrc_day ) // ရက်တွက်သွင်းထားသော ရက်သည် လအစ ၏ ၁၀ ရက်ထက် ငယ်နေတယ် ဆိုလျင် (ဆိုလိုသည်မှာ ရက်တွက် နှင့် ၂ လ ဖြစ်လျင်)
                               $count = $count - 1; 
-                              $bill_to->modify('last day of last month');
+                              //$bill_to->modify('last day of last month');
                              
                         }
 

@@ -490,14 +490,7 @@
                         type="checkbox" v-model="form_2.reset_sms" />
                       Reset SMS
                     </label>
-                    <div v-if="form_2.receipt_id">
-                      <label class="inline-flex ml-2">
-                        <input
-                          class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
-                          type="checkbox" v-model="form_2.reset_receipt" />
-                        Reset Receipt
-                      </label>
-                    </div>
+                  
                   </div>
                 </fieldset>
               </div>
@@ -572,12 +565,12 @@
             <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
               <button @click="createInvoice" type="button"
                 class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition"
-                v-show="!editMode">Save</button>
+                v-show="!editMode" :disabled="disable_submit">Save</button>
             </span>
             <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
               <button @click="updateInvoice" type="button"
                 class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition"
-                v-show="editMode">Update</button>
+                v-show="editMode" :disabled="disable_submit">Update</button>
             </span>
             <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
               <button @click="closeEdit" type="button"
@@ -645,6 +638,7 @@ export default {
     let invoiceEdit = ref(false);
     let receipt_number = ref(0);
     const paid_percent = ref(0);
+    let disable_submit = ref(false);
     const form = reactive({
       id: null,
       bill_id: (props.current_bill) ? props.current_bill['id'] : null,
@@ -847,19 +841,24 @@ export default {
       editMode.value = false;
     }
     function createInvoice() {
+      disable_submit.value = true;
       form_2.post("/createInvoice", {
         onSuccess: (page) => {
+          closeEdit();
+          disable_submit.value = false;
           Toast.fire({
             icon: "success",
             title: page.props.flash.message,
           });
         },
         onError: (errors) => {
+          disable_submit.value = false;
           console.log(errors);
         },
       });
     }
     function updateInvoice() {
+      disable_submit.value = true;
       if (form_2.receipt_id) {
         Toast.fire({
           icon: "warning",
@@ -877,16 +876,19 @@ export default {
           if (result['isConfirmed']) {
             form_2.post("/updateInvoice", {
               onSuccess: (page) => {
+                disable_submit.value = false;
                 Toast.fire({
                   icon: "success",
                   title: page.props.flash.message,
                 });
               },
               onError: (errors) => {
+                disable_submit.value = false;
                 console.log(errors);
               },
             });
           } else {
+            disable_submit.value = false;
             Toast.fire("Cancelled", "Your data is safe", "error");
           }
 
@@ -895,12 +897,14 @@ export default {
       } else {
         form_2.post("/updateInvoice", {
           onSuccess: (page) => {
+            disable_submit.value = false;
             Toast.fire({
               icon: "success",
               title: page.props.flash.message,
             });
           },
           onError: (errors) => {
+            disable_submit.value = false;
             console.log(errors);
           },
         });
@@ -1206,7 +1210,7 @@ export default {
         parameter.value = parm;
       }
     });
-    return { form, form_2, formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage };
+    return { form, form_2, formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage,disable_submit };
   },
 };
 </script>
