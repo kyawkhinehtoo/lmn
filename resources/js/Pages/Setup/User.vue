@@ -67,7 +67,7 @@
                       </div>
                       <div class="mb-4">
                         <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Phone Number:</label>
-                        <input type="number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="phone" placeholder="Enter Phone Number" v-model="form.phone" required />
+                        <input type="tel"  pattern="^[0-9]{0,11}$" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="phone" placeholder="09123456789" v-model="form.phone" required />
                        
                         <p v-if="$page.props.errors.phone" class="mt-2 text-sm text-red-500">{{ $page.props.errors.phone }}</p>
                       </div>
