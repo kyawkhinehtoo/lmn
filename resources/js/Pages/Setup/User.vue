@@ -152,7 +152,7 @@ export default {
       email: null,
       phone: null,
       role:null,
-      disabled:null,
+      disabled:false,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -167,7 +167,7 @@ export default {
       form.email = null;
       form.phone = null;
       form.role = null;
-      form.disabled = null;
+      form.disabled = false;
     }
     function checkPsw(){
       if(form.password != form.confirm_password){
