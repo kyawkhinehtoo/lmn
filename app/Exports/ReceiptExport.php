@@ -37,13 +37,15 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             ->join('bills','bills.id','=','receipt_records.bill_id')
             ->leftjoin('users','users.id','receipt_records.collected_person')
             ->when($request->general, function ($query, $general) {
-                $query->where('customers.name','LIKE', '%'.$general.'%')
-                ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
-                ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
-                ->orWhere('invoices.invoice_number', 'LIKE', '%' . $general . '%')
-                ->orWhere('receipt_records.receipt_number', 'LIKE', '%' . $general . '%');
-            })
+                $query->where(function ($query) use ($general) {
+                    $query->where('customers.name','LIKE', '%'.$general.'%')
+                    ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
+                    ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
+                    ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
+                    ->orWhere('invoices.invoice_number', 'LIKE', '%' . $general . '%')
+                    ->orWhere('receipt_records.receipt_number', 'LIKE', '%' . $general . '%');
+                        });
+                })
             ->when($request->bill_id, function ($query, $bills) {
                 $b_list = array();
                 foreach ($bills as $value) {
@@ -58,9 +60,7 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
                         return $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
                     }
                 }
-                return $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');
-            },function($query){
-                $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');
+             //   return $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');
             })
             ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','receipt_records.status as receipt_status','receipt_records.payment_channel','invoices.period_covered','invoices.usage_days','invoices.qty','invoices.normal_cost','users.name as user_name');
   
