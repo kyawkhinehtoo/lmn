@@ -689,7 +689,7 @@ class BillingController extends Controller
         $user = User::find(Auth::user()->id);
         if ($request->bill_id) {
             $lists = Bills::all();
-            $packages = Package::orderBy('name', 'ASC')->get();
+            $packages = Package::orderBy('price', 'ASC')->get();
             $townships = Township::get();
             $status = Status::get();
             $users = User::join('roles', 'users.role', 'roles.id')
@@ -707,7 +707,6 @@ class BillingController extends Controller
                 ->select(DB::raw('max(receipt_records.receipt_number) as max_receipt_number'))
                 ->first();
             $total_receivable = DB::table('invoices')
-                ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
                 ->where('invoices.bill_id', '=', $request->bill_id)
                 ->select(DB::raw('sum(invoices.total_payable) as total_payable'))
                 ->first();
@@ -725,12 +724,13 @@ class BillingController extends Controller
                 ->get()
                 ->toArray();
 
-            $billings =  Invoice::join('customers', 'customers.id', '=', 'invoices.customer_id')
+            $billings =  DB::table('invoices')->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->join('packages', 'customers.package_id', '=', 'packages.id')
                 ->join('townships', 'customers.township_id', '=', 'townships.id')
                 ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
                 ->join('status', 'customers.status_id', '=', 'status.id')
                 ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
+                ->leftjoin('receipt_records as rr','customers.id','=','rr.customer_id')
                 ->where(function ($query) {
                     return $query->where('customers.deleted', '=', 0)
                         ->orWhereNull('customers.deleted');
@@ -823,10 +823,12 @@ class BillingController extends Controller
                     DB::raw('DATE_FORMAT(receipt_records.receipt_date,"%Y-%m-%d") as receipt_date'),
                     'receipt_records.collected_person as collected_person',
                     'receipt_records.collected_amount as collected_amount',
-                    'receipt_records.collected_amount as collected_amount',
                     'receipt_records.remark as remark',
-                    'receipt_records.payment_channel as payment_channel'
+                    'receipt_records.payment_channel as payment_channel',
+                    DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date')
                 )
+                ->groupBy('invoices.id')
+                ->orderBy('invoices.id')
                 ->paginate(10);
             //DATE_FORMAT(date_and_time, '%Y-%m-%dT%H:%i') AS 
             $invoices_customers = DB::table('customers')->join('invoices', 'invoices.customer_id', '=', 'customers.id')
@@ -835,12 +837,14 @@ class BillingController extends Controller
             $prepaid_customers = DB::table('customers')
                 ->join('packages', 'packages.id', '=', 'customers.package_id')
                 ->join('status', 'status.id', '=', 'customers.status_id')
+                ->leftjoin('receipt_records as rr','customers.id','=','rr.customer_id')
                 ->whereNotIn('customers.id', $invoices_customers)
                 ->where(function ($query) {
                     return $query->where('customers.deleted', '=', 0)
                         ->orwherenull('customers.deleted');
                 })
-                ->select('customers.*', 'packages.name as package_name', 'packages.speed as package_speed', 'packages.type as package_type', 'packages.price as package_price', 'status.name as customer_status')
+                ->select('customers.*', 'packages.name as package_name', 'packages.speed as package_speed', 'packages.type as package_type', 'packages.price as package_price', 'status.name as customer_status',DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date'))
+                ->groupBy('customers.id')
                 ->get();
             $current_bill = DB::table('bills')->where('id', '=', $request->bill_id)->first();
 

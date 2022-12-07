@@ -41,6 +41,7 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
                     ->orWhereNull('customers.deleted');
                 })
                 ->where('invoices.bill_id', '=', $request->id)
+                ->groupBy('invoices.id')
                 ->select('invoices.*','receipt_records.receipt_number as receipt_number','receipt_records.collected_amount','receipt_records.payment_channel','receipt_records.collected_person','receipt_records.receipt_date','receipt_records.status');
   
         return $billings;

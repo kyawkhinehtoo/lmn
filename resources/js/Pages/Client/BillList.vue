@@ -77,11 +77,12 @@
                   Usage</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total Payable</th>
-
+                  <!--
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Deliver SMS</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   SMS Sent Date</th>
+                  -->
                 <!-- <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th> -->
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt</th>
@@ -101,6 +102,7 @@
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.qty }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.usage_days }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.total_payable }}</td>
+                 <!--
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.total_payable > 0">
                     <span v-if="row.status">{{ row.status }}</span><span v-else><button type="button"
@@ -109,6 +111,7 @@
                   </span>
                 </td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.sent_date ? row.sent_date : "None" }}</td>
+                  -->
                 <!-- <td class="px-2 py-3 text-xs whitespace-nowrap"><a :href="`/pdfpreview2/${row.id}`" target="_blank"><i class="fa fas fa-eye text-gray-400"></i></a></td> -->
 
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
@@ -377,6 +380,12 @@
             </div>
             <div class="md:grid md:grid-cols-3 md:gap-6">
               <div class="mb-4 md:col-span-1">
+                <label for="last_receipt_date" class="block text-gray-700 text-sm font-bold mb-2">Last Bill Received Date :</label>
+                <input type="date"
+                  class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  id="last_receipt_date" v-model="form_2.last_receipt_date" disabled />
+                <div v-if="$page.props.errors.last_receipt_date" class="text-red-500">{{ $page.props.errors.last_receipt_date }}
+                </div>
                 <label for="date_issued" class="block text-gray-700 text-sm font-bold mb-2">Bill Issue Date :</label>
                 <input type="date"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -415,31 +424,34 @@
               <div class="mb-4 md:col-span-1">
                 <label for="service_description" class="block text-gray-700 text-sm font-bold mb-2">Service Description
                   :</label>
-                <input type="text"
-                  class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  id="service_description" placeholder="Enter Service Description"
-                  v-model="form_2.service_description" />
-                <div v-if="$page.props.errors.service_description" class="text-red-500">{{
-                $page.props.errors.service_description }}</div>
-
-                <label for="qty" class="mt-4 block text-gray-700 text-sm font-bold mb-2">QTY :</label>
-                <input type="text"
-                  class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  id="qty" placeholder="Enter QTY" v-model="form_2.qty" />
-                <div v-if="$page.props.errors.qty" class="text-red-500">{{ $page.props.errors.qty }}</div>
+                <multiselect deselect-label="Selected already" :options="packages" track-by="id"
+                  label="item_data" v-model="form_2.package" :allow-empty="false" @select="updatePackage" />
 
                 <label for="normal_cost" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Original Package Price
                   :</label>
+
+
+
                 <input type="number"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  id="normal_cost" v-model="form_2.normal_cost" />
+                  id="normal_cost" v-model="form_2.normal_cost" disabled />
+                  
+                  
                 <div v-if="$page.props.errors.normal_cost" class="text-red-500">{{ $page.props.errors.normal_cost }}
                 </div>
+               
+                <label for="qty" class="mt-4 block text-gray-700 text-sm font-bold mb-2">QTY :</label>
+                <input type="text"
+                  class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  id="qty" placeholder="Enter QTY" v-model="form_2.qty" disabled />
+                <div v-if="$page.props.errors.qty" class="text-red-500">{{ $page.props.errors.qty }}</div>
+
+                
 
                 <label for="type" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Type :</label>
                 <input type="text"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  id="type" placeholder="Enter Type" v-model="form_2.type" />
+                  id="type" placeholder="Enter Type (MRC/Prepaid)" v-model="form_2.type" />
                 <div v-if="$page.props.errors.type" class="text-red-500">{{ $page.props.errors.type }}</div>
 
                 <label for="usage_days" class="mt-4 block text-gray-700 text-sm font-bold mb-2" v-if="editMode">Actual
@@ -727,6 +739,8 @@ export default {
       usage_mo: null,
       usage_d: null,
       customer_status: null,
+      package: null,
+      last_receipt_date : null,
     });
     function edit_invoice(data) {
       form_2.id = data.id;
@@ -756,6 +770,8 @@ export default {
       form_2.phone = data.phone;
       form_2.reset_receipt = data.reset_receipt;
       form_2.receipt_id = data.receipt_id;
+      form_2.last_receipt_date = data.rr_date;
+      form_2.package =  props.packages.filter((d) => d.name == data.service_description)[0];
 
       var result = form_2.usage_days.indexOf(' and ');
       if (result !== -1) {
@@ -791,6 +807,7 @@ export default {
       //form_2.period_covered = data.period_covered;
       //form_2.bill_number = data.bill_number;
       //form_2.ftth_id = data.ftth_id;
+      form_2.last_receipt_date = option.rr_date;
       form_2.customer_status = option.customer_status;
       form_2.date_issued = new Date('Y-m-d');
       form_2.bill_to = option.name;
@@ -799,6 +816,7 @@ export default {
       form_2.current_charge = option.package_price * option.prepaid_period;
       form_2.compensation = 0;
       form_2.otc = 0;
+      form_2.package =  props.packages.filter((d) => d.name == option.package_name)[0];
       //form_2.sub_total = data.sub_total;
       //form_2.payment_duedate = data.payment_duedate;
       form_2.service_description = option.package_name;
@@ -814,6 +832,13 @@ export default {
       if (form_2.phone != option.phone_2)
         form_2.phone += (option.phone_2) ? ',' + option.phone_2 : '';
       form2_calc();
+    }
+    function updatePackage(option, id) {
+      console.log('print out the normal cost');
+      form_2.service_description = option.name;
+      form_2.qty = option.speed + ' Mbps';
+      form_2.normal_cost = option.price;
+      updateUsage();
     }
     function updateUsage() {
       var dt = new Date();
@@ -1184,7 +1209,7 @@ export default {
     }
     onMounted(() => {
       props.packages.map(function (x) {
-        return (x.item_data = `${x.speed}Mbps - ${x.name} - ${x.contract_period} Months`);
+        return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
       invoiceEdit.value = checkEdit();
       cal_percent();
@@ -1197,7 +1222,7 @@ export default {
     });
     onUpdated(() => {
       props.packages.map(function (x) {
-        return (x.item_data = `${x.speed}Mbps - ${x.name} - ${x.contract_period} Months`);
+        return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
       invoiceEdit.value = checkEdit();
       cal_percent();
@@ -1210,7 +1235,7 @@ export default {
         parameter.value = parm;
       }
     });
-    return { form, form_2, formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage,disable_submit };
+    return { form, form_2, formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage,disable_submit,updatePackage };
   },
 };
 </script>

@@ -36,58 +36,20 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
 
            
             $billings = Invoice::query()
-                ->join('customers', 'customers.id', '=', 'invoices.customer_id')
-                ->join('packages', 'customers.package_id', '=', 'packages.id')
-                ->join('townships', 'customers.township_id', '=', 'townships.id')
-                ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
-                ->join('status', 'customers.status_id', '=', 'status.id')
-                ->where(function($query){
-                    return $query->where('customers.deleted', '=', 0)
+            ->join('customers', 'customers.id', '=', 'invoices.customer_id')
+            ->join('packages', 'customers.package_id', '=', 'packages.id')
+            ->join('townships', 'customers.township_id', '=', 'townships.id')
+            ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
+            ->join('status', 'customers.status_id', '=', 'status.id')
+            ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
+            ->leftjoin('receipt_records as rr','customers.id','=','rr.customer_id')
+            ->where(function ($query) {
+                return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
-                })
-                ->where('bill_id', '=', $request->id)
-                ->when($request->keyword, function ($query, $search = null) {
-                    $query->where('customers.name', 'LIKE', '%' . $search . '%')
-                        ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
-                        ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
-                        ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
-                })->when($request->general, function ($query, $general) {
-                    $query->where(function ($query) use ($general) {
-                        $query->where('customers.name', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                            ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
-                    });
-                })
-                ->when($request->installation, function ($query, $installation) {
-                    $query->whereBetween('customers.installation_date', [$installation['from'], $installation['to']]);
-                })
-                ->when($request->package, function ($query, $package) {
-                    $query->where('customers.package_id', '=', $package);
-                })
-                ->when($request->township, function ($query, $township) {
-                    $query->where('customers.township_id', '=', $township);
-                })
-                ->when($request->status, function ($query, $status) {
-                    $query->where('customers.status_id', '=', $status);
-                })
-                ->when($request->order, function ($query, $order) {
-                    $query->whereBetween('customers.order_date', $order);
-                })
-                ->when($request->installation, function ($query, $installation) {
-                    $query->whereBetween('customers.installation_date', $installation);
-                })
-                ->when($request->sort, function ($query, $sort = null) {
-                    $sort_by = 'invoices.id';
-                    if ($sort == 'cid') {
-                        $sort_by = 'invoices.id';
-                    }
-
-                    $query->orderBy($sort_by, 'asc');
-                }, function ($query) {
-                    $query->orderBy('invoices.id', 'asc');
-                })
-                ->select('invoices.*');
+            })
+            ->where('invoices.bill_id', '=', $request->bill_id)
+            ->select('invoices.*',DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date'))
+            ->groupBy('invoices.id');
         return $billings;
     
     }
@@ -117,6 +79,7 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
             'Commercial_tax',
             'Email',
             'Phone',
+            'Last Bill Received Date'
         ];
     }
 
@@ -147,6 +110,7 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
             $billings->commercial_tax,
             $billings->email,
             $billings->phone,
+            $billings->rr_date,
            
             
          ];
