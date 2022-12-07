@@ -77,6 +77,8 @@ class DailyReceiptController extends Controller
                                 ->when($request->date, function ($query, $date) {
                                      if($date['startDate'] && $date['endDate'])
                                     $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
+
+                                    return $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');
                                 })
                                 ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date')
                                 ->paginate(10);

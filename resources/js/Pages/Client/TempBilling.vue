@@ -287,7 +287,7 @@ export default {
     let isOpen = ref(false);
     let editMode = ref(false);
     let openBillName = ref(false);
-
+    let parameter = ref("");
     provide("packages", props.packages);
     provide("townships", props.townships);
     provide("status", props.status);
@@ -298,6 +298,7 @@ export default {
       Inertia.get("/tempBilling", { keyword: search.value }, { preserveState: true });
     };
     const goSearch = (parm) => {
+      parameter.value = parm;
       let url = "/tempBilling";
       Inertia.get(url, parm, { preserveState: true });
     };
@@ -422,7 +423,20 @@ export default {
       closeModal();
       resetForm();
     }
-
+    function doExcel() {
+      axios.post("/exportTempBillingExcel", parameter.value).then((response) => {
+        console.log(response);
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        let blob = new Blob([response.data], { type: "text/csv" }),
+          url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = "temp_billings.csv";
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+    }
     function calc() {
       form.sub_total = parseInt(form.previous_balance) + parseInt(form.current_charge) + parseInt(form.otc) - parseInt(form.compensation);
       form.total_payable = parseInt(form.sub_total) - parseInt(form.discount);
@@ -432,7 +446,7 @@ export default {
         return (x.item_data = `${x.speed}Mbps - ${x.name} - ${x.contract_period} Months`);
       });
     });
-    return {formatter, form, form_1, clearData, submit, deleteRow, isOpen, edit, closeModal, searchTsp, goSearch, toggleAdv, sort, search, show_search, calc, openBillName, saveFinal, goFinal, closeFinal };
+    return {formatter, form, form_1, clearData, submit, deleteRow, isOpen, edit, closeModal, searchTsp, goSearch, toggleAdv, sort, search, show_search, calc, openBillName, saveFinal, goFinal, closeFinal,doExcel };
   },
 };
 </script>
