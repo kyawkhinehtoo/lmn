@@ -20,7 +20,8 @@ class DailyReceiptController extends Controller
                                             ->sum('receipt_records.collected_amount');
         $yesterday_collection = ReceiptRecord::whereDate('receipt_records.created_at',Carbon::yesterday())
                                             ->sum('receipt_records.collected_amount');
-        $receipt_records = ReceiptRecord::join('customers','customers.id','=','receipt_records.customer_id')
+    
+        $select_total = ReceiptRecord::join('customers','customers.id','=','receipt_records.customer_id')
                                 ->join('invoices','invoices.id','=','receipt_records.invoice_id')
                                 ->join('bills','bills.id','=','receipt_records.bill_id')
                                 ->when($request->general, function ($query, $general) {
@@ -37,23 +38,57 @@ class DailyReceiptController extends Controller
                                         array_push($b_list, $value['id']);
                                     }
                                    // dd($b_list);
+                                   
+                                    $query->whereIn('bills.id',  $b_list );
+                                })
+                                // ->when($request->date, function ($query, $date) {
+                                //     $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
+                                // },function($query){
+                                //     $query->whereDate('receipt_records.created_at',Carbon::today());
+                                // })
+                                ->when($request->date, function ($query, $date) {
+                                    if($date['startDate'] && $date['endDate'])
+                                    $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
+                                })
+                                ->sum('receipt_records.collected_amount');
+                               
+        $receipt_records = ReceiptRecord::join('customers','customers.id','=','receipt_records.customer_id')
+                                ->join('invoices','invoices.id','=','receipt_records.invoice_id')
+                                ->join('bills','bills.id','=','receipt_records.bill_id')
+                                ->when($request->general, function ($query, $general) {
+                                    $query->where(function ($query) use ($general) {
+                                        $query->where('customers.name','LIKE', '%'.$general.'%')
+                                        ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
+                                        ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
+                                        ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%')
+                                        ->orWhere('invoices.invoice_number', 'LIKE', '%' . $general . '%')
+                                        ->orWhere('receipt_records.receipt_number', 'LIKE', '%' . $general . '%');
+                                            });
+                                    })
+                              
+                                ->when($request->bill_id, function ($query, $bills) {
+                                    $b_list = array();
+                                    foreach ($bills as $value) {
+                                        array_push($b_list, $value['id']);
+                                    }
+                                   // dd($b_list);
                                     $query->whereIn('bills.id',  $b_list );
                                 })
                                 ->when($request->date, function ($query, $date) {
+                                     if($date['startDate'] && $date['endDate'])
                                     $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
-                                },function($query){
-                                    $query->whereDate('receipt_records.created_at',Carbon::today());
                                 })
                                 ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date')
                                 ->paginate(10);
-        
+      
                                 $receipt_records->appends($request->all())->links();
         return Inertia::render("Client/DailyReceipt",
                 [
                     'today_collection' => $today_collection,
                     'yesterday_collection' => $yesterday_collection,
                     'receipt_records'=>$receipt_records,
-                    'bill_list'=>$bill_list
+                    'bill_list'=>$bill_list,
+                    'select_total'=>$select_total
                 
                 ]);
     }

@@ -10,7 +10,7 @@
 
         <!-- Advance Search -->
         <div class="bg-white shadow sm:rounded-t-lg flex justify-between space-x-2 items-end py-2 px-2 md:px-2">
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-2 w-full">
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-2 w-full">
              
          
             <div class="col-span-1 sm:col-span-1">
@@ -55,7 +55,15 @@
             <div class="col-span-1 sm:col-span-1">
               <div class="py-2">
                   <label  class="block text-sm font-medium text-gray-700">Today Collection </label>
-                    <div class="mt-4 flex ">{{today_collection.toLocaleString('en-US')}}</div>
+                    <div class="mt-4 flex ">{{today_collection.toLocaleString('en-US')}}
+                    
+                    </div>
+              </div>
+            </div>
+            <div class="col-span-1 sm:col-span-1">
+              <div class="py-2">
+                  <label  class="block text-sm font-medium text-gray-700">Total Search Result </label>
+                    <div class="mt-4 flex ">{{select_total.toLocaleString('en-US')}}</div>
               </div>
             </div>
           </div>
@@ -137,6 +145,7 @@ export default {
     bill_list: Object,
     yesterday_collection: Object,
     today_collection: Object,
+    select_total: Object,
     errors: Object,
   },
   setup(props) {
