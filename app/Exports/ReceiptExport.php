@@ -60,7 +60,12 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
                         return $query->whereBetween('receipt_records.created_at', [$date['startDate'].' 00:00:00', $date['endDate'].' 23:00:00']);
                     }
                 }
-             //   return $query->whereRaw('Date(receipt_records.created_at)= CURDATE()');
+                $query->whereDate('receipt_records.created_at',Carbon::today());
+                
+              
+            },function($query){
+                
+                 $query->whereDate('receipt_records.created_at',Carbon::today());
             })
             ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','receipt_records.status as receipt_status','receipt_records.payment_channel','invoices.period_covered','invoices.usage_days','invoices.qty','invoices.normal_cost','users.name as user_name');
   
@@ -71,6 +76,8 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
     {
         return [
             'Bill Name',
+            'Bill Start Date',
+            'Bill End Date',
             'Bill For',
             'Invoice Number',
             'Receipt Number',
@@ -91,9 +98,15 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
 
     public function map($receipt_records): array
     {
+        $t_date = null;
+        if (strpos( $receipt_records->period_covered, ' to ') !== false) {
+            $t_date = explode(" to ",  $receipt_records->period_covered);
+        }
 
         return [
             $receipt_records->bill_name,
+            (isset($t_date[0]))?$t_date[0]:'',
+            (isset($t_date[1]))?$t_date[1]:'',
             $receipt_records->year .'-'.$receipt_records->month,
             $receipt_records->bill_number,
             ($receipt_records->receipt_number)?'R'.substr($receipt_records->bill_number,0, 4).'-'.$receipt_records->ftth_id.'-'.str_pad($receipt_records->receipt_number,5,"0", STR_PAD_LEFT):null,
