@@ -42,13 +42,12 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
             ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
             ->join('status', 'customers.status_id', '=', 'status.id')
             ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
-            ->leftjoin('receipt_records as rr','customers.id','=','rr.customer_id')
             ->where(function ($query) {
                 return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
             })
             ->where('invoices.bill_id', '=', $request->bill_id)
-            ->select('invoices.*',DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date'))
+            ->select('invoices.*')
             ->groupBy('invoices.id');
         return $billings;
     
@@ -57,6 +56,8 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
     {
         return [
             'Period Covered',
+            'Bill Start Date',
+            'Bill End Date',
             'Bill Number',
             'Customer Id',
             'Date Issued',
@@ -78,16 +79,21 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
             'Total Payable',
             'Commercial_tax',
             'Email',
-            'Phone',
-            'Last Bill Received Date'
+            'Phone'
+           
         ];
     }
 
     public function map($billings): array
     {
-
+        $t_date = null;
+        if (strpos( $billings->period_covered, ' to ') !== false) {
+            $t_date = explode(" to ",  $billings->period_covered);
+        }
         return [
             $billings->period_covered,
+            $t_date[0],
+            $t_date[1],
             $billings->bill_number,
             $billings->ftth_id,
             $billings->date_issued,
@@ -110,10 +116,8 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
             $billings->commercial_tax,
             $billings->email,
             $billings->phone,
-            $billings->rr_date,
-           
             
-         ];
+      ];
     }
     public function replaceMarkup($id){
         $sms_template = EmailTemplate::where('default','=',1)

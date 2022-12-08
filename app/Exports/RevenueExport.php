@@ -51,6 +51,8 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
     {
         return [
             'Period Covered',
+            'Bill Start Date',
+            'Bill End Date',
             'Bill Number',
             'Customer Id',
             'Date Issued',
@@ -84,8 +86,14 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
     public function map($billings): array
     {
 
+        $t_date = null;
+        if (strpos( $billings->period_covered, ' to ') !== false) {
+            $t_date = explode(" to ",  $billings->period_covered);
+        }
         return [
             $billings->period_covered,
+            $t_date[0],
+            $t_date[1],
             $billings->bill_number,
             $billings->ftth_id,
             $billings->date_issued,
@@ -112,7 +120,7 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
             $billings->payment_channel,
             ($billings->collected_person)?$this->collectedPerson($billings->collected_person):null,
             $billings->receipt_date,
-            $billings->status,
+            $billings->status
         ];
     }
     public function collectedPerson($id){

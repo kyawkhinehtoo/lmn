@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DateTime;
 
 class ReceiptRecord extends Model
 {
@@ -68,11 +69,12 @@ class ReceiptRecord extends Model
    // Relations ...
    public function getCreatedAtAttribute($date)
     {
-        return Carbon::parse($date)->format('d-M-Y H:i:s');
+        return  date('d-M-Y H:i:s', strtotime($date));
     }
     public function getReceiptDateAttribute($date)
     {
-        return Carbon::parse($date)->format('d-M-Y H:i:s');
+      return  date('d-M-Y H:i:s', strtotime($date));
+       
     }   
  
 }

@@ -730,7 +730,6 @@ class BillingController extends Controller
                 ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
                 ->join('status', 'customers.status_id', '=', 'status.id')
                 ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
-                ->leftjoin('receipt_records as rr','customers.id','=','rr.customer_id')
                 ->where(function ($query) {
                     return $query->where('customers.deleted', '=', 0)
                         ->orWhereNull('customers.deleted');
@@ -824,10 +823,8 @@ class BillingController extends Controller
                     'receipt_records.collected_person as collected_person',
                     'receipt_records.collected_amount as collected_amount',
                     'receipt_records.remark as remark',
-                    'receipt_records.payment_channel as payment_channel',
-                    DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date')
+                    'receipt_records.payment_channel as payment_channel'
                 )
-                ->groupBy('invoices.id')
                 ->orderBy('invoices.id')
                 ->paginate(10);
             //DATE_FORMAT(date_and_time, '%Y-%m-%dT%H:%i') AS 

@@ -380,12 +380,7 @@
             </div>
             <div class="md:grid md:grid-cols-3 md:gap-6">
               <div class="mb-4 md:col-span-1">
-                <label for="last_receipt_date" class="block text-gray-700 text-sm font-bold mb-2">Last Bill Received Date :</label>
-                <input type="date"
-                  class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  id="last_receipt_date" v-model="form_2.last_receipt_date" disabled />
-                <div v-if="$page.props.errors.last_receipt_date" class="text-red-500">{{ $page.props.errors.last_receipt_date }}
-                </div>
+                
                 <label for="date_issued" class="block text-gray-700 text-sm font-bold mb-2">Bill Issue Date :</label>
                 <input type="date"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -486,7 +481,7 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="phone" placeholder="Enter Phone Number" v-model="form_2.phone" />
                 <div v-if="$page.props.errors.phone" class="text-red-500">{{ $page.props.errors.phone }}</div>
-                <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md" v-if="editMode">
+                <!-- <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md" v-if="editMode">
                   <legend class="text-gray-700 text-sm font-bold">Meta Data </legend>
 
                   <div class="max-w-sm text-sm flex">
@@ -504,7 +499,7 @@
                     </label>
                   
                   </div>
-                </fieldset>
+                </fieldset> -->
               </div>
 
               <div class="mb-4 md:col-span-2">
@@ -770,7 +765,6 @@ export default {
       form_2.phone = data.phone;
       form_2.reset_receipt = data.reset_receipt;
       form_2.receipt_id = data.receipt_id;
-      form_2.last_receipt_date = data.rr_date;
       form_2.package =  props.packages.filter((d) => d.name == data.service_description)[0];
 
       var result = form_2.usage_days.indexOf(' and ');
@@ -807,7 +801,6 @@ export default {
       //form_2.period_covered = data.period_covered;
       //form_2.bill_number = data.bill_number;
       //form_2.ftth_id = data.ftth_id;
-      form_2.last_receipt_date = option.rr_date;
       form_2.customer_status = option.customer_status;
       form_2.date_issued = new Date('Y-m-d');
       form_2.bill_to = option.name;
