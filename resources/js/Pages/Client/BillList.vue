@@ -36,9 +36,13 @@
         <div class="px-3 py-1 items-center bg-white rounded-md mb-2 shadow-sm flex justify-between w-full ">
           <div class="flex pt-1 w-full">
             <div class="relative w-full">
-              <label class="text-xs">{{paid_percent}}% Percentage of {{ (paid)?new Intl.NumberFormat('en-US', {
-              maximumSignificantDigits: 8 }).format(paid):0 }} BAHT in {{ new Intl.NumberFormat('en-US', {
-                maximumSignificantDigits: 8 }).format(receivable) }} BAHT</label>
+              <label class="text-xs">{{ paid_percent }}% Percentage of {{ (paid) ? new Intl.NumberFormat('en-US', {
+                  maximumSignificantDigits: 8
+                }).format(paid) : 0
+              }} BAHT in {{ new Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: 8
+  }).format(receivable)
+}} BAHT</label>
               <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-lightBlue-200">
                 <div :style="`width: ${paid_percent}%`"
                   class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-lightBlue-500 ">
@@ -77,7 +81,7 @@
                   Usage</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total Payable</th>
-                  <!--
+                <!--
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Deliver SMS</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -89,7 +93,8 @@
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt Status</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <i class="fa fa-print"></i> Print </th>
+                  <i class="fa fa-print"></i> Print
+                </th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only" v-if="invoiceEdit">Action</span></th>
               </tr>
             </thead>
@@ -102,7 +107,7 @@
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.qty }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.usage_days }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.total_payable }}</td>
-                 <!--
+                <!--
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.total_payable > 0">
                     <span v-if="row.status">{{ row.status }}</span><span v-else><button type="button"
@@ -123,7 +128,8 @@
                     Receipt</button>
                 </td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap capitalize">{{
-                (row.receipt_status)?row.receipt_status.replace('_', ' '):''}}</td>
+                    (row.receipt_status) ? row.receipt_status.replace('_', ' ') : ''
+                }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.receipt_status">
                     <a :href="`/pdfpreview2/${row.receipt_id}`" target="_blank"><i
@@ -171,9 +177,11 @@
           <form @submit.prevent="submit">
             <div class="shadow overflow-hidden border-b border-gray-200 p-4">
               <p v-show="$page.props.errors.receipt_date" class="mt-2 text-sm text-red-500 block">{{
-              $page.props.errors.receipt_date }}</p>
+                  $page.props.errors.receipt_date
+              }}</p>
               <p v-show="$page.props.errors.collected_amount" class="mt-2 text-sm text-red-500 block">{{
-              $page.props.errors.collected_amount }}</p>
+                  $page.props.errors.collected_amount
+              }}</p>
               <div class="grid grid-cols-1 md:grid-cols-4 w-full">
 
                 <div class="col-span-2 sm:col-span-2 border-2 border-marga bg-marga">
@@ -218,7 +226,8 @@
                 </div>
                 <div class="py-4 col-span-3 sm:col-span-3 border-2 border-marga text-center flex flex-col">
                   <span class="font-semibold text-md">Amount In Word:</span> <span class="text-sm"> {{
-                  form.amount_in_word }}</span>
+                      form.amount_in_word
+                  }}</span>
                 </div>
               </div>
 
@@ -273,7 +282,7 @@
                   <label class="block mt-2">Received By:</label>
                 </div>
                 <div class="col-span-3 sm:col-span-3 border-b-2 border-marga">
-                  <multiselect :class="border-0" deselect-label="Selected already" :options="users" track-by="id"
+                  <multiselect :class="border - 0" deselect-label="Selected already" :options="users" track-by="id"
                     label="name" v-model="form.user" :allow-empty="false"></multiselect>
 
                 </div>
@@ -305,7 +314,7 @@
               <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
                 <button @click="saveReceipt" type="button"
                   class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition"
-                  v-if="!form.receipt_status ">GO !</button>
+                  v-if="!form.receipt_status">GO !</button>
               </span>
               <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
                 <button @click="closeModal" type="button"
@@ -355,7 +364,8 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="customer_status" v-model="form_2.customer_status" />
                 <div v-if="$page.props.errors.customer_status" class="text-red-500">{{
-                $page.props.errors.customer_status }}</div>
+                    $page.props.errors.customer_status
+                }}</div>
               </div>
               <div class="mb-4 md:col-span-1">
                 <label for="period_covered" class="block text-gray-700 text-sm font-bold mb-2">Period Covered :</label>
@@ -380,7 +390,7 @@
             </div>
             <div class="md:grid md:grid-cols-3 md:gap-6">
               <div class="mb-4 md:col-span-1">
-                
+
                 <label for="date_issued" class="block text-gray-700 text-sm font-bold mb-2">Bill Issue Date :</label>
                 <input type="date"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -394,7 +404,16 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="payment_duedate" placeholder="Enter Payment Due Date" v-model="form_2.payment_duedate" />
                 <div v-if="$page.props.errors.payment_duedate" class="text-red-500">{{
-                $page.props.errors.payment_duedate }}</div>
+                    $page.props.errors.payment_duedate
+                }}</div>
+                <label for="end_date" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Last End Date
+                  :</label>
+                <input type="date"
+                  class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  id="end_date" placeholder="Last End Date" v-model="form_2.end_date" disabled />
+                <div v-if="$page.props.errors.end_date" class="text-red-500">{{
+                    $page.props.errors.end_date
+                }}</div>
               </div>
 
               <div class="mb-4 md:col-span-2">
@@ -406,7 +425,7 @@
                 <label for="attn" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Attention :</label>
                 <textarea
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  id="attn" placeholder="Enter Attention" v-model="form_2.attn"></textarea>
+                  id="attn" placeholder="Enter Attention" v-model="form_2.attn" rows="5"></textarea>
                 <div v-if="$page.props.errors.attn" class="text-red-500">{{ $page.props.errors.attn }}</div>
               </div>
             </div>
@@ -419,8 +438,8 @@
               <div class="mb-4 md:col-span-1">
                 <label for="service_description" class="block text-gray-700 text-sm font-bold mb-2">Service Description
                   :</label>
-                <multiselect deselect-label="Selected already" :options="packages" track-by="id"
-                  label="item_data" v-model="form_2.package" :allow-empty="false" @select="updatePackage" />
+                <multiselect deselect-label="Selected already" :options="packages" track-by="id" label="item_data"
+                  v-model="form_2.package" :allow-empty="false" @select="updatePackage" />
 
                 <label for="normal_cost" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Original Package Price
                   :</label>
@@ -430,18 +449,18 @@
                 <input type="number"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="normal_cost" v-model="form_2.normal_cost" disabled />
-                  
-                  
+
+
                 <div v-if="$page.props.errors.normal_cost" class="text-red-500">{{ $page.props.errors.normal_cost }}
                 </div>
-               
+
                 <label for="qty" class="mt-4 block text-gray-700 text-sm font-bold mb-2">QTY :</label>
                 <input type="text"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="qty" placeholder="Enter QTY" v-model="form_2.qty" disabled />
                 <div v-if="$page.props.errors.qty" class="text-red-500">{{ $page.props.errors.qty }}</div>
 
-                
+
 
                 <label for="type" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Type :</label>
                 <input type="text"
@@ -450,9 +469,9 @@
                 <div v-if="$page.props.errors.type" class="text-red-500">{{ $page.props.errors.type }}</div>
 
                 <label for="usage_days" class="mt-4 block text-gray-700 text-sm font-bold mb-2" v-if="editMode">Actual
-                  Usage (Days - Month) : {{form_2.usage_days}}</label>
+                  Usage (Days - Month) : {{ form_2.usage_days }}</label>
                 <label for="usage_days" class="mt-4 block text-gray-700 text-sm font-bold mb-2" v-else>Usage (Days -
-                  Month) : {{form_2.usage_days}}</label>
+                  Month) : {{ form_2.usage_days }}</label>
                 <div class="flex justify-between ">
                   <input type="number"
                     class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
@@ -510,7 +529,8 @@
                   id="previous_balance" placeholder="Enter Previous Balance" v-model="form_2.previous_balance"
                   @change="form2_calc" />
                 <div v-if="$page.props.errors.previous_balance" class="text-red-500">{{
-                $page.props.errors.previous_balance }}</div>
+                    $page.props.errors.previous_balance
+                }}</div>
 
                 <label for="current_charge" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Current Charge
                   :</label>
@@ -625,6 +645,7 @@ export default {
     receivable: Object,
     paid: Object,
     current_bill: Object,
+    last_invoices: Object,
   },
   setup(props) {
     provide("packages", props.packages);
@@ -735,7 +756,7 @@ export default {
       usage_d: null,
       customer_status: null,
       package: null,
-      last_receipt_date : null,
+      end_date: null,
     });
     function edit_invoice(data) {
       form_2.id = data.id;
@@ -765,8 +786,8 @@ export default {
       form_2.phone = data.phone;
       form_2.reset_receipt = data.reset_receipt;
       form_2.receipt_id = data.receipt_id;
-      form_2.package =  props.packages.filter((d) => d.name == data.service_description)[0];
-
+      form_2.package = props.packages.filter((d) => d.name == data.service_description)[0];
+      form_2.end_date = data.end_date;
       var result = form_2.usage_days.indexOf(' and ');
       if (result !== -1) {
         var usage = form_2.usage_days.split(' and ');
@@ -809,7 +830,7 @@ export default {
       form_2.current_charge = option.package_price * option.prepaid_period;
       form_2.compensation = 0;
       form_2.otc = 0;
-      form_2.package =  props.packages.filter((d) => d.name == option.package_name)[0];
+      form_2.package = props.packages.filter((d) => d.name == option.package_name)[0];
       //form_2.sub_total = data.sub_total;
       //form_2.payment_duedate = data.payment_duedate;
       form_2.service_description = option.package_name;
@@ -821,6 +842,7 @@ export default {
       form_2.type = "Prepaid";
       form_2.discount = 0;
       form_2.email = option.email;
+      form_2.end_date = option.end_date;
       form_2.phone = (option.phone_1) ? option.phone_1 : '';
       if (form_2.phone != option.phone_2)
         form_2.phone += (option.phone_2) ? ',' + option.phone_2 : '';
@@ -1204,6 +1226,35 @@ export default {
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
+      props.billings.data.map(function (x) {
+        let end_date = null;
+        let last_invoice;
+        last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+       // if (last_invoice.period_covered) {
+        if (typeof last_invoice == 'object' ) {
+          console.log(last_invoice);
+          if (last_invoice.period_covered.indexOf(' to ') !== false) {
+            let t_date = last_invoice.period_covered.split(" to ");
+            end_date = t_date[1];
+          }
+        }
+        return x.end_date = end_date;
+      });
+      props.prepaid_customers.map(function (x) {
+        let end_date = null;
+        let last_invoice;
+         last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+         if (typeof last_invoice == 'object' ) {
+          console.log(last_invoice);
+          if (last_invoice.period_covered.indexOf(' to ') !== false) {
+            let t_date = last_invoice.period_covered.split(" to ");
+            end_date = t_date[1];
+          }
+        }
+        return x.end_date = end_date;
+      });
+      
+
       invoiceEdit.value = checkEdit();
       cal_percent();
       let bill_id = (props.current_bill) ? props.current_bill['id'] : null;
@@ -1217,6 +1268,34 @@ export default {
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
+      props.billings.data.map(function (x) {
+        let end_date = null;
+        let last_invoice;
+        last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+       // if (last_invoice.period_covered) {
+        if (typeof last_invoice == 'object' ) {
+          console.log(last_invoice);
+          if (last_invoice.period_covered.indexOf(' to ') !== false) {
+            let t_date = last_invoice.period_covered.split(" to ");
+            end_date = t_date[1];
+          }
+        }
+        return x.end_date = end_date;
+      });
+      props.prepaid_customers.map(function (x) {
+        let end_date = null;
+        let last_invoice;
+         last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+         if (typeof last_invoice == 'object' ) {
+          console.log(last_invoice);
+          if (last_invoice.period_covered.indexOf(' to ') !== false) {
+            let t_date = last_invoice.period_covered.split(" to ");
+            end_date = t_date[1];
+          }
+        }
+        return x.end_date = end_date;
+      });
+
       invoiceEdit.value = checkEdit();
       cal_percent();
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
@@ -1228,7 +1307,7 @@ export default {
         parameter.value = parm;
       }
     });
-    return { form, form_2, formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage,disable_submit,updatePackage };
+    return { form, form_2, formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage, disable_submit, updatePackage };
   },
 };
 </script>

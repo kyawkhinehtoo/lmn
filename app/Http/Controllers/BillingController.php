@@ -723,7 +723,17 @@ class BillingController extends Controller
                 ->select('invoice_id')
                 ->get()
                 ->toArray();
-
+            $last_receipt = ReceiptRecord::join('invoices','receipt_records.invoice_id','=','invoices.id')
+                            ->groupBy('invoices.customer_id') 
+                            ->select(DB::raw('max(receipt_records.id) as id'))
+                            ->get()
+                            ->toArray();
+            $last_invoices = Invoice::join('receipt_records','receipt_records.invoice_id','=','invoices.id')
+                            ->whereIn('receipt_records.id',$last_receipt)
+                            ->select('invoices.id','invoices.customer_id','invoices.period_covered')
+                            ->get();
+            //select i.period_covered, i.ftth_id from invoices i join receipt_records rr on i.id = rr.invoice_id where rr.id in (select max(rr.id) as received_id from invoices i left join receipt_records rr on i.id = rr.invoice_id group by i.customer_id) and i.ftth_id = 'ggh0102';
+            
             $billings =  DB::table('invoices')->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->join('packages', 'customers.package_id', '=', 'packages.id')
                 ->join('townships', 'customers.township_id', '=', 'townships.id')
@@ -861,6 +871,7 @@ class BillingController extends Controller
                 'receivable' => $receivable,
                 'paid' => $paid,
                 'current_bill' => $current_bill,
+                'last_invoices' => $last_invoices,
             ]);
         } else {
 

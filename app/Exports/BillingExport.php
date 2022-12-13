@@ -11,6 +11,7 @@ use App\Models\Status;
 use App\Models\Bills;
 use App\Models\Invoice;
 use App\Models\EmailTemplate;
+use App\Models\ReceiptRecord;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -79,21 +80,41 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
             'Total Payable',
             'Commercial_tax',
             'Email',
-            'Phone'
+            'Phone',
+            'Last Bill End Date'
            
         ];
     }
 
     public function map($billings): array
     {
-        $t_date = null;
+        $t_date = 'NA';
         if (strpos( $billings->period_covered, ' to ') !== false) {
             $t_date = explode(" to ",  $billings->period_covered);
         }
+        $last_receipt = ReceiptRecord::join('invoices','receipt_records.invoice_id','=','invoices.id')
+                            ->groupBy('invoices.customer_id') 
+                            ->select(DB::raw('max(receipt_records.id) as id'))
+                            ->where('invoices.customer_id','=',$billings->customer_id)
+                            ->get()
+                            ->toArray();
+            $last_invoices = Invoice::join('receipt_records','receipt_records.invoice_id','=','invoices.id')
+                            ->whereIn('receipt_records.id',$last_receipt)
+                            ->select('invoices.id','invoices.customer_id','invoices.period_covered')
+                            ->first();
+
+           // dd($last_invoices->period_covered);
+           $last_bill = 'NA';
+           if(isset($last_invoices->period_covered)){
+                if (strpos( $last_invoices->period_covered, ' to ') !== false) {
+                $last_bill = explode(" to ",  $last_invoices->period_covered);
+                }  
+           }
+                  
         return [
             $billings->period_covered,
-            $t_date[0],
-            $t_date[1],
+            (isset($t_date[0]))?$t_date[0]:$t_date,
+            (isset($t_date[1]))?$t_date[1]:$t_date,
             $billings->bill_number,
             $billings->ftth_id,
             $billings->date_issued,
@@ -116,6 +137,7 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
             $billings->commercial_tax,
             $billings->email,
             $billings->phone,
+            ($last_bill[0]!='N')?$last_bill[1]:$last_bill,
             
       ];
     }
