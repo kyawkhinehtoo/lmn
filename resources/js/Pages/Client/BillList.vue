@@ -1226,6 +1226,8 @@ export default {
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
+
+      if (typeof   props.billings == 'object' ) {
       props.billings.data.map(function (x) {
         let end_date = null;
         let last_invoice;
@@ -1240,6 +1242,8 @@ export default {
         }
         return x.end_date = end_date;
       });
+    }
+    if (typeof   props.prepaid_customers == 'object' ) {
       props.prepaid_customers.map(function (x) {
         let end_date = null;
         let last_invoice;
@@ -1254,7 +1258,7 @@ export default {
         return x.end_date = end_date;
       });
       
-
+    }
       invoiceEdit.value = checkEdit();
       cal_percent();
       let bill_id = (props.current_bill) ? props.current_bill['id'] : null;
@@ -1268,6 +1272,7 @@ export default {
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
+ if (typeof   props.billings == 'object' ) {
       props.billings.data.map(function (x) {
         let end_date = null;
         let last_invoice;
@@ -1282,6 +1287,8 @@ export default {
         }
         return x.end_date = end_date;
       });
+    }
+    if (typeof   props.prepaid_customers == 'object' ) {
       props.prepaid_customers.map(function (x) {
         let end_date = null;
         let last_invoice;
@@ -1295,7 +1302,7 @@ export default {
         }
         return x.end_date = end_date;
       });
-
+    }
       invoiceEdit.value = checkEdit();
       cal_percent();
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
