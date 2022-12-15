@@ -850,7 +850,7 @@ class BillingController extends Controller
                     return $query->where('customers.deleted', '=', 0)
                         ->orwherenull('customers.deleted');
                 })
-                ->select('customers.*', 'packages.name as package_name', 'packages.speed as package_speed', 'packages.type as package_type', 'packages.price as package_price', 'status.name as customer_status',DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date'))
+                ->select('customers.*','customers.id as customer_id', 'packages.name as package_name', 'packages.speed as package_speed', 'packages.type as package_type', 'packages.price as package_price', 'status.name as customer_status',DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date'))
                 ->groupBy('customers.id')
                 ->get();
             $current_bill = DB::table('bills')->where('id', '=', $request->bill_id)->first();

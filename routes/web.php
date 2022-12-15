@@ -95,7 +95,8 @@ Route::group(['middleware'=> 'auth'], function(){
 	
 	Route::post('updateTempExcel', 'ExcelController@updateTemp')->name('updateTempExcel');
 	Route::post('importPayment', 'ExcelController@importPayment')->name('importPayment');
-
+	Route::get('updateCustomerView', 'ExcelController@updateCustomerView')->name('updateCustomerView');
+	Route::post('updateCustomer', 'ExcelController@updateCustomer')->name('updateCustomer');
 
 	Route::post('/exportBillingExcel', 'ExcelController@exportBillingExcel')->name('exportBillingExcel');
 	Route::post('/exportTempBillingExcel', 'ExcelController@exportTempBillingExcel')->name('exportTempBillingExcel');

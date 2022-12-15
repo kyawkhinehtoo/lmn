@@ -43,7 +43,10 @@ class ExcelController extends Controller
     {
        return view('excel.townshipupdate');
     }
-   
+    public function updateCustomerView()
+    {
+       return view('excel.customerupdate');
+    }
    
     /**
     * @return \Illuminate\Support\Collection
@@ -113,6 +116,15 @@ class ExcelController extends Controller
         ini_set('max_execution_time', 0);
         Storage::prepend('township_update.log', 'Importing Excel File');
         Excel::import(new TownshipUpdate,$request->import_file);
+
+        Session::put('success', 'Your file is imported successfully in database.');
+           
+        return back();
+    }
+    public function updateCustomer(Request $request) 
+    {
+      //  Storage::prepend('import_log.log', 'Importing Excel File');
+        Excel::import(new CustomersUpdate,$request->import_file);
 
         Session::put('success', 'Your file is imported successfully in database.');
            
