@@ -759,6 +759,18 @@ export default {
       end_date: null,
     });
     function edit_invoice(data) {
+
+      let end_date = null;
+      let last_invoice;
+      last_invoice = props.last_invoices.filter((d) => d.customer_id == data.customer_id)[0];
+      
+        if (typeof last_invoice == 'object' ) {
+          
+          if (last_invoice.period_covered.indexOf(' to ') !== false) {
+            let t_date = last_invoice.period_covered.split(" to ");
+            end_date = t_date[1];
+          }
+      }
       form_2.id = data.id;
       form_2.bill_id = data.bill_id;
       form_2.customer_id = data.customer_id;
@@ -787,7 +799,7 @@ export default {
       form_2.reset_receipt = data.reset_receipt;
       form_2.receipt_id = data.receipt_id;
       form_2.package = props.packages.filter((d) => d.name == data.service_description)[0];
-      form_2.end_date = data.end_date;
+      form_2.end_date = end_date;
       var result = form_2.usage_days.indexOf(' and ');
       if (result !== -1) {
         var usage = form_2.usage_days.split(' and ');
@@ -816,7 +828,17 @@ export default {
       openEdit();
     }
     function updateData(option, id) {
-
+      let end_date = null;
+      let last_invoice;
+      last_invoice = props.last_invoices.filter((d) => d.customer_id == option.id)[0];
+      
+        if (typeof last_invoice == 'object' ) {
+          
+          if (last_invoice.period_covered.indexOf(' to ') !== false) {
+            let t_date = last_invoice.period_covered.split(" to ");
+            end_date = t_date[1];
+          }
+      }
       form_2.customer_id = option.id;
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
       //form_2.period_covered = data.period_covered;
@@ -842,7 +864,7 @@ export default {
       form_2.type = "Prepaid";
       form_2.discount = 0;
       form_2.email = option.email;
-      form_2.end_date = option.end_date;
+      form_2.end_date = end_date;
       form_2.phone = (option.phone_1) ? option.phone_1 : '';
       if (form_2.phone != option.phone_2)
         form_2.phone += (option.phone_2) ? ',' + option.phone_2 : '';
@@ -1104,6 +1126,7 @@ export default {
       });
     }
     function openModal() {
+
       isOpen.value = true;
     }
     function closeModal() {
@@ -1227,38 +1250,38 @@ export default {
         return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
 
-      if (typeof   props.billings == 'object' ) {
-      props.billings.data.map(function (x) {
-        let end_date = null;
-        let last_invoice;
-        last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
-       // if (last_invoice.period_covered) {
-        if (typeof last_invoice == 'object' ) {
-          console.log(last_invoice);
-          if (last_invoice.period_covered.indexOf(' to ') !== false) {
-            let t_date = last_invoice.period_covered.split(" to ");
-            end_date = t_date[1];
-          }
-        }
-        return x.end_date = end_date;
-      });
-    }
-    if (typeof   props.prepaid_customers == 'object' ) {
-      props.prepaid_customers.map(function (x) {
-        let end_date = null;
-        let last_invoice;
-         last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
-         if (typeof last_invoice == 'object' ) {
-          console.log(last_invoice);
-          if (last_invoice.period_covered.indexOf(' to ') !== false) {
-            let t_date = last_invoice.period_covered.split(" to ");
-            end_date = t_date[1];
-          }
-        }
-        return x.end_date = end_date;
-      });
+    //   if (typeof   props.billings == 'object' ) {
+    //   props.billings.data.map(function (x) {
+    //     let end_date = null;
+    //     let last_invoice;
+    //     last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+    //    // if (last_invoice.period_covered) {
+    //     if (typeof last_invoice == 'object' ) {
+    //       console.log(last_invoice);
+    //       if (last_invoice.period_covered.indexOf(' to ') !== false) {
+    //         let t_date = last_invoice.period_covered.split(" to ");
+    //         end_date = t_date[1];
+    //       }
+    //     }
+    //     return x.end_date = end_date;
+    //   });
+    // }
+    //if (typeof   props.prepaid_customers == 'object' ) {
+      // props.prepaid_customers.map(function (x) {
+      //   let end_date = null;
+      //   let last_invoice;
+      //    last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+      //    if (typeof last_invoice == 'object' ) {
+      //     console.log(last_invoice);
+      //     if (last_invoice.period_covered.indexOf(' to ') !== false) {
+      //       let t_date = last_invoice.period_covered.split(" to ");
+      //       end_date = t_date[1];
+      //     }
+      //   }
+      //   return x.end_date = end_date;
+      // });
       
-    }
+  //  }
       invoiceEdit.value = checkEdit();
       cal_percent();
       let bill_id = (props.current_bill) ? props.current_bill['id'] : null;
@@ -1272,37 +1295,37 @@ export default {
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name}`);
       });
- if (typeof   props.billings == 'object' ) {
-      props.billings.data.map(function (x) {
-        let end_date = null;
-        let last_invoice;
-        last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
-       // if (last_invoice.period_covered) {
-        if (typeof last_invoice == 'object' ) {
-          console.log(last_invoice);
-          if (last_invoice.period_covered.indexOf(' to ') !== false) {
-            let t_date = last_invoice.period_covered.split(" to ");
-            end_date = t_date[1];
-          }
-        }
-        return x.end_date = end_date;
-      });
-    }
-    if (typeof   props.prepaid_customers == 'object' ) {
-      props.prepaid_customers.map(function (x) {
-        let end_date = null;
-        let last_invoice;
-         last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
-         if (typeof last_invoice == 'object' ) {
-          console.log(last_invoice);
-          if (last_invoice.period_covered.indexOf(' to ') !== false) {
-            let t_date = last_invoice.period_covered.split(" to ");
-            end_date = t_date[1];
-          }
-        }
-        return x.end_date = end_date;
-      });
-    }
+//  if (typeof   props.billings == 'object' ) {
+//       props.billings.data.map(function (x) {
+//         let end_date = null;
+//         let last_invoice;
+//         last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+//        // if (last_invoice.period_covered) {
+//         if (typeof last_invoice == 'object' ) {
+//           console.log(last_invoice);
+//           if (last_invoice.period_covered.indexOf(' to ') !== false) {
+//             let t_date = last_invoice.period_covered.split(" to ");
+//             end_date = t_date[1];
+//           }
+//         }
+//         return x.end_date = end_date;
+//       });
+//     }
+    // if (typeof   props.prepaid_customers == 'object' ) {
+    //   props.prepaid_customers.map(function (x) {
+    //     let end_date = null;
+    //     let last_invoice;
+    //      last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+    //      if (typeof last_invoice == 'object' ) {
+    //       console.log(last_invoice);
+    //       if (last_invoice.period_covered.indexOf(' to ') !== false) {
+    //         let t_date = last_invoice.period_covered.split(" to ");
+    //         end_date = t_date[1];
+    //       }
+    //     }
+    //     return x.end_date = end_date;
+    //   });
+    // }
       invoiceEdit.value = checkEdit();
       cal_percent();
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
