@@ -407,6 +407,7 @@ class BillingController extends Controller
     }
     public function updateInvoice(Request $request)
     {
+       
 
         if ($request->id) {
             $invoice = Invoice::find($request->id);
@@ -448,23 +449,113 @@ class BillingController extends Controller
 
 
             $receipt = ReceiptRecord::where('invoice_id', '=', $invoice->id)->first();
-            if ($receipt) {
-                $receipt_id = $receipt->id;
-                ReceiptRecord::find($receipt_id)->delete();
-                $months = 12;
-                while ($months > 0) {
-                    $status =  ReceiptSummery::where($months, '=', $receipt_id)
-                        ->where('customer_id', '=', $invoice->customer_id)
-                        ->first();
-                    if ($status) {
-                        $status->$months = null;
-                        $status->update();
+            if ($receipt) 
+                {
+                    $receipt_id = $receipt->id;
+                    ReceiptRecord::find($receipt_id)->delete();
+                    $months = 12;
+                    while ($months > 0) {
+                        $status =  ReceiptSummery::where($months, '=', $receipt_id)
+                            ->where('customer_id', '=', $invoice->customer_id)
+                            ->first();
+                        if ($status) {
+                            $status->$months = null;
+                            $status->update();
+                        }
+                        $months--;
                     }
-                    $months--;
                 }
-            }
+                $old_c = Customer::find($request->customer_id);
 
-            // }
+                if($request->package['id'] != $old_c->package_id || $request->attn != $old_c->address )
+                {
+                    $new_history = new CustomerHistory();
+                    $new_history->customer_id = $request->customer_id;
+                    $new_history->actor_id = Auth::user()->id;
+                    if ($request->package)
+                    {
+                        if($request->package['id'] != $old_c->package_id ){
+                            $new_history->type = 'plan_change';
+                            $new_history->new_package =$request->package['id']; 
+                            $new_history->old_package = $old_c->package_id;
+                            $myDateTime = new DateTime;
+                            if ($request->start_date){
+                                $myDateTime = new DateTime($request->start_date);
+                            }
+                                $newtime = clone $myDateTime;
+                                $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+                        }
+                        
+                    }
+                    if ($request->attn != $old_c->address){
+                        $new_history->type = 'relocation';
+                        //new
+                        if ($request->attn)
+                        $new_history->new_address = $request->attn;
+                        $new_history->old_address = $old_c->address;
+                    }
+                    $new_history->active = 1;
+                    $new_history->date = date("Y-m-j h:m:s");
+                    $new_history->save();
+                }
+                    $customer = Customer::find($request->customer_id);
+                    $customer->name = $request->bill_to;
+                    $customer->address = $request->attn;
+                    $customer->package_id = $request->package['id'];
+                   
+                    
+                    if($request->phone)
+                    {
+                       
+                        $phones = $billing_phone = preg_replace('/\s+/', '', $request->phone);
+                        if (strpos($billing_phone, ',') !== false) {
+                            $phones = explode(",", $billing_phone);
+                        }
+                        if (strpos($billing_phone, ';') !== false) {
+                            $phones = explode(';', $billing_phone);
+                        }
+                        if (strpos($billing_phone, ':') !== false) {
+                            $phones = explode(':', $billing_phone);
+                        }
+                        if (strpos($billing_phone, ' ') !== false) {
+                            $phones = explode(' ', $billing_phone);
+                        }
+                        if (strpos($billing_phone, '/') !== false) {
+                            $phones = explode('/', $billing_phone);
+                        }
+                    
+                        $pattern = "/^(09|\+959)+[0-9]+$/";
+
+                        if (is_array($phones)) {
+                            $phones = array_map('trim', $phones);//first remove white space from array value
+                            $phones = array_filter($phones);//get rid of empty value from array then
+                            $phones = array_values($phones);// reindexing the array
+                            $phone_1 = trim($phones[0]);
+                            $phone_2 = trim($phones[1]);
+                            if (!preg_match($pattern, $phone_1)) {
+                                $phone_1 = '09' . $phone_1;
+                            }
+                            if (!preg_match($pattern, $phone_2)) {
+                                $phone_2 = '09' . $phone_2;
+                            }
+                            $customer->phone_1 = $phone_1;  
+                            $customer->phone_2 = $phone_2;  
+                        
+                        }else{
+                      
+                        if (!preg_match($pattern, $phones)) {
+                            $phones = '09' . $phones;
+                        }
+                        $customer->phone_1 = $phones;
+                        }   
+                    }
+               
+                  
+
+                $customer->update();
+                
+            
+            
             $invoice->update();
             return redirect()->back()->with('message', 'Invoice Updated Successfully.');
         }
