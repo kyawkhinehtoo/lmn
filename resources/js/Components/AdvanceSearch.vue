@@ -188,19 +188,21 @@ export default {
       if (sh_prefer.value.from != "" && sh_prefer.value.to != "") {
         myurl.prefer = sh_prefer.value;
       }
-      axios.post("/exportExcel", myurl).then((response) => {
+      axios.post("/exportExcel", myurl,{responseType: "blob"}).then((response) => {
         console.log(response);
         var a = document.createElement("a");
         document.body.appendChild(a);
         a.style = "display: none";
-        let blob = new Blob([response.data], { type: "text/csv" }),
-          url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = "customers.csv";
-        a.click();
-        window.URL.revokeObjectURL(url);
+       var blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `customers_${new Date().getTime()}.xlsx`;
+      link.click();
       });
     };
+ 
     const doSearch = () => {
       let myurl = Object.create({});
 

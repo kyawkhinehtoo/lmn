@@ -21,6 +21,9 @@ use App\Imports\TempBillingUpdate;
 use Excel;
 use Storage;
 use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Excel as ExcelExcel;
+use Maatwebsite\Excel\Facades\Excel as FacadesExcel;
+
 class ExcelController extends Controller
 {
     public function importExportView()
@@ -55,7 +58,8 @@ class ExcelController extends Controller
     {
         //$type = xlsx, xls etc.
      //   return (new CustomersExport(($request)));
-     return (new CustomersExport($request))->download('customers.csv');
+    // return (new CustomersExport($request))->download('customers.csv');
+     return FacadesExcel::download(new CustomersExport($request), 'customers.xlsx', \Maatwebsite\Excel\Excel::XLSX);
        // return Excel::download(new CustomersExport($request), 'customers.csv');
     }
     public function exportBillingExcel(Request $request) 

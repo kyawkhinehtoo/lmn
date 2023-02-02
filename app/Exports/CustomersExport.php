@@ -16,8 +16,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use PhpOffice\PhpSpreadsheet\Reader\Xml\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat as StyleNumberFormat;
 
-class CustomersExport implements FromQuery, WithMapping,WithHeadings
+class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,WithHeadings
 {
     use Exportable;
     /**
@@ -175,7 +178,13 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             
         ];
     }
-
+    public function columnFormats(): array
+    {
+        return [
+            'D' => StyleNumberFormat::FORMAT_TEXT,
+            'E' => StyleNumberFormat::FORMAT_NUMBER,
+        ];
+    }
     public function map($mycustomer): array
     {
         $township = Township::find($mycustomer->township_id);
@@ -197,8 +206,8 @@ class CustomersExport implements FromQuery, WithMapping,WithHeadings
             $mycustomer->ftth_id,
             $mycustomer->name,
             $mycustomer->nrc,          
-            $mycustomer->phone_1,               
-            $mycustomer->phone_2,                
+            ($mycustomer->phone_1)?$mycustomer->phone_1:null,               
+            ($mycustomer->phone_2)?$mycustomer->phone_2:null,                
             $mycustomer->address,               
             $mycustomer->location,
             (isset($township->name))?$township->name:'',

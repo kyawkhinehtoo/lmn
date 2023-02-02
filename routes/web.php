@@ -191,6 +191,9 @@ Route::group(['middleware'=> 'auth'], function(){
 
 	//Bill Configuration
 	Route::resource('/billconfig', BillingConfiguration::class);
+
+	//Utils 
+	Route::get('/sanitiseAllPhone','BillingController@sanitiseAllPhone');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

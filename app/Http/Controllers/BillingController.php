@@ -17,6 +17,8 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\ReceiptRecord;
 use App\Models\ReceiptSummery;
+use ArrayIterator;
+use CachingIterator;
 use Inertia\Inertia;
 use NumberFormatter;
 use Illuminate\Support\Facades\Auth;
@@ -523,7 +525,11 @@ class BillingController extends Controller
                         if (strpos($billing_phone, '/') !== false) {
                             $phones = explode('/', $billing_phone);
                         }
-                    
+                        //possible phone number style  
+                        // 09420043911
+                        // 9420043911
+                        // 959420043911
+                        // +959420043911
                         $pattern = "/^(09|\+959)+[0-9]+$/";
 
                         if (is_array($phones)) {
@@ -532,21 +538,12 @@ class BillingController extends Controller
                             $phones = array_values($phones);// reindexing the array
                             $phone_1 = trim($phones[0]);
                             $phone_2 = trim($phones[1]);
-                            if (!preg_match($pattern, $phone_1)) {
-                                $phone_1 = '09' . $phone_1;
-                            }
-                            if (!preg_match($pattern, $phone_2)) {
-                                $phone_2 = '09' . $phone_2;
-                            }
-                            $customer->phone_1 = $phone_1;  
-                            $customer->phone_2 = $phone_2;  
+                            
+                            $customer->phone_1 = $this->sanitisePhone($phone_1);  
+                            $customer->phone_2 = $this->sanitisePhone($phone_2);  
                         
                         }else{
-                      
-                        if (!preg_match($pattern, $phones)) {
-                            $phones = '09' . $phones;
-                        }
-                        $customer->phone_1 = $phones;
+                            $customer->phone_1 =  $this->sanitisePhone($phones);
                         }   
                     }
                
@@ -637,13 +634,7 @@ class BillingController extends Controller
     }
     public function preview_2(Request $request)
     {
-        // $billings = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
-        //     ->join('users', 'users.id', '=', 'receipt_records.collected_person')
-        //     ->join('customers','receipt_records.customer_id','customers.id')
-        //     ->join('packages','customers.package_id','packages.id')
-        //     ->where('invoices.id', '=', $request->id)
-        //     ->select('invoices.*','packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
-        //     ->first();
+       
         $billing_invoice = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
             ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
             ->join('customers', 'receipt_records.customer_id', 'customers.id')
@@ -651,18 +642,10 @@ class BillingController extends Controller
             ->where('receipt_records.id', '=', $request->id)
             ->select('invoices.*', 'packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
             ->first();
-        // $billing_adjustment = BillAdjustment::join('receipt_records', 'receipt_records.invoice_id', '=', 'bill_adjustment.invoice_id')
-        //     ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
-        //     ->join('customers', 'receipt_records.customer_id', 'customers.id')
-        //     ->join('packages', 'customers.package_id', 'packages.id')
-        //     ->where('receipt_records.invoice_id', '=', $request->id)
-        //     ->select('bill_adjustment.*', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'receipt_records.payment_channel as payment_channel', 'users.name as name')
-        //     ->latest('id')
-        //     ->first();
-        // $billings = ($billing_adjustment) ? $billing_adjustment : $billing_invoice;
-        //dd($billings);
+       
         return view('voucher', $billing_invoice);
     }
+  
     public function saveSingle(Request $request)
     {
         //   dd($request);
@@ -1546,7 +1529,95 @@ class BillingController extends Controller
         } //end of foreach invoices
         return redirect()->back()->with('message', 'Sent SMS Successfully.');
     }
-
+    public function sanitisePhone($phone_no){
+        $phone_no = trim($phone_no);
+        $pattern_9 = "/^(9)[0-9]{7,9}$/";
+        $pattern_09 = "/^(09)[0-9]{7,9}$/";
+        $pattern_959 = "/^(959)[0-9]{7,9}$/";
+        $pattern_plus959 = "/^(\+959)[0-9]{7,9}$/";
+        $pattern_zero959 = "/^(0959)[0-9]{7,9}$/";
+        $pattern_overnum = "/^(099)[0-9]{9,12}$/";
+        $new_phone = $phone_no;
+        switch($phone_no){
+           
+            case preg_match($pattern_9, $phone_no)==true:
+               // echo 'this is 9 pattern';
+                
+                if(substr($phone_no,0,1)=='9')
+                {
+                    $new_phone= '0'.$phone_no;
+                }
+            break;
+            case preg_match($pattern_959, $phone_no)==true:
+              //  echo 'this is 959 pattern';
+                
+                if(substr($phone_no,0,3)=='959')
+                {
+                    $new_phone= '09'.substr($phone_no,3);
+                }
+            break;
+            case preg_match($pattern_plus959, $phone_no)==true:
+               // echo 'this is +959 pattern';
+                 if(substr($phone_no,0,4)=='+959')
+                {
+                    $new_phone= '09'.substr($phone_no,4);
+                }
+             case preg_match($pattern_zero959, $phone_no)==true:
+               // echo 'this is 0959 pattern';
+                 if(substr($phone_no,0,4)=='0959')
+                {
+                    $new_phone= '09'.substr($phone_no,4);
+                }
+            break;
+            case preg_match($pattern_09, $phone_no)==true:
+                $new_phone= $phone_no;
+            break;
+            case preg_match($pattern_overnum, $phone_no)==true:
+               // echo 'this is overnum pattern';
+                 if(substr($phone_no,0,3)=='099')
+                {
+                    $new_phone= '09'.substr($phone_no,3);
+                }
+            break;
+        }
+        return $new_phone;
+    }
+    
+    public function sanitiseAllPhone(){
+        $customers = Customer::all();
+        foreach ($customers as  $customer) {
+            $new_cus = Customer::find($customer->id);
+            $new_cus->phone_1 = ($customer->phone_1)?$this->checkPhoneArray($customer->phone_1):null;
+            $new_cus->phone_2 = ($customer->phone_2)?$this->checkPhoneArray($customer->phone_2):null;
+            $new_cus->save();
+        }
+    }
+    public function checkPhoneArray($cus_phone){
+     
+        $phones = $cus_phone;
+        $data = "";
+        $delimiters = array(",",";",":"," ","/");
+        $cus_phone = str_replace($delimiters,",",$cus_phone);
+         $phones = $cus_phone;
+         if (strpos($cus_phone, ',') !== false) {
+            $phones = explode(",", $cus_phone);
+         }
+              
+        if (is_array($phones)) {
+            $iter = new CachingIterator(new ArrayIterator($phones));
+          
+            foreach ($iter as $phone) {
+                $data .= $this->sanitisePhone($phone);
+                if($iter->hasNext()){
+                    $data .=",";
+                }
+            }
+        } else {
+           $data = $this->sanitisePhone($phones);
+        }
+        return $data;
+    }
+    
     public function sendSMS($phone, $message)
     {
         $postInput  =  [
