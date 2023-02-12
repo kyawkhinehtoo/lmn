@@ -24,9 +24,19 @@ class PackageController extends Controller
         //     echo $package->package->name.'<br />';
         //     echo $package->bundleEquiptment->name.', QTY :'. $package->qty.'<br />'; 
         // }
+        $radius_services = null;
+        $radius = new RadiusController();
+        $radius_services =  $radius->getRadiusServices();
+        if($radius_services){
+            $radius_services = json_decode($radius_services);
+        }
+     
+            
+        
+
         $bundle_equiptments = BundleEquiptment::get();
         $slas = Sla::get();
-        return Inertia::render('Setup/Package', ['packages' => $packages, 'bundle_equiptments' => $bundle_equiptments,'slas'=>$slas]);
+        return Inertia::render('Setup/Package', ['packages' => $packages, 'bundle_equiptments' => $bundle_equiptments,'slas'=>$slas,'radius_services'=>$radius_services]);
 
     }
 
@@ -61,6 +71,7 @@ class PackageController extends Controller
         $package->status = $request->status;
         $package->sla_id = $request->sla_id;
         $package->price = $request->price;
+        $package->radius_package = $request->radius_srvid['srvid'];
         $package->contract_period = (string)$request->contract_period;
         $package->save();
         $id = $package->id;
@@ -99,6 +110,7 @@ class PackageController extends Controller
             $package->sla_id = $request->sla_id;
             $package->status = $request->status;
             $package->price = $request->price;
+            $package->radius_package = $request->radius_srvid['srvid'];
             $package->contract_period = (string)$request->contract_period;
             $package->update();
             PackageBundle::where('package_id',$request->input('id'))->delete();

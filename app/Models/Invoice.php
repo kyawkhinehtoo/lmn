@@ -40,6 +40,7 @@ class Invoice extends Model
         'amount_in_word',
         'commercial_tax',
         'tax',
+        'public_ip',
         'email',
         'phone',
         'sent_date',

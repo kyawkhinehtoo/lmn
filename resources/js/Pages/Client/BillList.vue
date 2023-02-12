@@ -552,6 +552,11 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="otc" placeholder="Enter OTC" v-model="form_2.otc" @change="form2_calc" />
                 <div v-if="$page.props.errors.otc" class="text-red-500">{{ $page.props.errors.otc }}</div>
+                <label for="public_ip" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Public IP :</label>
+                <input type="number"
+                  class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  id="otc" placeholder="Enter Public IP Charges" v-model="form_2.public_ip" @change="form2_calc" />
+                <div v-if="$page.props.errors.otc" class="text-red-500">{{ $page.props.errors.public_ip }}</div>
 
                 <label for="compensation" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Compensation :</label>
                 <input type="number"
@@ -757,6 +762,7 @@ export default {
       customer_status: null,
       package: null,
       end_date: null,
+      public_ip: 0,
     });
     function edit_invoice(data) {
 
@@ -818,7 +824,7 @@ export default {
           form_2.usage_mo = parseInt(month);
         }
       }
-
+      form_2.public_ip = data.public_ip;
       editMode.value = true;
       openEdit();
     }
@@ -852,6 +858,7 @@ export default {
       form_2.current_charge = option.package_price * option.prepaid_period;
       form_2.compensation = 0;
       form_2.otc = 0;
+      form_2.public_ip = data.public_ip;
       form_2.package = props.packages.filter((d) => d.name == option.package_name)[0];
       //form_2.sub_total = data.sub_total;
       //form_2.payment_duedate = data.payment_duedate;
@@ -1215,12 +1222,12 @@ export default {
 
     }
     function calTax() {
-      form_2.sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) - parseInt(form_2.compensation);
+      form_2.sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip)  - parseInt(form_2.compensation);
       form_2.tax = Math.round((parseInt(form_2.sub_total) / 100) * 5);
       form2_calc();
     }
     function form2_calc() {
-      form_2.sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) - parseInt(form_2.compensation);
+      form_2.sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip) - parseInt(form_2.compensation);
 
       form_2.total_payable = parseInt(form_2.sub_total) - parseInt(form_2.discount);
       if (form_2.tax) {

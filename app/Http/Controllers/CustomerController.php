@@ -287,6 +287,7 @@ class CustomerController extends Controller
             'dob' => 'nullable|date',
             'status' => 'required',
             'order_date' => 'date',
+            'township_id' => 'required',
             'installation_date' => 'nullable|date',
 
         ])->validate();

@@ -24,7 +24,7 @@
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package Name</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bundle Equiptment</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" v-if="radius_services!=null">Radius Package</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MRC </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Terms</th>
@@ -35,7 +35,8 @@
               <tr v-for="row in packages.data" v-bind:key="row.id" :class="{'text-gray-400':!row.status}">
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.id }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.name }}</td>
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap"><Bundle :data="row.id" :key="form.componentKey" /></td>
+                <!-- <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap"><Bundle :data="row.id" :key="form.componentKey" /></td> -->
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ getRadiusPackage(row.id) }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.price }} <span class="uppercase">{{row.currency}}</span> </td>
                 <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.contract_period }} Months</td>
@@ -89,6 +90,14 @@
                               <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Mbps </span>
                             </div>
                           </div>
+                          <div class="py-2" v-if="radius_services">
+                            <label for="speed" class="block text-sm font-medium text-gray-700"> Choose Radius Package </label>
+                            <div class="mt-1 flex rounded-md shadow-sm" v-if="radius_services.length !== 0">
+                            <multiselect deselect-label="Selected already" :options="radius_services" track-by="srvid" label="srvname" v-model="form.radius_srvid" :allow-empty="true" :multiple="false" > </multiselect>
+                            <div v-if="$page.props.errors.package" class="text-red-500">{{ $page.props.errors.radius_srvid }}</div>
+                          </div>
+                          </div>
+
                           <div class="py-2">
                             <label for="type" class="block text-sm font-medium text-gray-700"> Service Type </label>
                             <div class="mt-1 flex">
@@ -206,12 +215,14 @@ import Pagination from "@/Components/Pagination";
 import Bundle from "@/Components/Bundle";
 import { reactive, ref } from "vue";
 import { Inertia } from "@inertiajs/inertia";
+import Multiselect from "@suadelabs/vue3-multiselect";
 export default {
   name: "package",
   components: {
     AppLayout,
     Pagination,
     Bundle,
+    Multiselect,
   },
   //props: ['packages', 'errors'],
   props: {
@@ -220,6 +231,7 @@ export default {
     slas: Object,
     errors: Object,
     bundles: String,
+    radius_services:Object
   },
   setup(props) {
     const form = reactive({
@@ -237,6 +249,7 @@ export default {
       bundleList: [],
       bundle_equiptment: "No Bundle",
       qty: 1,
+      radius_srvid:null,
       componentKey: 0,
     });
     const search = ref("");
@@ -257,6 +270,7 @@ export default {
       form.sla_id = null;
       form.type = "ftth";
       form.qty = 1;
+      form.radius_srvid = null;
       form.bundle_equiptment = "No Bundle";
       form.bundleList = [];
     }
@@ -305,6 +319,7 @@ export default {
       form.contract_period = data.contract_period;
       form.package_id = data.package_id;
       form.sla_id = data.sla_id;
+      form.radius_srvid =(props.radius_services)?props.radius_services.filter((rs) => rs.srvid == data.radius_package):null;
       form.qty = 1;
       if(data.status == 1){
         form.status = true;
@@ -356,18 +371,16 @@ export default {
         }
         form.qty = 1;
       }
-
-      //  console.log(props.bundle_equiptments);
-      //   let bdl_arr = Object.values(props.bundle_equiptments);
-
-      //   const filtered = bdl_arr.filter( bdl => {
-
-      //                     console.log("bdl.id is : " + bdl.id +" and form value is : "+ form.bundle_equiptment);
-      //                       return bdl.id == form.bundle_equiptment;
-      //                   });
-      // bundleList.value.push(props.bundle_equiptments);
-      //bundleList.value = props.bundle_equiptments;
+     
     }
+    function getRadiusPackage(row){
+       let data = props.packages.data.filter((p) => p.id == row)[0]; 
+        if(props.radius_services != null){
+     
+          let r_data = props.radius_services.filter((rs)=> rs.srvid == data.radius_package)[0];
+          return (r_data)?r_data.srvname:null;
+        }
+      }
     function removeBundle(el) {
       if (el) {
         form.bundleList = form.bundleList.filter((bdl) => bdl[0].id != el);
@@ -423,7 +436,7 @@ export default {
     //     } );
     //  })
 
-    return { form, submit, editMode, isOpen, test, openModal, closeModal, edit, deleteRow, searchTsp, addBundle, isNumber, removeBundle, search };
+    return { form, submit, editMode, isOpen, test, openModal, closeModal, edit, deleteRow, searchTsp, addBundle, isNumber, removeBundle, search,getRadiusPackage };
   },
 };
 </script>

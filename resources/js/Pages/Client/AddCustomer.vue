@@ -58,9 +58,9 @@
                   <div class="col-span-2 sm:col-span-2">
                     <label for="township" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Township </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="townships.length !== 0">
-                      <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.township" :allow-empty="false" :disabled="checkPerm('township_id')" :onchange="goID" @select="goID" @close="goID"></multiselect>
+                      <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.township" :allow-empty="false" :disabled="checkPerm('township_id')" :onchange="goID" @select="goID" @close="goID" required></multiselect>
                     </div>
-                    <p v-show="$page.props.errors.township" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township }}</p>
+                    <p v-show="$page.props.errors.township_id" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township_id }}</p>
                   </div>
                    
                   <div class="col-span-2 sm:col-span-2">

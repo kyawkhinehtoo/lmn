@@ -112,7 +112,7 @@ body{
     font-size: 1.4rem;
 }
 .font-small{
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight:600;
 }
 .collapse{
@@ -131,7 +131,7 @@ body{
     height: 0.5em;
     text-align: center;
     width: auto;
-    padding:8px;
+    padding:6px;
     color:#484848;
 }
 tr td.fix {
@@ -262,11 +262,19 @@ tr td.fix {
                 </tr>
                 @php
                 $count = 1;
-                    if($otc)
+
+                if($otc)
                     {
                     $count++;
                 @endphp
-                <tr><td>{{$count}}</td><td>OTC</td><td>1</td><td>{{$otc}}</td><td>{{$otc}}</td></tr>
+                <tr><td>{{$count}}</td><td class="font-small">OTC</td><td>1</td><td>{{$otc}}</td><td>{{$otc}}</td></tr>
+                @php
+                }
+                 if($public_ip)
+                {
+                    $count++;
+                @endphp
+                <tr><td>{{$count}}</td><td class="font-small">Public IP Annual Fees</td><td class="font-small">1 Year</td><td>{{number_format($public_ip)}}</td><td>{{number_format($public_ip)}}</td></tr>
                 @php
                     }else{
                     @endphp
@@ -274,6 +282,8 @@ tr td.fix {
                 @php 
                     }
                 @endphp
+
+
                 @php
                     if($compensation)
                     {
@@ -295,7 +305,7 @@ tr td.fix {
                 <tr><td colspan="4">Commercial Tax</td><td>{{number_format($tax)}}</td></tr>
                 <tr><td colspan="4">Grand Total</td><td>{{number_format($total_payable)}}</td></tr>
                 <tr><td style="text-align:left; padding:10px;" colspan="5">Cover Period : {{$period_covered}}</td></tr>
-                <tr><td style="text-align:left; padding:5px 10px;height:50px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
+                <tr><td style="text-align:left; padding:5px 10px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
             </tbody>
             </table>
         
@@ -371,11 +381,18 @@ tr td.fix {
                 </tr>
                 @php
                 $count = 1;
-                    if($otc)
+                if($otc)
                     {
                     $count++;
                 @endphp
-                <tr><td>{{$count}}</td><td>OTC</td><td>1</td><td>{{$otc}}</td><td>{{$otc}}</td></tr>
+                <tr><td>{{$count}}</td><td class="font-small">OTC</td><td>1</td><td>{{$otc}}</td><td>{{$otc}}</td></tr>
+                @php
+                }
+                 if($public_ip)
+                {
+                    $count++;
+                @endphp
+                <tr><td>{{$count}}</td><td class="font-small">Public IP Annual Fees</td><td class="font-small">1 Year</td><td>{{number_format($public_ip)}}</td><td>{{number_format($public_ip)}}</td></tr>
                 @php
                     }else{
                     @endphp
@@ -404,7 +421,7 @@ tr td.fix {
                 <tr><td colspan="4">Commercial Tax</td><td>{{number_format($tax)}}</td></tr>
                 <tr><td colspan="4">Grand Total</td><td>{{number_format($total_payable)}}</td></tr>
                 <tr><td style="text-align:left; padding:10px;" colspan="5">Cover Period : {{$period_covered}}</td></tr>
-                <tr><td style="text-align:left; padding:5px 10px;height:50px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
+                <tr><td style="text-align:left; padding:5px 10px;vertical-align:top;" colspan="5">Remark : {{$remark}}</td></tr>
             </tbody>
             </table>
         

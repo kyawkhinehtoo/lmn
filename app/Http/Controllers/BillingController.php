@@ -432,6 +432,7 @@ class BillingController extends Controller
             $invoice->normal_cost = $request->normal_cost;
             $invoice->type = $request->type;
             $invoice->tax = $request->tax;
+            $invoice->public_ip = $request->public_ip;
             $invoice->total_payable = $request->total_payable;
             $invoice->discount = $request->discount;
             $invoice->phone = $request->phone;
@@ -550,7 +551,9 @@ class BillingController extends Controller
                   
 
                 $customer->update();
-                
+                if(RadiusController::checkRadiusEnable()){
+                    RadiusController::updateRadius($customer->id);
+                }
             
             
             $invoice->update();
@@ -615,6 +618,7 @@ class BillingController extends Controller
         $invoice->normal_cost = $request->normal_cost;
         $invoice->type = $request->type;
         $invoice->tax = $request->tax;
+        $invoice->public_ip = $request->public_ip;
         $invoice->total_payable = $request->total_payable;
         $invoice->discount = $request->discount;
         $invoice->email = $request->email;
@@ -897,6 +901,7 @@ class BillingController extends Controller
                     'invoices.compensation as compensation',
                     'invoices.discount as discount',
                     'invoices.tax as tax',
+                    'invoices.public_ip as public_ip',
                     'invoices.phone as phone',
                     'receipt_records.collected_currency as currency',
                     'receipt_records.id as receipt_id',

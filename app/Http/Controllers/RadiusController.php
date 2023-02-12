@@ -427,11 +427,12 @@ class RadiusController extends Controller
   
         $data = DB::table('customers')
                 ->join('townships','customers.township_id','townships.id')
+                ->join('packages','customers.package_id','packages.id')
                 ->join('status','customers.status_id','status.id')
                 ->leftjoin('sn_ports','customers.sn_id','sn_ports.id')
                 ->leftjoin('dn_ports','sn_ports.dn_id','dn_ports.id')
                 ->where('customers.id','=',$customer_id)
-                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name')
+                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name','packages.radius_package as srvid')
                 ->first();
         $billconfig = BillingConfig::first();
         if(isset($data->pppoe_account) && isset($data->pppoe_password)){
@@ -480,11 +481,13 @@ class RadiusController extends Controller
             $user_data['selfreg'] = 0;
             $user_data['verifyfails'] = 0;
             $user_data['verifysentnum'] = 0;
-            $user_data['contractvalid'] = '0000-00-00';
+            $user_data['contractvalid'] = null;
             $user_data['pswactsmsnum'] = 0;
             $user_data['alertemail'] = 1;
             $user_data['alertsms'] = 1;
             $user_data['lang'] = 'English';
+            if($data->srvid)
+            $user_data['srvid'] = $data->srvid;
 
             $radius_config = RadiusConfig::first();
             if(self::checkRadiusEnable()){
@@ -512,11 +515,12 @@ class RadiusController extends Controller
   
         $data = DB::table('customers')
                 ->join('townships','customers.township_id','townships.id')
+                ->join('packages','customers.package_id','packages.id')
                 ->join('status','customers.status_id','status.id')
                 ->leftjoin('sn_ports','customers.sn_id','sn_ports.id')
                 ->leftjoin('dn_ports','sn_ports.dn_id','dn_ports.id')
                 ->where('customers.id','=',$id)
-                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name')
+                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name','packages.radius_package as srvid')
                 ->first();
        
         if(isset($data->pppoe_account) ){
@@ -564,7 +568,10 @@ class RadiusController extends Controller
             $user_data['gpslong'] = ($location[1]=='.')?'0.0':$location[1];
            
             $user_data['email'] = '';
-           
+            
+            //Package
+            if($data->srvid)
+            $user_data['srvid'] = $data->srvid;
 
             $radius_config = RadiusConfig::first();
             if(self::checkRadiusEnable()){
