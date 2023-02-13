@@ -824,7 +824,7 @@ export default {
           form_2.usage_mo = parseInt(month);
         }
       }
-      form_2.public_ip = data.public_ip;
+      form_2.public_ip = (data.public_ip)?data.public_ip:0;
       editMode.value = true;
       openEdit();
     }
@@ -858,7 +858,7 @@ export default {
       form_2.current_charge = option.package_price * option.prepaid_period;
       form_2.compensation = 0;
       form_2.otc = 0;
-      form_2.public_ip = data.public_ip;
+      form_2.public_ip = (option.public_ip)?option.public_ip:0;
       form_2.package = props.packages.filter((d) => d.name == option.package_name)[0];
       //form_2.sub_total = data.sub_total;
       //form_2.payment_duedate = data.payment_duedate;
