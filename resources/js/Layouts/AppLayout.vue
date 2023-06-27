@@ -6,9 +6,9 @@
           <i class="fas fa-bars"></i>
         </button>
         <a class="md:min-w-full flex-start inline-flex items-center align-middle uppercase text-blueGray-400" href="javascript:void(0)"> 
-             <img src="/storage/images/ggh-logo-sm.png" class="w-16 select-none" />
+             <img src="/storage/images/DemoLogo.png" class="w-16 select-none" />
             
-            <span class="flex ml-2 font-bold antialiased">Operations Support System (TCL)</span> </a>
+            <span class="flex ml-2 font-bold antialiased">Operations Support System</span> </a>
         <ul class="md:hidden items-center flex flex-wrap list-none">
           <li class="inline-block relative">
             <a class="text-blueGray-500 block py-1 px-3" href="#pablo" onclick="openDropdown(event,'notification-dropdown')"><i class="fas fa-bell"></i></a>
@@ -91,9 +91,12 @@
                 <jet-nav-link :href="route('package.index')" :active="route().current('package.index')"> <i class="fas fa-cube opacity-75 mr-2 text-sm w-6"></i> Package Setup </jet-nav-link>
               </li>
               <li>
+                  <jet-nav-link :href="route('project.index')" :active="route().current('project.index')"> <i class="fas fa-handshake opacity-75 mr-2 text-sm w-6"></i> Project Setup </jet-nav-link>
+                </li>
+              <li>
                 <jet-nav-link :href="route('status.index')" :active="route().current('status.index')"> <i class="fas fa-user-tag opacity-75 mr-2 text-sm w-6"></i> Customer Status </jet-nav-link>
               </li>
-             <!--  <li>
+              <li>
                 <jet-nav-link :href="route('template.index')" :active="route().current('template.index')"> <i class="fas fa-envelope opacity-75 mr-2 text-sm w-6"></i> Template </jet-nav-link>
               </li>
               <li>
@@ -101,7 +104,7 @@
               </li>
               <li>
                 <jet-nav-link :href="route('smsgateway.index')" :active="route().current('smsgateway.*')"> <i class="fas fa-sms opacity-75 mr-2 -mt-1 text-sm w-6"></i> SMS Gateway </jet-nav-link>
-              </li> -->
+              </li>
               <li>
                 <jet-nav-link :href="route('radiusconfig.index')" :active="route().current('radiusconfig.*')"> <i class="fas fa-sms opacity-75 mr-2 -mt-1 text-sm w-6"></i> Radius Config </jet-nav-link>
               </li>

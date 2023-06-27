@@ -32,7 +32,7 @@ class CustomerController extends Controller
     public function show(Request $request)
     {
      //   dd($request);
-     $user = User::join('roles','roles.id','=','users.role')->find(Auth::user()->id);
+     $user = User::join('roles','roles.id','=','users.role')->select('users.*','roles.name as role_name')->find(Auth::user()->id);
      $active = DB::table('customers')
      ->join('status', 'customers.status_id', '=', 'status.id')
      ->whereIn('status.type',['active','disabled'])
@@ -74,6 +74,7 @@ class CustomerController extends Controller
         
         $packages = Package::get();
         $townships = Township::get();
+        $projects = Project::get();
         $status = Status::get();
     
         $dn = DnPorts::get();
@@ -189,6 +190,7 @@ class CustomerController extends Controller
         return Inertia::render('Client/Customer', [
             'packages' => $packages,
             'townships' => $townships,
+            'projects' => $projects,
             'status' => $status,
             'customers' => $customers,
             'dn' => $dn,
@@ -212,13 +214,14 @@ class CustomerController extends Controller
         
         $packages = Package::get();
         $sn = SnPorts::get();
+        $projects = Project::get();
         $dn = DB::table('dn_ports')
         ->select(DB::raw('name, count(port) as ports'))
         ->groupBy(['name'])
         ->get();
         $sale_persons = DB::table('users')
             ->join('roles', 'users.role', '=', 'roles.id')
-            ->where('roles.name', 'LIKE', '%marketing%')
+            ->where('roles.name', 'LIKE', '%sale%')
             ->select('users.name as name', 'users.id as id')
             ->get();
             
@@ -252,6 +255,7 @@ class CustomerController extends Controller
             'Client/AddCustomer',
             [
                 'packages' => $packages,
+                'projects' => $projects,
                 'sale_persons' => $sale_persons,
                 'townships' => $townships,
                 'status_list' => $status_list,
@@ -303,25 +307,16 @@ class CustomerController extends Controller
         if($check_id){
             //already exists
             
-            if($request->township['name'] == "Mong Koe"){
-                if($request->customer_type == 2){
-                    $max_id = $this->getmaxmkvipid();
-                    $auto_ftth_id = 'ggmkvip'.str_pad($max_id+1, 3, '0', STR_PAD_LEFT);
-                }else{
-                    $max_id = $this->getmaxmkid();
-                    $auto_ftth_id = 'gghmk6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
-                }
-              
-              }else{
+         
                 if($request->customer_type == 2){
                     $max_id = $this->getmaxtclvipid();
-                    $auto_ftth_id = 'ggtclvip'.str_pad($max_id+1, 3, '0', STR_PAD_LEFT);
+                    $auto_ftth_id = 'demovip'.str_pad($max_id+1, 3, '0', STR_PAD_LEFT);
                 }else{
                     $max_id = $this->getmaxtclid();
-                    $auto_ftth_id = 'gghtcl6888'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
+                    $auto_ftth_id = 'demo'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
                 }
                
-              }
+            
    
         }
         $customer = new Customer();
@@ -344,6 +339,10 @@ class CustomerController extends Controller
             if ($value == 'subcom_id') {
                 if (!empty($request->subcom))
                     $customer->$value = $request->subcom['id'];
+            }
+            if ($value == 'project_id') {
+                if (!empty($request->project))
+                    $customer->$value = $request->project['id'];
             }
             if ($value == 'sn_id') {
                 if (!empty($request->sn_id))
@@ -418,9 +417,10 @@ class CustomerController extends Controller
                 ->groupBy(['name'])
                 ->get();
             $packages = Package::get();
+            $projects = Project::get();
             $sale_persons = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
-                ->where('roles.name', 'LIKE', '%marketing%')
+                ->where('roles.name', 'LIKE', '%sale%')
                 ->where('disabled','<>',1)
                 ->select('users.name as name', 'users.id as id')
                 ->get();
@@ -434,7 +434,7 @@ class CustomerController extends Controller
              
                     $sale_persons = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
-                ->where('roles.name', 'LIKE', '%marketing%')
+                ->where('roles.name', 'LIKE', '%sale%')
                 ->where('users.id','=',$customer->sale_person_id)
                 ->select('users.name as name', 'users.id as id')
                 ->get();
@@ -457,6 +457,7 @@ class CustomerController extends Controller
                 [
                     'customer' => $customer,
                     'packages' => $packages,
+                    'projects' => $projects,
                     'sale_persons' => $sale_persons,
                     'townships' => $townships,
                     'status_list' => $status_list,
@@ -583,6 +584,10 @@ class CustomerController extends Controller
                 if ($value == 'subcom_id') {
                     if (!empty($request->subcom))
                         $customer->$value = $request->subcom['id'];
+                }
+                if ($value == 'project_id') {
+                    if (!empty($request->project))
+                        $customer->$value = $request->project['id'];
                 }
                 if ($value == 'sn_id') {
                     if (!empty($request->sn_id))

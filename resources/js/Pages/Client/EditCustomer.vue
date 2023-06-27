@@ -70,13 +70,24 @@
                 </div>
                 <div class="grid grid-cols-4 gap-2">
                   
-                  <div class="col-span-2 sm:col-span-2">
+                  <div class="col-span-1 sm:col-span-1">
                     <label for="township" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Township </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="townships.length !== 0">
                       <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.township" :allow-empty="false" :disabled="checkPerm('township_id')" ></multiselect>
                     </div>
                     <p v-show="$page.props.errors.township" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township }}</p>
                   </div>
+                  <div class="col-span-1 sm:col-span-1">
+                        <label for="project_id" class="block text-sm font-medium text-gray-700"> Project/ Partner
+                        </label>
+                        <div class="mt-1 flex rounded-md " v-if="projects.length !== 0">
+                          <multiselect deselect-label="Selected already" :options="projects" track-by="id" label="name"
+                            v-model="form.project" :allow-empty="true" :disabled="checkPerm('project_id')">
+                          </multiselect>
+                        </div>
+                        <p v-if="$page.props.errors.project" class="mt-2 text-sm text-red-500">{{
+                          $page.props.errors.project }}</p>
+                      </div>
                    <div class="col-span-2 sm:col-span-2">
                     <label for="address" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Full Address </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
@@ -457,6 +468,7 @@ export default {
     packages: Object,
     sale_persons: Object,
     townships: Object,
+    projects: Object,
     errors: Object,
     customer: Object,
     status_list: Object,
@@ -502,6 +514,7 @@ export default {
       township: "",
       sale_person: "",
       package: "",
+      project: "",
       status: "",
       subcom: "",
       prefer_install_date: props.customer.prefer_install_date,
@@ -620,6 +633,8 @@ export default {
       props.sn.map(function (x) {
            x.item_data = `${x.name} / ${x.port}`;
       });
+      form.project = props.projects.filter((d) => d.id == props.customer.project_id)[0];
+    
       form.township = props.townships.filter((d) => d.id == props.customer.township_id)[0];
       form.sale_person = props.sale_persons.filter((d) => d.id == props.customer.sale_person_id)[0];
       form.package = props.packages.filter((d) => d.id == props.customer.package_id)[0];

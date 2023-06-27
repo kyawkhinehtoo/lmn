@@ -57,6 +57,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
         ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
         ->leftjoin('townships', 'customers.township_id', '=', 'townships.id')
         ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
+        ->leftjoin('projects', 'customers.project_id', '=', 'projects.id')
         ->leftjoin('sn_ports', 'customers.sn_id', '=', 'sn_ports.id')
         ->leftjoin('dn_ports', 'sn_ports.dn_id', '=', 'dn_ports.id')
         ->join('status', 'customers.status_id', '=', 'status.id')
@@ -138,7 +139,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
         },function ($query){
             $query->orderBy('customers.id','desc');
         })
-            ->select('customers.*');
+            ->select('customers.*','projects.name as project_name');
         return $mycustomer;
     
     }
@@ -150,6 +151,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
             'NRC',
             'Phone 1',
             'Phone 2',
+            'Project',
             'Address',
             'Lat Long',
             'Township',
@@ -208,6 +210,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
             $mycustomer->nrc,          
             ($mycustomer->phone_1)?$mycustomer->phone_1:null,               
             ($mycustomer->phone_2)?$mycustomer->phone_2:null,                
+            $mycustomer->project_name,               
             $mycustomer->address,               
             $mycustomer->location,
             (isset($township->name))?$township->name:'',

@@ -55,12 +55,19 @@
                 </div>
                 <div class="grid grid-cols-4 gap-2">
                   
-                  <div class="col-span-2 sm:col-span-2">
+                  <div class="col-span-1 sm:col-span-1">
                     <label for="township" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Township </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="townships.length !== 0">
                       <multiselect deselect-label="Selected already" :options="townships" track-by="id" label="name" v-model="form.township" :allow-empty="false" :disabled="checkPerm('township_id')" :onchange="goID" @select="goID" @close="goID" required></multiselect>
                     </div>
                     <p v-show="$page.props.errors.township_id" class="mt-2 text-sm text-red-500">{{ $page.props.errors.township_id }}</p>
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="project_id" class="block text-sm font-medium text-gray-700"> Project/ Partner </label>
+                    <div class="mt-1 flex rounded-md " v-if="projects.length !== 0">
+                      <multiselect deselect-label="Selected already" :options="projects" track-by="id" label="name" v-model="form.project" :allow-empty="true" :disabled="checkPerm('project_id')"  :onchange="goID" @select="goID" @close="goID"></multiselect>
+                    </div>
+                    <p v-if="$page.props.errors.project" class="mt-2 text-sm text-red-500">{{ $page.props.errors.project }}</p>
                   </div>
                    
                   <div class="col-span-2 sm:col-span-2">
@@ -409,6 +416,7 @@ export default {
     packages: Object,
     sale_persons: Object,
     townships: Object,
+    projects: Object,
     status_list: Object,
     subcoms: Object,
     roles: Object,
@@ -563,31 +571,16 @@ export default {
     function goID(){
       if(form.township){
         
-        if(form.township.name == "Mong Koe"){
+    
           if(form.customer_type == 2){
-            form.ftth_id = 'gghmkvip'+('000'+(parseInt(props.max_vip_mk_id)+1)).slice(-3);
-          }else{
-            form.ftth_id = 'gghmk6888'+('00000'+(parseInt(props.max_mk_id)+1)).slice(-5);
-          }
-         
-        }else{
-          if(form.customer_type == 2){
-          form.ftth_id = 'gghtclvip'+('000'+(parseInt(props.max_vip_tcl_id)+1)).slice(-3);
+          form.ftth_id = 'demovip'+('000'+(parseInt(props.max_vip_tcl_id)+1)).slice(-3);
          }else{
-          form.ftth_id = 'gghtcl6888'+('00000'+(parseInt(props.max_tcl_id)+1)).slice(-5);
+          form.ftth_id = 'demo'+('00000'+(parseInt(props.max_tcl_id)+1)).slice(-5);
          }
           
-        }
-        
-      }else{
-         if(form.customer_type == 2){
-          form.ftth_id = 'gghtclvip'+('000'+(parseInt(props.max_vip_tcl_id)+1)).slice(-3);
-         }
-         else{
-          form.ftth_id = 'gghtcl6888'+('00000'+(parseInt(props.max_id)+1)).slice(-5);
-         }
-       
       }
+        
+      
     }
     function fillPppoe(){
           if(!form.pppoe_account){
