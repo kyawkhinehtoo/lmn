@@ -243,7 +243,7 @@
             </div>
             <div class="w-full md:w-8/12 px-4">
               <ul class="flex flex-wrap list-none md:justify-end justify-center">
-                <li class="text-sm text-blueGray-500 font-semibold py-1">GGH ISP MANAGER</li>
+                <li class="text-sm text-blueGray-500 font-semibold py-1">Demo ISP MANAGER</li>
               </ul>
             </div>
           </div>
