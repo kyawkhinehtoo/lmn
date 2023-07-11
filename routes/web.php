@@ -40,6 +40,7 @@ Route::group(['middleware'=> ['auth','role']], function(){
 	Route::delete('/snport/group/{id}', 'SNPortController@deleteGroup');
 	Route::delete('/port/group/{id}', 'PortController@deleteGroup');
 	Route::resource('/township', TownshipController::class);
+	Route::resource('/city', CityController::class);
 	Route::resource('/equiptment', EquiptmentController::class);
 	Route::resource('/menu', MenuController::class);
 	Route::resource('/package', PackageController::class);

@@ -41,7 +41,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="(row, index) in overall.data" v-bind:key="row.id">
-                <td class="px-6 py-3 whitespace-nowrap">{{ index + 1 }}</td>
+                <td class="px-6 py-3 whitespace-nowrap">{{ overall.from + index }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.ports }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.description }}</td>

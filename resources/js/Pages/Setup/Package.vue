@@ -32,11 +32,11 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="row in packages.data" v-bind:key="row.id" :class="{'text-gray-400':!row.status}">
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.id }}</td>
+              <tr v-for="(row,index) in packages.data" v-bind:key="row.id" :class="{'text-gray-400':!row.status}">
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ packages.from + index }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.name }}</td>
                 <!-- <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap"><Bundle :data="row.id" :key="form.componentKey" /></td> -->
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ getRadiusPackage(row.id) }}</td>
+                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase" v-if="radius_services!=null">{{ getRadiusPackage(row.id) }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.price }} <span class="uppercase">{{row.currency}}</span> </td>
                 <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.contract_period }} Months</td>
@@ -58,40 +58,44 @@
                 <form @submit.prevent="submit">
                   <div class="shadow sm:rounded-md sm:overflow-hidden">
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                      <div class="grid grid-cols-2 gap-6">
-                        <div class="col-span-3 sm:col-span-1">
+                      <div class="grid md:grid-cols-2 gap-6">
+                        <div class="col-span-1 sm:col-span-1">
                           <div class="py-2">
-                            <label for="name" class="block text-sm font-medium text-gray-700"> Enter Package Name </label>
+                            <label for="name" class="block text-md font-medium text-gray-700">  Package Name </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                               <input type="text" v-model="form.name" name="name" id="name" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Package Name" required />
                             </div>
                           </div>
                           <div class="py-2">
-                            <label for="currency" class="block text-sm font-medium text-gray-700"> Currency Type </label>
-                            <div class="mt-1 flex">
-                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" checked name="currency" v-model="form.currency" value="baht" /><span class="ml-2 text-gray-700">Thai Baht</span> </label>
+                            <label for="currency" class="block text-md font-medium text-gray-700"> Currency Type </label>
+                            <div class="mt-2 flex">
+                              <label class="flex-auto items-center"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" checked name="currency" v-model="form.currency" value="baht" /><span class="ml-2 text-gray-700 text-sm">TBH</span></label>
 
-                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="currency" v-model="form.currency" value="usd" /><span class="ml-2 text-gray-700">USD</span> </label>
+                              <label class="flex-auto items-center"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="currency" v-model="form.currency" value="usd" /><span class="ml-2 text-gray-700 text-sm">USD</span> </label>
 
-                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-red-600" name="currency" v-model="form.currency" value="mmk" /><span class="ml-2 text-gray-700">MMK</span> </label>
+                              <label class="flex-auto items-center"> <input type="radio" class="form-radio h-5 w-5 text-red-600" name="currency" v-model="form.currency" value="mmk" /><span class="ml-2 text-gray-700 text-sm">MMK</span> </label>
                             </div>
                           </div>
-                           <div class="py-2">
-                            <label for="price" class="block text-sm font-medium text-gray-700"> Enter Package Price </label>
-                            <div class="mt-1 flex rounded-md shadow-sm">
-                              <input type="text" v-model="form.price" name="price" id="price" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Package Price" required />
-                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm uppercase"> {{ form.currency }} </span>
+                           <div class="py-2 grid md:grid-cols-2 gap-4">
+                            <div class="col-span-1"> 
+                                <label for="price" class="block text-md font-medium text-gray-700">  Package Price </label>
+                                <div class="mt-1 flex rounded-md shadow-sm">
+                                <input type="text" v-model="form.price" name="price" id="price" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Package Price" required />
+                                <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm uppercase"> {{ form.currency }} </span>
+                                </div>
                             </div>
-                          </div>
-                          <div class="py-2">
-                            <label for="speed" class="block text-sm font-medium text-gray-700"> Enter Bandwidth </label>
-                            <div class="mt-1 flex rounded-md shadow-sm">
-                              <input type="text" name="speed" v-model="form.speed" id="speed" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Bandwidth in Mbps" v-on:keypress="isNumber(event)" required />
-                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Mbps </span>
+                            <div class="col-span-1">
+                                <label for="speed" class="block text-md font-medium text-gray-700">  Bandwidth </label>
+                                <div class="mt-1 flex rounded-md shadow-sm">
+                                <input type="text" name="speed" v-model="form.speed" id="speed" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Bandwidth in Mbps" v-on:keypress="isNumber(event)" required />
+                                <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Mbps </span>
+                              </div>
                             </div>
+                           
                           </div>
+                       
                           <div class="py-2" v-if="radius_services">
-                            <label for="speed" class="block text-sm font-medium text-gray-700"> Choose Radius Package </label>
+                            <label for="speed" class="block text-md font-medium text-gray-700"> Choose Radius Package </label>
                             <div class="mt-1 flex rounded-md shadow-sm" v-if="radius_services.length !== 0">
                             <multiselect deselect-label="Selected already" :options="radius_services" track-by="srvid" label="srvname" v-model="form.radius_srvid" :allow-empty="true" :multiple="false" > </multiselect>
                             <div v-if="$page.props.errors.package" class="text-red-500">{{ $page.props.errors.radius_srvid }}</div>
@@ -99,7 +103,7 @@
                           </div>
 
                           <div class="py-2">
-                            <label for="type" class="block text-sm font-medium text-gray-700"> Service Type </label>
+                            <label for="type" class="block text-md font-medium text-gray-700"> Service Type </label>
                             <div class="mt-1 flex">
                               <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" checked name="type" v-model="form.type" value="ftth" /><span class="ml-2 text-gray-700">FTTH</span> </label>
 
@@ -109,7 +113,7 @@
                             </div>
                           </div>
                           <div class="py-2">
-                            <label for="contract_period" class="block text-sm font-medium text-gray-700"> Maximum SLA</label>
+                            <label for="contract_period" class="block text-md font-medium text-gray-700"> Maximum SLA</label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                               <select id="sla_id" v-model="form.sla_id" name="sla_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                <option v-for="row in slas" v-bind:key="row.id" :value="row.id">{{ row.percentage }}</option>
@@ -117,9 +121,11 @@
                             </div>
                           </div>
                           <div class="py-2">
-                            <label for="contract_period" class="block text-sm font-medium text-gray-700"> Contract Term </label>
+                            <label for="contract_period" class="block text-md font-medium text-gray-700"> Contract Term </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                               <select id="contract_period" v-model="form.contract_period" name="contract_period" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="1">1 Months</option>
+                                <option value="3">3 Months</option>
                                 <option value="6">6 Months</option>
                                 <option value="12">12 Months</option>
                                 <option value="24">24 Months</option>
@@ -128,7 +134,7 @@
                           </div>
                           <div class="py-2 grid grid-cols-5 gap-2">
                             <div class="col-span-3 sm:col-span-3">
-                              <label for="bundle_equiptment" class="block text-sm font-medium text-gray-700"> Bundle Equiptment </label>
+                              <label for="bundle_equiptment" class="block text-md font-medium text-gray-700"> Bundle Equiptment </label>
                               <div class="mt-1 flex rounded-md shadow-sm">
                                 <select id="bundle_equiptment" v-model="form.bundle_equiptment" name="bundle_equiptment" autocomplete="bundle_equiptment" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                   <option>No Bundle</option>
@@ -137,13 +143,13 @@
                               </div>
                             </div>
                             <div class="col-span-1 sm:col-span-1">
-                              <label for="qty" class="block text-sm font-medium text-gray-700"> QTY </label>
+                              <label for="qty" class="block text-md font-medium text-gray-700"> QTY </label>
                               <div class="mt-1 flex rounded-md shadow-sm">
                                 <input type="number" v-model="form.qty" id="qty" class="mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" min="1" max="999" />
                               </div>
                             </div>
                             <div class="col-span-1 sm:col-span-1">
-                              <label class="block text-sm font-medium text-gray-700"> &nbsp; </label>
+                              <label class="block text-md font-medium text-gray-700"> &nbsp; </label>
                               <div class="mt-1 flex rounded-md shadow-sm">
                                 <button @click="addBundle" type="button" class="flex justify-center py-2 px-4 mt-1 py-2 md:mt-0 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 focus:outline-none active:bg-indigo-700 transition ease-in-out duration-150">
                                   <span class="md:mt-1 hidden md:block flex-1"> Add</span>
@@ -154,7 +160,7 @@
                        
                           </div>
                                <div class="py-2">
-                              <label for="type" class="block text-sm font-medium text-gray-700"> Status </label>
+                              <label for="type" class="block text-md font-medium text-gray-700"> Status </label>
                               <div class="mt-1 flex">
                                 <input type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded mt-1"  name="status" v-model="form.status" value="true" />
                                 <label class="flex-auto items-center ml-1" v-if="form.status == true">Enabled</label>
@@ -163,9 +169,9 @@
                               </div>
                             </div>
                         </div>
-                        <div class="col-span-3 sm:col-span-1">
+                        <div class="col-span-1 sm:col-span-1">
                           <div class="py-2">
-                            <label for="company_website" class="block text-sm font-medium text-gray-700"> Bundle Equiptment </label>
+                            <label for="company_website" class="block text-md font-medium text-gray-700"> Bundle Equiptment </label>
                             <div v-if="form.bundleList.length === 0">
                               <label class="text-sm text-gray-700 flex-1">No Equiptment</label>
                             </div>
@@ -240,10 +246,10 @@ export default {
       price: null,
       speed: null,
       type: "ftth",
-      sla_id: null,
+      sla_id: 1,
       status: true,
       currency:"baht",
-      contract_period: 24,
+      contract_period: 1,
       package_id: null,
       bundle_equiptment_id: null,
       bundleList: [],
@@ -264,10 +270,10 @@ export default {
       form.price = null;
       form.speed = null;
       form.currency = "baht";
-      form.contract_period = 24;
+      form.contract_period = 1;
       form.package_id = null;
       form.status = true;
-      form.sla_id = null;
+      form.sla_id = 1;
       form.type = "ftth";
       form.qty = 1;
       form.radius_srvid = null;

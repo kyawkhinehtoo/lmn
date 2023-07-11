@@ -73,8 +73,12 @@
                 <jet-nav-link :href="route('role.index')" :active="route().current('role.index')"> <i class="fas fa-user-tag opacity-75 mr-2 text-sm w-6"></i> Role Setup </jet-nav-link>
               </li>
               <li>
+                <jet-nav-link :href="route('city.index')" :active="route().current('city.index')"> <i class="fas fa-city opacity-75 mr-2 text-sm w-6"></i> City Setup </jet-nav-link>
+              </li>
+              <li>
                 <jet-nav-link :href="route('township.index')" :active="route().current('township.index')"> <i class="fas fa-city opacity-75 mr-2 text-sm w-6"></i> Township Setup </jet-nav-link>
               </li>
+             
               <li>
                 <jet-nav-link :href="route('equiptment.index')" :active="route().current('equiptment.index')"> <i class="fas fa-gamepad opacity-75 mr-2 text-sm w-6"></i> Bundle Setup </jet-nav-link>
               </li>
@@ -340,7 +344,7 @@ export default {
         this.admin = false;
             this.report = false;
      }
-     else if(route().current('user.*') || route().current('role.*') || route().current('township.*') || route().current('equiptment.*') || route().current('sla.*') || route().current('package.*') || route().current('project.*') || route().current('status.*') || route().current('template.*') || route().current('port.*') || route().current('snport.*') || route().current('announcement.*') || route().current('smsgateway.*') || route().current('radiusconfig.*') || route().current('billconfig.*') ){
+     else if(route().current('user.*') || route().current('role.*') || route().current('township.*') || route().current('city.*') || route().current('equiptment.*') || route().current('sla.*') || route().current('package.*') || route().current('project.*') || route().current('status.*') || route().current('template.*') || route().current('port.*') || route().current('snport.*') || route().current('announcement.*') || route().current('smsgateway.*') || route().current('radiusconfig.*') || route().current('billconfig.*') ){
             this.billing = false;
             this.user = false;
         this.admin = true;

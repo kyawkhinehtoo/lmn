@@ -62,7 +62,9 @@ class PackageController extends Controller
             'type' => ['required', 'in:ftth,b2b,dia'],
             'contract_period' => ['required', 'in:6,12,24'],
         ])->validate();
-
+        $radius = new RadiusController();
+        $radius_services =  $radius->getRadiusServices();
+        
         $package = new Package();
         $package->name = $request->name;
         $package->speed = $request->speed;
@@ -71,6 +73,7 @@ class PackageController extends Controller
         $package->status = $request->status;
         $package->sla_id = $request->sla_id;
         $package->price = $request->price;
+        if($radius_services)
         $package->radius_package = $request->radius_srvid['srvid'];
         $package->contract_period = (string)$request->contract_period;
         $package->save();
@@ -98,10 +101,13 @@ class PackageController extends Controller
             'speed' => ['required'],
             'type' => ['required', 'in:ftth,b2b,dia'],
             'sla_id' => ['required'],
-            'contract_period' => ['required', 'in:6,12,24'],
+            'contract_period' => ['required', 'in:1,3,6,12,24'],
         ])->validate();
   
         if ($request->has('id')) {
+            $radius = new RadiusController();
+            $radius_services =  $radius->getRadiusServices();
+
             $package = Package::find($request->input('id'));
             $package->name = $request->name;
             $package->speed = $request->speed;
@@ -110,6 +116,7 @@ class PackageController extends Controller
             $package->sla_id = $request->sla_id;
             $package->status = $request->status;
             $package->price = $request->price;
+            if($radius_services)
             $package->radius_package = $request->radius_srvid['srvid'];
             $package->contract_period = (string)$request->contract_period;
             $package->update();

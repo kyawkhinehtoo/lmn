@@ -32,7 +32,7 @@ class Township extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'city','short_code', 'created_at', 'updated_at'
+        'name', 'city_id','short_code', 'created_at', 'updated_at'
     ];
 
     /**
@@ -50,7 +50,7 @@ class Township extends Model
      * @var array
      */
     protected $casts = [
-        'name' => 'string', 'city' => 'string', 'short_code' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp'
+        'name' => 'string', 'city_id' => 'integer', 'short_code' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp'
     ];
 
     /**
@@ -61,13 +61,6 @@ class Township extends Model
     protected $dates = [
         'created_at', 'updated_at'
     ];
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var boolean
-     */
-    public $timestamps = false;
 
     // Scopes...
 

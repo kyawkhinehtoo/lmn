@@ -30,8 +30,8 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="row in slas.data" v-bind:key="row.id">
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
+              <tr v-for="(row,index) in slas.data" v-bind:key="row.id">
+                <td class="px-6 py-3 whitespace-nowrap">{{ slas.from + index }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.percentage }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.weekly }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.monthly }}</td>

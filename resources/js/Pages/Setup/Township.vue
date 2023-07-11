@@ -35,7 +35,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr v-for="row in townships.data " v-bind:key="row.id">
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
-                                <td class="px-6 py-3 whitespace-nowrap">{{ row.city }}</td>
+                                <td class="px-6 py-3 whitespace-nowrap">{{ row.city_name }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.short_code }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
@@ -59,10 +59,10 @@
                         <form @submit.prevent="submit">
                           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <div class="">
-                                  <div class="mb-4">
+                                  <div class="mb-4" v-if="cities.length !== 0">
                                       <label for="city" class="block text-gray-700 text-sm font-bold mb-2">City:</label>
-                                      <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="city" placeholder="Enter City" v-model="form.city">
-                                      <div v-if="$page.props.errors.city" class="text-red-500">{{ $page.props.errors.city[0] }}</div>
+                                      <multiselect deselect-label="Selected already" :options="cities" track-by="id" label="name" v-model="form.city_id" :allow-empty="true"></multiselect>
+                                      <div v-if="$page.props.errors.city_id" class="text-red-500">{{ $page.props.errors.city_id[0] }}</div>
                                
                                   </div>
                                   <div class="mb-4">
@@ -115,16 +115,19 @@
     import AppLayout from '@/Layouts/AppLayout';
     import Pagination from '@/Components/Pagination';
     import { reactive, ref } from 'vue';
-    import { Inertia } from '@inertiajs/inertia'
+    import { Inertia } from '@inertiajs/inertia';
+    import Multiselect from "@suadelabs/vue3-multiselect";
     export default {
     name: 'Township',
     components: {
               AppLayout,
+              Multiselect,
               Pagination
           },
     //props: ['townships', 'errors'], 
     props: {
         townships : Object,
+        cities : Object,
         errors : Object
     },
     setup(props){
@@ -132,7 +135,7 @@
       const form = reactive({
           id : null,
           name: null,
-          city: 'Tachileik',
+          city_id :null,
           short_code : null
         })
         const search = ref('')
@@ -141,7 +144,7 @@
 
         function resetForm(){
               form.name = null
-              form.city = 'Tachileik'
+              form.city_id = null
               form.short_code = null    
         }
         function submit() {
@@ -193,7 +196,7 @@
         function edit (data) {
               form.id = data.id
               form.name = data.name
-              form.city = data.city
+              form.city_id = props.cities.filter((d) => d.id == data.city_id)[0];
               form.short_code = data.short_code  
               editMode.value = true
               openModal()
@@ -208,7 +211,6 @@
         }
         function openModal() {
           isOpen.value = true
-          console.log(props.townships.name)
         }
         const closeModal = () =>{
           isOpen.value = false
