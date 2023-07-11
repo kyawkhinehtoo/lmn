@@ -1,14 +1,24 @@
 <template>
   <div id="root">
     <nav class="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-200">
-      <div class="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex flex-wrap items-center justify-between w-full mx-auto">
+      <div class="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex items-center justify-between w-full mx-auto">
         <button class="cursor-pointer text-black opacity-50 md:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-solid border-transparent" type="button" onclick="toggleNavbar('example-collapse-sidebar')">
           <i class="fas fa-bars"></i>
         </button>
-        <a class="md:min-w-full flex-start inline-flex items-center align-middle uppercase text-blueGray-400" href="javascript:void(0)"> 
-             <img src="/storage/images/DemoLogo.png" class="w-16 select-none" />
-            
-            <span class="flex ml-2 font-bold antialiased">Operations Support System</span> </a>
+        <a class="flex md:min-w-full md:grid md:grid-cols-2 items-center align-middle uppercase" href="javascript:void(0)"> 
+             <div class=" col-span-1">
+              <img src="/storage/images/logo.png"  class="md:w-full w-32" />
+             </div>
+             <div class=" col-span-1 w-2/3">
+              <span class="text-sm font-bold antialiased text-lm-orange ">
+                 Lao Mao
+              </span>
+              <span class="text-sm font-bold antialiased text-lm-gray">
+                 Network
+              </span>  
+             </div>
+             
+        </a>
         <ul class="md:hidden items-center flex flex-wrap list-none">
           <li class="inline-block relative">
             <a class="text-blueGray-500 block py-1 px-3" href="#pablo" onclick="openDropdown(event,'notification-dropdown')"><i class="fas fa-bell"></i></a>

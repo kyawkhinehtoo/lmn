@@ -19,7 +19,9 @@ module.exports = {
             colors: {
                 // Change with you want it
                 'litepie-primary': colors.indigo, // color system for light mode
-                'litepie-secondary': colors.coolGray // color system for dark mode
+                'litepie-secondary': colors.coolGray, // color system for dark mode
+                'lm-orange' : '#f27036',
+                'lm-gray': '#656565'
               },
         },
     },
