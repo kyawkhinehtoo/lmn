@@ -33,8 +33,8 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="row in townships.data " v-bind:key="row.id">
-                                <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
+                            <tr v-for="(row,index) in townships.data " v-bind:key="row.id">
+                                <td class="px-6 py-3 whitespace-nowrap">{{ townships.from + index }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.city_name }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                                 <td class="px-6 py-3 whitespace-nowrap">{{ row.short_code }}</td>

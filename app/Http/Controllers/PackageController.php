@@ -59,8 +59,8 @@ class PackageController extends Controller
             'name' => ['required'],
             'speed' => ['required'],
             'sla_id' => ['required'],
-            'type' => ['required', 'in:ftth,b2b,dia'],
-            'contract_period' => ['required', 'in:6,12,24'],
+            'type' => ['required', 'in:ftth,b2b,dia,mpls'],
+            'contract_period' => ['required', 'in:1,3,6,12,24'],
         ])->validate();
         $radius = new RadiusController();
         $radius_services =  $radius->getRadiusServices();
@@ -99,7 +99,7 @@ class PackageController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'speed' => ['required'],
-            'type' => ['required', 'in:ftth,b2b,dia'],
+            'type' => ['required', 'in:ftth,b2b,dia,mpls'],
             'sla_id' => ['required'],
             'contract_period' => ['required', 'in:1,3,6,12,24'],
         ])->validate();

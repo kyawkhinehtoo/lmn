@@ -106,10 +106,9 @@
                             <label for="type" class="block text-md font-medium text-gray-700"> Service Type </label>
                             <div class="mt-1 flex">
                               <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-blue-600" checked name="type" v-model="form.type" value="ftth" /><span class="ml-2 text-gray-700">FTTH</span> </label>
-
                               <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-green-600" name="type" v-model="form.type" value="b2b" /><span class="ml-2 text-gray-700">B2B</span> </label>
-
                               <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-red-600" name="type" v-model="form.type" value="dia" /><span class="ml-2 text-gray-700">DIA</span> </label>
+                              <label class="flex-auto items-center mt-3"> <input type="radio" class="form-radio h-5 w-5 text-yellow-600" name="type" v-model="form.type" value="mpls" /><span class="ml-2 text-gray-700">MPLS</span> </label>
                             </div>
                           </div>
                           <div class="py-2">

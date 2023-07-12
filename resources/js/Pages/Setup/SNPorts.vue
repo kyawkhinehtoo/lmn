@@ -43,7 +43,7 @@
               <tbody class="bg-white divide-y divide-gray-200">
                 <tr v-for="(row, index) in overall.data" v-bind:key="row.id">
                   <td class="px-6 py-3 whitespace-nowrap">{{ index + 1 }}</td>
-                  <td class="px-6 py-3 whitespace-nowrap">{{ dns.filter((d) => d.id == row.dn_id)[0].name }}</td>
+                  <td class="px-6 py-3 whitespace-nowrap">{{ row.dn_name }}</td>
                   <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
                   <td class="px-6 py-3 whitespace-nowrap">{{ row.ports }}</td>
                   <td class="px-6 py-3 whitespace-nowrap">{{ row.description }}</td>

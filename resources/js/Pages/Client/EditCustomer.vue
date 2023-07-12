@@ -641,8 +641,16 @@ export default {
       
       res_sn.value = props.sn;
       if(props.customer.sn_id){
-        form.sn_id =  props.sn.filter((d) => d.id == props.customer.sn_id)[0];
-      form.dn_id = props.dn.filter((e) => e.name == form.sn_id.dn_name)[0];
+        console.log('Checking DN');
+        console.log(props.customer.sn_id);
+        let sn_id =  props.sn.filter((d) => d.id == props.customer.sn_id)[0];
+        if( sn_id !== undefined){
+          form.sn_id = sn_id;
+          let dn_id = props.dn.filter((e) => e.name == sn_id.dn_name)[0];
+          if(dn_id !== undefined){
+            form.dn_id = dn_id
+          }
+        }
       }
       form.pppoe_password = (!checkPerm('pppoe_password'))?props.customer.pppoe_password:"********";
       form.status = props.status_list.filter((d) => d.id == props.customer.status_id)[0];

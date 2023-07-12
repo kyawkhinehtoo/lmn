@@ -427,12 +427,13 @@ class RadiusController extends Controller
   
         $data = DB::table('customers')
                 ->join('townships','customers.township_id','townships.id')
+                ->join('cities','townships.city_id','cities.id')
                 ->join('packages','customers.package_id','packages.id')
                 ->join('status','customers.status_id','status.id')
                 ->leftjoin('sn_ports','customers.sn_id','sn_ports.id')
                 ->leftjoin('dn_ports','sn_ports.dn_id','dn_ports.id')
                 ->where('customers.id','=',$customer_id)
-                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name','packages.radius_package as srvid')
+                ->select('customers.*','townships.name as township_name','status.type as status_type','cities.name as city','dn_ports.name as dn_name','sn_ports.name as sn_name','packages.radius_package as srvid')
                 ->first();
         $billconfig = BillingConfig::first();
         if(isset($data->pppoe_account) && isset($data->pppoe_password)){
@@ -515,12 +516,13 @@ class RadiusController extends Controller
   
         $data = DB::table('customers')
                 ->join('townships','customers.township_id','townships.id')
+                ->join('cities','townships.city_id','cities.id')
                 ->join('packages','customers.package_id','packages.id')
                 ->join('status','customers.status_id','status.id')
                 ->leftjoin('sn_ports','customers.sn_id','sn_ports.id')
                 ->leftjoin('dn_ports','sn_ports.dn_id','dn_ports.id')
                 ->where('customers.id','=',$id)
-                ->select('customers.*','townships.name as township_name','status.type as status_type','townships.city as city','dn_ports.name as dn_name','sn_ports.name as sn_name','packages.radius_package as srvid')
+                ->select('customers.*','townships.name as township_name','status.type as status_type','cities.name as city','dn_ports.name as dn_name','sn_ports.name as sn_name','packages.radius_package as srvid')
                 ->first();
        
         if(isset($data->pppoe_account) ){

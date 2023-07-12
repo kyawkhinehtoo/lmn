@@ -14,15 +14,18 @@ class SNPortController extends Controller
     {   
         $dns = DnPorts::get();
         $sns = DB::table('sn_ports')
+        ->leftjoin('dn_ports','sn_ports.dn_id','=','dn_ports.id')
         ->when($request->keyword, function ($query, $keyword){
             $query->where('name','LIKE','%'.$keyword.'%');
             $query->orwhere('description','LIKE','%'.$keyword.'%');
         })
+        ->select('sn_ports.*','dn_ports.name as dn_name')
         ->paginate(10);
         $sns_all = SnPorts::get();
         $overall = DB::table('sn_ports')
+                        ->leftjoin('dn_ports','sn_ports.dn_id','=','dn_ports.id')
                         ->leftjoin('customers','sn_ports.id','=','customers.sn_id')
-                        ->select('sn_ports.id','sn_ports.name', 'sn_ports.dn_id', DB::raw('count(customers.id) as ports'))
+                        ->select('sn_ports.id','sn_ports.name', 'sn_ports.dn_id' ,'dn_ports.name as dn_name', DB::raw('count(customers.id) as ports'))
                         ->when($request->keyword, function ($query, $keyword){
                             $query->where('sn_ports.name','LIKE','%'.$keyword.'%');
                             $query->orwhere('sn_ports.description','LIKE','%'.$keyword.'%');
