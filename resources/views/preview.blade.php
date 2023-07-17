@@ -11,246 +11,307 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{{ asset('storage/css/burglish.css')}}">
-    <style>
+<style>
+        @media print {
+            body {
+                width: 21cm;
+                height: 29.7cm;
+                margin: 30mm 45mm 30mm 45mm;
+                page-break-inside: avoid;
+                /* change the margins as you want them to be. */
+            }
+            .container {
+            width: 100%;
+            bottom: 0;
+                    position: absolute;
+            }
 
-@media print {
-    body{
-        width: 21cm;
-        height: 29.7cm;
-        margin: 30mm 45mm 30mm 45mm; 
-        page-break-inside: avoid;
-        /* change the margins as you want them to be. */
-   } 
-   .footer{
-    position: absolute;
-    bottom:0;
-    width:100%;
-    height:30px;
-   }
-   
-}
-html,body{
-    margin:0 auto;
-    height:297mm;
-    width:210mm;
-}
-.mm{
-    font-family: 'WinInnwa';
-    font-size: 1.3rem;
-}
-body{
-    font-family:sans-serif;
-    font-size: 0.9rem;
-}
-.header-img{
-  width:100%;
-  height:auto;
-}
-.footer{
-    width:100%;
-    height:30px;
-}
-.container{
-    width: 100%;
-}
-.center{
-    margin:0 auto;
-    width:calc(100% - 40px);
-}
-.center table{
-    margin:0 auto;
-    width:100%;
-}
-.bottom{
-    vertical-align: bottom;
-}
-.text-bold{
-    font-weight: 800;
-}
-.text-semibold{
-    font-weight: 600;
-}
-.border{
-    border:2px solid #000000;
-}
-.border-top{
-    border-top: 2px solid #000000;
-}
-.border-bottom{
-    border-bottom: 2px solid #000000;
-}
+            /* .footer {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 30px;
+            } */
 
-.font-medium{
-    font-size: 1.4rem;
-}
-.font-small{
-    font-size: 1rem;
-}
-.collapse{
-    border-collapse: collapse;
-    padding: 0; 
-    border-spacing: 0; 
-    border:1px solid #b6b1b4;
+        }
 
-    margin-top:20px;
-    float:left;
-}
+        html,
+        body {
+            margin: 0 auto;
+            height: 297mm;
+            width: 210mm;
+        }
 
 
-.collapse th, .collapse td{
-    border:1px solid #b6b1b4;
-    height: 1em;
-    text-align: center;
-    width: auto;
-    padding:10px 0;
-    color:#484848;
-    font-weight: 600;
-}
-tr td.fix {
-    width: 1%;
-    padding:0 20px;
-    white-space: nowrap;
-}
-.-left{
-   margin-left:-10px;
-}
-.space{
+        body {
+            font-family: sans-serif;
+            font-size: 0.9rem;
+        }
+    
+        .header-img {
+            width: 100%;
+            height: auto;
+        }
 
-    border-spacing: 10px; 
+        .footer {
+            float: left;
+            width: 100%;
+            position: relative;
+            color: #ffffff;
+            text-align: center;
+        }
+    
+       
 
-}
-.underline{
-    margin:0 auto;
-    width:100%;
-    height:2px;
-    background: #000000;
-}
-.bg-marga{
-    background:#255978;
-    color:#ffffff;
-}
-.bg-image {
-    background-image: url("{{ asset('storage/images/watermark.jpg') }}") !important; /* The image used */
-  background-color: transparent;
-  /* Center the image */
-  background-repeat: no-repeat; /* Do not repeat the image */
-  /* Resize the background image to cover the entire container */
-  background-size: 50%;
+        .container {
+            width: 100%;
+        }
 
-  background-position-y:center ;
-  background-position-x:center ;
-  float:left;
-  margin:0 auto;
-}
-.round{
-    text-align: left;
-    vertical-align: middle;
-    font-size: 1.2rem;
-    font-weight: bolder;
-    border-radius: 0.5rem;
-    width: 65%;
-    padding: 10px 5px;
-    margin: 0 auto;
-}
-.round label{
-    white-space: nowrap;
-}
-.invoice_to{
-    background: #fed406;
-    color: #06131d;
-    display: block;
-    width: calc(100% - 40px);
-    font-size: 1rem;
-    font-weight: bold;
-    padding: 10px 20px;
+        .center {
+            margin: 0 auto;
+            width: 85%;
+        }
+      
+        .center table {
+            margin: 0 auto;
+            width: 100%;
+        }
+        table.head{
+            border-spacing: 0;
+        }
+       .text-bold {
+            font-weight: 800;
+        }
 
-}
+        .text-semibold {
+            font-weight: 600;
+        }
 
-</style>
+        .border {
+            border: 2px solid #000000;
+        }
+
+        .border-top {
+            border-top: 2px solid #000000;
+        }
+
+        .border-bottom {
+            border-bottom: 2px solid #000000;
+        }
+
+        .font-medium {
+            font-size: 1.4rem;
+        }
+
+        .font-small {
+            font-size: 1rem;
+        }
+
+        .collapse {
+            border-collapse: collapse;
+            padding: 0;
+            border-spacing: 0;
+            text-align: center;
+            margin-top: 20px;
+            float: left;
+        }
+     
+        .collapse tbody tr:last-child{
+            height: 400px;
+        }
+        tbody td{
+            text-align: center;
+            vertical-align: top;
+        }
+        .collapse th,
+        .collapse td {
+            border:1px solid #000000;
+            height: 1em;
+            width: auto;
+            padding: 10px;
+            color: #484848;
+            font-weight: 600;
+        }
+
+        tr td.fix {
+            width: 1%;
+            padding: 0 20px;
+            white-space: nowrap;
+        }
+
+        .left {
+            text-align: left;
+        }
+
+        .space {
+
+            border-spacing: 10px;
+
+        }
+
+        table.head td.text{
+            overflow: hidden;
+            position: relative;
+        }
+        table.head td.text { 
+         width: 90%;
+         text-align:left; padding:10px 0; 
+        }
+        table.head td.text:after{
+            content: " ....................................................................................................................... ";
+            position: absolute;
+            padding-left: 5px;
+        }
+        .orange_bg{
+            color:#000000;
+            background-color: #f27036;
+        }
+      
+
+        .header h2.title {
+            padding: 25px 0 ;
+            color: #f27036;
+            text-align: center;
+            margin:0;
+            font-size: xx-large;
+            text-transform: uppercase;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+       
+    </style>
    
 </head>
 
 <body class="font-sans antialiased" style="border-top:0 !important">
-<div class="container">
-        <div>
-            <table style="background:#000000;border:0;border-collapse: collapse;">
-                <tr>
-                    <td style="width:55%;" rowspan="2"><img src="{{ asset('storage/images/invoice-header.jpg') }}" class="header-img"/></td>
-                    <td style="width:45%;text-align:center;"><label style="display:block;font-size:3rem;font-weight:800;color:#fed406;">RECEIPT</label></td>
-                </tr>
-                <tr>
-                <td style="text-align:center;">
-                <div style="background:#ffffff;" class="round">
-                    <label class="block font-small">Date:  {{ date("j F Y",strtotime($date_issued)) }}</span></label>
-                    <label class="block font-small">Invoice No:  </span></label>
-                </div>
-                </td>
-                </tr>
-                <tr><td colspan="2"><label class="invoice_to">Invoice to : </label></td></tr>
-            </table>
-        
+@php
+                        if (strpos($period_covered, ' to ')) {
+                            $p_months = explode(" to ", ($period_covered));
+                            $from = (new DateTime($p_months[0]));
+                            $to = (new DateTime($p_months[1]));
+                            $first_date = $from->format("d-M-Y");
+                            $last_date = $to->format("d-M-Y");
+                            $period_covered = $first_date.' to '.$last_date;
+                        }  
+                   
+                @endphp
+    <div class="container">
+        <div class="header">
+            <img src="{{ asset('storage/images/invoice-header.png') }}" class="header-img" />
+            <h2 class="title">Invoice</h2>
         </div>
-        <div class="center" style="margin-top:5px;" >
-        <div class="bg-image">
-        <table class="collapse" style="margin-top:0px; border-top:0; width:100%; ">
-            <tr><td style="text-align:left; padding:10px;" colspan="4">Client Name : {{$bill_to}}</td><td rowspan="2"> Package : {{substr($bill_number,13,18)}} </td></tr>
-            <tr><td style="text-align:left; padding:10px;" colspan="4">Client ID : {{$ftth_id}}</td></tr>
-            <tr><td style="text-align:left; padding:10px;" colspan="4">Address : {{$attn}}</td><td rowspan="2">Internet Speed: {{$qty}}</td></tr>
-            <tr><td style="text-align:left; padding:10px;" colspan="4">Contact No : {{$phone}}</td></tr>
-      
-            <tr>
-                <th>No</th>
-                <th>Description</th>
-                <th style="width: 100px;">Qty</th>
-                <th style="width: 100px;">Price (USD/Kyat)</th>
-                <th>Amount <br/> (USD/Kyat)</th>
-            </tr>
-            </thead>
-           <tbody>
-               <tr>
-                   <td class="fix">1</td>
-                   <td>{{$service_description}}</td>
-                   <td class="fix">{{$qty}}</td>
-                   <td>{{number_format($sub_total)}}</td>
-                   <td>{{number_format($sub_total)}}</td>
-               </tr>
-               <tr><td></td><td></td><td></td><td></td><td></td></tr>
-               <tr><td></td><td></td><td></td><td></td><td></td></tr>
-               <tr><td></td><td></td><td></td><td></td><td></td></tr>
-               <tr><td></td><td></td><td></td><td></td><td></td></tr>
-             
-         
-               <tr><td colspan="4">Subtotal</td><td>{{number_format($sub_total)}}</td></tr>
-               <tr><td colspan="4">Discount</td><td>{{number_format($discount)}}</td></tr>
-               <tr><td colspan="4">Commercial Tax</td><td>{{number_format($tax)}}</td></tr>
-               <tr><td colspan="4">Grand Total</td><td>{{number_format($total_payable)}}</td></tr>
-               <tr><td style="text-align:left; padding:10px;" colspan="5">Cover Period : {{$period_covered}}</td></tr>
-               <tr><td style="text-align:left; padding:10px;height:50px;vertical-align:top;" colspan="5">Remark :</td></tr>
-           </tbody>
-        </table>
+    
        
-        </div>
-        <table>
-            <tr><td colspan="6">&nbsp;</td></tr>
-            <tr><td colspan="6">&nbsp;</td></tr>
-            <tr><td>Sale Name </td><td>: ..........................</td><td>ID</td><td>: ..........................</td><td>Paid By</td><td>: ..........................</td></tr>
-            <tr><td colspan="6">&nbsp;</td></tr>
-            <tr><td colspan="6">&nbsp;</td></tr>
-            <tr><td>Signature </td><td>: ..........................</td><td>&nbsp;</td><td>&nbsp;</td><td>Signature</td><td>: ..........................</td></tr>
-        </table>
-        <div style="text-align: center;margin-top:10px;">
-            <h1 style="font-size:1.5rem;font-weight:800;">(Sales Office)</h1>
-            <p style="text-align: center;
-    font-size: 1.2rem;
-    font-weight: 600;margin-top:5px;">1/91, Bogyoke Street,Sansai (A),Tachileik Township, Eastern Shan State, Myanmar.</p>
-            <p><span style="font-size: 1.5rem;">☎ </span><span style="font-weight: 600;font-size:1.2rem;">09 777049642, 09 777049644, 09 777049645, 09 777049649</span></p>
-        </div>
+        <div class="center" style="margin-top:5px;">
      
-</div>
-<div class="footer">
-        <div style="height: 15px;width:100%;background:#fed406;"></div>
-        <div style="height: 15px;width:100%;background:#000000;"></div>
+       <table class="collapse" style="margin-top:0px; width:100%; ">
+               <tbody>
+                <tr>
+                    <td colspan="5" class="left orange_bg">Invoice to : </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="left orange_bg">Date : </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="left orange_bg">Invoice No. : </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="left">Customer Name : </td>
+                    <td>Package : </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="left">Customer ID : </td>
+                    <td rowspan="3" class="left">Internet Speed : </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="left">Address : </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="left">Contact No. : </td>
+                </tr>
+
+               <!-- </tbody>
+       </table>
+                        <table class="collapse" style="margin-top:0px; width:100%; ">
+                        <thead>
+
+                        </thead>
+                        <tbody> -->
+                    <tr>
+                        <td>No.</td>
+                        <td>Description</td>
+                        <td>Qty</td>
+                        <td>Price (THB)</td>
+                        <td>Total Amount (THB)</td>
+                    </tr>
+
+                 <tr >
+                            <td>1</td>
+                            <td>{{$service_description}} for {{$period_covered}} </td>
+                            <td >{{$qty}}</td>
+                            <td>{{number_format($normal_cost)}}</td>
+                            <td>{{number_format($sub_total)}}</td>
+                        </tr>
+                        @php
+                        if($discount){
+                        @endphp 
+                        <tr >
+                            <td>2</td>
+                            <td>Discount </td>
+                            <td ></td>
+                         
+                            <td></td>
+                            <td>{{number_format($discount)}}</td>
+                        </tr>
+                        @php 
+                        }
+                        @endphp
+                       
+                       
+                        </tbody>
+           
+                    <tfoot>
+                    <tr>
+                          
+                            <td class="title" colspan="4">Subtotal</td>
+                            <td class="text">{{number_format($discount)}}</td>
+                        </tr>
+                        <tr>
+                          
+                          <td class="title" colspan="4">Discount</td>
+                          <td class="text">{{number_format($sub_total)}}</td>
+                      </tr>
+                      <tr>
+                          
+                          <td class="title" colspan="4">Commercial Tax</td>
+                          <td class="text">{{number_format($tax)}}</td>
+                      </tr>
+                      <tr>
+                          
+                          <td class="title" colspan="4">Grand Total </td>
+                          <td class="text">{{number_format($total_payable)}}</td>
+                      </tr>
+                       <tr>
+                          <td class="title left" colspan="5">Period : {{$period_covered}}</td>
+                       </tr>
+                       <tr>
+                          <td class="title left" colspan="5">Remark : {{$remark ?? '' }}</td>
+                       </tr>
+                      
+                    </tfoot>
+                       
+                   
+                </table>
+
+        
+        
+            
+
         </div>
+        <div class="footer">
+        <img src="{{ asset('storage/images/invoice-footer.png') }}" class="header-img" />
+        </div>
+   
 </body>
 
 </html>

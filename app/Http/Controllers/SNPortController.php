@@ -16,8 +16,8 @@ class SNPortController extends Controller
         $sns = DB::table('sn_ports')
         ->leftjoin('dn_ports','sn_ports.dn_id','=','dn_ports.id')
         ->when($request->keyword, function ($query, $keyword){
-            $query->where('name','LIKE','%'.$keyword.'%');
-            $query->orwhere('description','LIKE','%'.$keyword.'%');
+            $query->where('sn_ports.name','LIKE','%'.$keyword.'%');
+            $query->orwhere('sn_ports.description','LIKE','%'.$keyword.'%');
         })
         ->select('sn_ports.*','dn_ports.name as dn_name')
         ->paginate(10);
@@ -25,14 +25,14 @@ class SNPortController extends Controller
         $overall = DB::table('sn_ports')
                         ->leftjoin('dn_ports','sn_ports.dn_id','=','dn_ports.id')
                         ->leftjoin('customers','sn_ports.id','=','customers.sn_id')
-                        ->select('sn_ports.id','sn_ports.name', 'sn_ports.dn_id' ,'dn_ports.name as dn_name', DB::raw('count(customers.id) as ports'))
+                        ->select('sn_ports.id','sn_ports.name','sn_ports.description', 'sn_ports.dn_id' ,'dn_ports.name as dn_name', DB::raw('count(customers.id) as ports'))
                         ->when($request->keyword, function ($query, $keyword){
                             $query->where('sn_ports.name','LIKE','%'.$keyword.'%');
                             $query->orwhere('sn_ports.description','LIKE','%'.$keyword.'%');
                         })
                         ->groupBy(['sn_ports.id','sn_ports.dn_id','sn_ports.name'])
                         ->paginate(20);
-        $sns->appends($request->all())->links();
+        $overall->appends($request->all())->links();
         return Inertia::render('Setup/SNPorts',
          ['sns' => $sns, 'dns' => $dns,'overall'=>$overall, 'sns_all'=>$sns_all]);
     }
