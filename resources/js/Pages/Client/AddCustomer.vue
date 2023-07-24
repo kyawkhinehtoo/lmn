@@ -124,19 +124,25 @@
 
                 <div class="grid grid-cols-4 gap-2">
                   <div class="col-span-1 sm:col-span-1">
+                    <label for="pop_site" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Choose POP Site </label>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="pops.length !== 0">
+                      <multiselect deselect-label="Selected already" :options="pops" track-by="id" label="site_name" v-model="form.pop_id" :allow-empty="true" :disabled="checkPerm('package_id')" @select="POPSelect"> </multiselect>
+                    </div>
+                  </div>
+                  <div class="col-span-1 sm:col-span-1">
                     <label for="package" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Package </label>
-                    <div class="mt-1 flex rounded-md shadow-sm" v-if="packages.length !== 0">
-                      <multiselect deselect-label="Selected already" :options="packages" track-by="id" label="name" v-model="form.package" :allow-empty="false" :disabled="checkPerm('package_id')"></multiselect>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="res_packages">
+                      <multiselect deselect-label="Selected already" :options="res_packages" track-by="id" label="name" v-model="form.package" :allow-empty="false" :disabled="checkPerm('package_id')"></multiselect>
                     </div>
                     <p v-show="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
-                    <label for="package" class="block text-sm font-medium text-gray-700"> Extra Bandwidth </label>
+                    <label for="extra_bandwidth" class="block text-sm font-medium text-gray-700"> Extra Bandwidth </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <input type="number" v-model="form.extra_bandwidth" name="extra_bandwidth" id="extra_bandwidth" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Only for bonus bandwidth" :disabled="checkPerm('extra_bandwidth')"  v-on:keypress="isNumber(event)" />
                       <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm" > Mbps </span>
                     </div>
-                    <p v-show="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
+                    <p v-show="$page.props.errors.extra_bandwidth" class="mt-2 text-sm text-red-500">{{ $page.props.errors.extra_bandwidth }}</p>
                   </div>
                  <div class="col-span-1 sm:col-span-1">
                     <label for="contract_term" class="block text-sm font-medium text-gray-700"> Contract Term </label>
@@ -150,6 +156,24 @@
                      </select>
                     </div>
                      
+                  </div>
+               
+                </div> 
+                <div class="grid grid-cols-4 gap-2">
+                  <div class="col-span-1 sm:col-span-1">
+                    <label for="advance_payment" class="block text-sm font-medium text-gray-700"> Advance Payment </label>
+                    <div class="mt-1 flex rounded-md" >
+                     <div class="mt-1 flex rounded-md shadow-sm">
+                              <input type="number" v-model="form.advance_payment" name="advance_payment" id="advance_payment" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Month" :disabled="checkPerm('advance_payment')" />
+                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> M </span>
+                            </div>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                              <input type="number" v-model="form.advance_payment_day" name="advance_payment_day" id="advance_payment_day" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Day" :disabled="checkPerm('advance_payment_day')" />
+                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Day </span>
+                            </div>
+                    </div>
+               
+                  
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="foc_period" class="block text-sm font-medium text-gray-700"><input type="checkbox" class="rounded-sm" v-model="form.foc" id="foc" /> FOC (Free of Charge)  </label>
@@ -172,22 +196,6 @@
                     </div>
                      
                   </div>
-                </div> 
-                <div class="grid grid-cols-4 gap-2">
-                  <div class="col-span-1 sm:col-span-1">
-                    <label for="advance_payment" class="block text-sm font-medium text-gray-700"> Advance Payment </label>
-                    <div class="mt-1 flex rounded-md" >
-                     <div class="mt-1 flex rounded-md shadow-sm">
-                              <input type="number" v-model="form.advance_payment" name="advance_payment" id="advance_payment" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Month" :disabled="checkPerm('advance_payment')" />
-                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> M </span>
-                            </div>
-                            <div class="mt-1 flex rounded-md shadow-sm">
-                              <input type="number" v-model="form.advance_payment_day" name="advance_payment_day" id="advance_payment_day" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Day" :disabled="checkPerm('advance_payment_day')" />
-                              <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"> Day </span>
-                            </div>
-                    </div>
-                     
-                  </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="customer_type" class="block text-sm font-medium text-gray-700"> Customer Type </label>
                     <div class="mt-1 flex rounded-md" >
@@ -200,7 +208,7 @@
                     </div>
                      
                   </div>
-                  <div class="col-span-2 sm:col-span-2">
+                  <div class="col-span-1 sm:col-span-1">
                     <label for="sale_remark" class="block text-sm font-medium text-gray-700"> Sale Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
@@ -268,7 +276,7 @@
                     </div>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
-                    <label for="splitter_no" class="block text-sm font-medium text-gray-700"> Splitter Name </label>
+                    <label for="splitter_no" class="block text-sm font-medium text-gray-700"> SN Port No. </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
                         <i class="fas fa-tools"></i>
@@ -351,22 +359,22 @@
                     <p v-show="$page.props.errors.pppoe_password" class="mt-2 text-sm text-red-500">{{ $page.props.errors.pppoe_password }}</p>
                   </div>
                     <div class="col-span-1 sm:col-span-1">
-                    <label for="latitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Latitude </label>
+                    <label for="latitude" class="block text-sm font-medium text-gray-700">Latitude </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
                         <i class="fas fa-location-arrow"></i>
                       </span>
-                      <input type="text" v-model="form.latitude" name="latitude" id="latitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
+                      <input type="text" v-model="form.latitude" name="latitude" id="latitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)"  :disabled="checkPerm('location')" />
                     </div>
                     <p v-show="$page.props.errors.latitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.latitude }}</p>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
-                    <label for="longitude" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Longitude </label>
+                    <label for="longitude" class="block text-sm font-medium text-gray-700">Longitude </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3">
                         <i class="fas fa-location-arrow"></i>
                       </span>
-                      <input type="text" v-model="form.longitude" name="longitude" id="longitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)" required :disabled="checkPerm('location')" />
+                      <input type="text" v-model="form.longitude" name="longitude" id="longitude" class="pl-10 mt-1 form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" v-on:keypress="isNumber(event)"  :disabled="checkPerm('location')" />
                     </div>
                     <p v-show="$page.props.errors.longitude" class="mt-2 text-sm text-red-500">{{ $page.props.errors.longitude }}</p>
                   </div>
@@ -422,14 +430,13 @@ export default {
     roles: Object,
     users: Object,
     dn:Object,
-    max_mk_id:Object,
-    max_tcl_id:Object,
-    max_vip_tcl_id:Object,
-    max_vip_mk_id:Object,
+    pops:Object,
+    max_id:Array,
     errors: Object,
   },
   setup(props) {
     let res_sn = ref("");
+    let res_packages = ref("");
     let pppoe_auto = ref(false);
     const form = reactive({
       id: null,
@@ -451,6 +458,7 @@ export default {
       subcom: "",
       township: "",
       prefer_install_date: "",
+      pop_id: "",
       dn_id: "",
       sn_id: "",
       splitter_no: "",
@@ -490,6 +498,7 @@ export default {
       form.subcom = "";
       form.sale_person = "";
       form.prefer_install_date= "";
+      form.pop_id= "";
       form.dn_id= "";
       form.sn_id= "";
       form.splitter_no= "";
@@ -568,52 +577,73 @@ export default {
       }
       
     }
-    function goID(){
-      if(form.township){
-        
-    
-          if(form.customer_type == 2){
-          form.ftth_id = 'demovip'+('000'+(parseInt(props.max_vip_tcl_id)+1)).slice(-3);
-         }else{
-          form.ftth_id = 'demo'+('00000'+(parseInt(props.max_tcl_id)+1)).slice(-5);
-         }
-          
-      }
-        
-      
-    }
-    function fillPppoe(){
-          if(!form.pppoe_account){
-            if(form.ftth_id ){
-              var pppoe = form.ftth_id;
-              form.pppoe_account = pppoe.toLowerCase();
-              pppoe_auto.value = true;
-            }  
-          }
-         
-    }
-    function generatePassword() { 
-        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        var passwordLength = 8;
-        var password = "";
-        for (var i = 0; i <= passwordLength; i++) {
-        var randomNumber = Math.floor(Math.random() * chars.length);
-        password += chars.substring(randomNumber, randomNumber +1);
+
+    const POPSelect=(pops)=>{
+      getPackages(pops.id).then((d) => {
+        console.log(d)
+        if(d){
+        form.package=null;
+        res_packages.value = d;
+        }else{
+          form.sn_id=null;
+          res_packages.value = null;
         }
-       if(!form.pppoe_password){
-            if(form.ftth_id ){
-            form.pppoe_password = password;
-            }
-          }
+        
+       });
+    }
+    const getPackages = async (pop_id) => {
+      let url = "/getPackages/"+pop_id;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+
+    function goID() {
+      if (form.township) {
+        
+        let city_code = form.township['city_code'];
+        let city_id = form.township['city_id'];
+        var data = props.max_id.filter((id)=> id.id == city_id )[0];
+        form.ftth_id = city_code + ('00000' + (parseInt(data.value) + 1)).slice(-5);
+      }
+    }
+    function fillPppoe() {
+      if (!form.pppoe_account) {
+        if (form.ftth_id) {
+          var pppoe = form.ftth_id;
+          form.pppoe_account = pppoe.toLowerCase();
+          pppoe_auto.value = true;
+        }
+      }
+
+    }
+    function generatePassword() {
+      var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      var passwordLength = 8;
+      var password = "";
+      for (var i = 0; i <= passwordLength; i++) {
+        var randomNumber = Math.floor(Math.random() * chars.length);
+        password += chars.substring(randomNumber, randomNumber + 1);
+      }
+      if (!form.pppoe_password) {
+        if (form.ftth_id) {
+          form.pppoe_password = password;
+        }
+      }
     }
     onMounted(() => {
       form.township = props.townships.filter((d) => d.id == 1)[0];
         form.sale_person = props.sale_persons[0];
-        form.package = props.packages[0];
+        
         form.status = props.status_list[0];
         goID();
     });
-    return { form, submit, resetForm, isNumber, checkPerm,res_sn,DNSelect,goID ,fillPppoe,pppoe_auto,generatePassword };
+    return { form, submit, resetForm, isNumber, checkPerm,res_sn,DNSelect,goID ,fillPppoe,pppoe_auto,generatePassword,POPSelect ,res_packages};
   },
 };
 </script>

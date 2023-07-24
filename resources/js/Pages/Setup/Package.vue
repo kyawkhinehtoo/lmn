@@ -28,6 +28,7 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Type</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MRC </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Terms</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pop Site</th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
               </tr>
             </thead>
@@ -40,6 +41,7 @@
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.price }} <span class="uppercase">{{row.currency}}</span> </td>
                 <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.contract_period }} Months</td>
+                <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.site_name }}</td>
                 <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap text-right">
                   <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                   <a href="#" @click="deleteRow(row)" class="text-red-600 hover:text-red-900">Delete</a>
@@ -130,6 +132,14 @@
                                 <option value="24">24 Months</option>
                               </select>
                             </div>
+                          </div>
+                          <div class="py-2" v-if="pops">
+                            <label for="speed" class="block text-md font-medium text-gray-700"> Choose POP Site </label>
+                              <div class="mt-1 flex rounded-md shadow-sm" v-if="pops.length !== 0">
+                              <multiselect deselect-label="Selected already" :options="pops" track-by="id" label="site_name" v-model="form.pop_id" :allow-empty="true" :multiple="false" > </multiselect>
+                            
+                            </div>
+                            <div v-if="$page.props.errors.pop_id" class="text-red-500">{{ $page.props.errors.pop_id }}</div>
                           </div>
                           <div class="py-2 grid grid-cols-5 gap-2">
                             <div class="col-span-3 sm:col-span-3">
@@ -236,6 +246,7 @@ export default {
     slas: Object,
     errors: Object,
     bundles: String,
+    pops:Object,
     radius_services:Object
   },
   setup(props) {
@@ -246,6 +257,7 @@ export default {
       speed: null,
       type: "ftth",
       sla_id: 1,
+      pop_id: null,
       status: true,
       currency:"baht",
       contract_period: 1,
@@ -273,6 +285,7 @@ export default {
       form.package_id = null;
       form.status = true;
       form.sla_id = 1;
+      form.pop_id = 1;
       form.type = "ftth";
       form.qty = 1;
       form.radius_srvid = null;
@@ -311,19 +324,21 @@ export default {
           },
 
           onError: (errors) => {
-            closeModal();
+         
             console.log("error ..".errors);
           },
         });
       }
     }
     function edit(data) {
+      form.id= data.id;
       form.name = data.name;
       form.price = data.price;
       form.speed = data.speed;
       form.contract_period = data.contract_period;
       form.package_id = data.package_id;
       form.sla_id = data.sla_id;
+      form.pop_id = (props.pops)?props.pops.filter((pop) => pop.id == data.pop_id):null;
       form.radius_srvid =(props.radius_services)?props.radius_services.filter((rs) => rs.srvid == data.radius_package):null;
       form.qty = 1;
       if(data.status == 1){

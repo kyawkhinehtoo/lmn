@@ -7,17 +7,21 @@ use App\Models\Package;
 use App\Models\Sla;
 use App\Models\PackageBundle;
 use App\Models\BundleEquiptment;
+use App\Models\Pop;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
-use DB;
+
 class PackageController extends Controller
 {
     public function index(Request $request)
     {
-         $packages = Package::when($request->package, function($query, $pkg){
+         $packages = Package::leftjoin('pops','packages.pop_id','=','pops.id')->when($request->package, function($query, $pkg){
              $query->where('name','LIKE','%'.$pkg.'%');
          })
+         ->select('packages.*','pops.site_name')
          ->paginate(10);
+         $pops = Pop::get();
        // $packages = PackageBundle::with(['package','bundleEquiptment'])->get();
   
         // foreach($packages as $package){
@@ -36,7 +40,7 @@ class PackageController extends Controller
 
         $bundle_equiptments = BundleEquiptment::get();
         $slas = Sla::get();
-        return Inertia::render('Setup/Package', ['packages' => $packages, 'bundle_equiptments' => $bundle_equiptments,'slas'=>$slas,'radius_services'=>$radius_services]);
+        return Inertia::render('Setup/Package', ['packages' => $packages, 'bundle_equiptments' => $bundle_equiptments,'slas'=>$slas,'radius_services'=>$radius_services,'pops'=>$pops]);
 
     }
 
@@ -59,6 +63,7 @@ class PackageController extends Controller
             'name' => ['required'],
             'speed' => ['required'],
             'sla_id' => ['required'],
+          //  'pop_id' => ['required'],
             'type' => ['required', 'in:ftth,b2b,dia,mpls'],
             'contract_period' => ['required', 'in:1,3,6,12,24'],
         ])->validate();
@@ -73,6 +78,7 @@ class PackageController extends Controller
         $package->status = $request->status;
         $package->sla_id = $request->sla_id;
         $package->price = $request->price;
+        $package->pop_id = ($request->pop_id)?$request->pop_id['id']:null;
         if($radius_services)
         $package->radius_package = $request->radius_srvid['srvid'];
         $package->contract_period = (string)$request->contract_period;
@@ -101,6 +107,7 @@ class PackageController extends Controller
             'speed' => ['required'],
             'type' => ['required', 'in:ftth,b2b,dia,mpls'],
             'sla_id' => ['required'],
+           // 'pop_id' => ['required'],
             'contract_period' => ['required', 'in:1,3,6,12,24'],
         ])->validate();
   
@@ -116,6 +123,7 @@ class PackageController extends Controller
             $package->sla_id = $request->sla_id;
             $package->status = $request->status;
             $package->price = $request->price;
+            $package->pop_id = ($request->pop_id)?$request->pop_id['id']:null;
             if($radius_services)
             $package->radius_package = $request->radius_srvid['srvid'];
             $package->contract_period = (string)$request->contract_period;
@@ -133,6 +141,22 @@ class PackageController extends Controller
             return redirect()->back()
                     ->with('message', 'Package Updated Successfully.');
         }
+    }
+    public function getPackage(Request $request){
+        $sn = null;
+        if($request->id){
+
+            $sn= DB::table('packages')
+            ->where('packages.pop_id','=',$request->id)
+            ->select('packages.*')
+            ->get();
+        }
+        return response()
+            ->json($sn,200);
+    }
+    public function getIdByName(Request $request)
+    {
+       
     }
     public function destroy(Request $request, $id)
     {

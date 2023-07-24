@@ -34,6 +34,7 @@ Route::group(['middleware'=> ['auth','role']], function(){
 	
 	Route::resource('/user', UserController::class);
 	Route::resource('/sla', SlaController::class);
+	Route::resource('/pop', PopController::class);
 	Route::resource('/port', PortController::class);
 	Route::resource('/snport', SNPortController::class);
 	Route::get('/generateSN', 'SNPortController@generateSN');
@@ -195,6 +196,9 @@ Route::group(['middleware'=> 'auth'], function(){
 
 	//Utils 
 	Route::get('/sanitiseAllPhone','BillingController@sanitiseAllPhone');
+
+	//POPs
+	Route::get('/getPackages/{id}', 'PackageController@getPackage');
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

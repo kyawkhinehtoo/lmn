@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\City;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Package;
@@ -13,6 +14,7 @@ use App\Models\Role;
 use App\Models\SnPorts;
 use App\Models\DnPorts;
 use App\Models\CustomerHistory;
+use App\Models\Pop;
 use Inertia\Inertia;
 use DateTime;
 use Illuminate\Support\Facades\Validator;
@@ -215,6 +217,7 @@ class CustomerController extends Controller
         $packages = Package::get();
         $sn = SnPorts::get();
         $projects = Project::get();
+        $pops = Pop::get();
         $dn = DB::table('dn_ports')
         ->select(DB::raw('name, count(port) as ports'))
         ->groupBy(['name'])
@@ -243,14 +246,11 @@ class CustomerController extends Controller
             ->where('roles.name', 'LIKE', '%installation%')
             ->select('users.name as name', 'users.id as id')
             ->get();
-        $townships = Township::get();
+        $townships = Township::join('cities','townships.city_id','=','cities.id')->select('townships.*','cities.name as city_name','cities.short_code as city_code','cities.id as city_id')->get();
         $status_list = Status::get();
         $roles = Role::get();
         $users = User::find(Auth::user()->id);
-        $max_tcl_id = $this->getmaxtclid();
-        $max_mk_id = $this->getmaxmkid();
-        $max_vip_tcl_id = $this->getmaxtclvipid();
-        $max_vip_mk_id = $this->getmaxmkvipid();
+        $max_id = $this->getmaxid();
         return Inertia::render(
             'Client/AddCustomer',
             [
@@ -264,10 +264,8 @@ class CustomerController extends Controller
                 'users' => $users,
                 'sn' => $sn,
                 'dn' => $dn,
-                'max_tcl_id' => $max_tcl_id,
-                'max_mk_id' => $max_mk_id,
-                'max_vip_tcl_id' => $max_vip_tcl_id,
-                'max_vip_mk_id' => $max_vip_mk_id,
+                'pops' => $pops,
+                'max_id' => $max_id
             ]
         );
     }
@@ -282,8 +280,8 @@ class CustomerController extends Controller
             'name' => 'required|max:255',
             'phone_1' => 'required|max:255',
             'address' => 'required',
-            'latitude' => 'required|max:255',
-            'longitude' => 'required|max:255',
+            // 'latitude' => 'required|max:255',
+            // 'longitude' => 'required|max:255',
             'sale_person' => 'required',
             'package' => 'required',
             'sale_channel' => 'required|max:255',
@@ -298,26 +296,23 @@ class CustomerController extends Controller
        
         
         $auto_ftth_id = $request->ftth_id;
-        $check_id = Customer::where('ftth_id','=',$auto_ftth_id)
-                    ->where(function($query){
-                        return $query->where('customers.deleted', '=', 0)
-                        ->orWhereNull('customers.deleted');
-                    })
-                    ->first();
+        $check_id = Customer::where('ftth_id','=',$auto_ftth_id)->first();
         if($check_id){
             //already exists
-            
-         
-                if($request->customer_type == 2){
-                    $max_id = $this->getmaxtclvipid();
-                    $auto_ftth_id = 'demovip'.str_pad($max_id+1, 3, '0', STR_PAD_LEFT);
-                }else{
-                    $max_id = $this->getmaxtclid();
-                    $auto_ftth_id = 'demo'.str_pad($max_id+1, 5, '0', STR_PAD_LEFT);
-                }
-               
-            
-   
+            if($request->township ){
+                    $max_c_id = $this->getmaxid();
+                    $city_id = $request->township['city_id'];
+                    $result = null;
+                    foreach($max_c_id as $value){
+                        if((int)$value['id']== (int)$city_id){
+                           $result = $value['value'];
+                        }
+                    }
+                    if($result){
+                     //   $max_id = $max_c_id [$request->city_id];
+                        $auto_ftth_id = $request->township['city_code'].str_pad($result+1, 5, '0', STR_PAD_LEFT);
+                    }
+             }
         }
         $customer = new Customer();
         foreach ($user_perm as $key => $value) {
@@ -446,11 +441,13 @@ class CustomerController extends Controller
                 ->where('roles.name', 'LIKE', '%installation%')
                 ->select('users.name as name', 'users.id as id')
                 ->get();
-            $townships = Township::get();
+            
+            $townships = Township::join('cities','townships.city_id','=','cities.id')->select('townships.*','cities.name as city_name','cities.short_code as city_code','cities.id as city_id')->get();
             $status_list = Status::get();
             $roles = Role::get();
             $users = User::find(Auth::user()->id);
             $user = User::join('roles','roles.id','=','users.role')->find(Auth::user()->id);
+            $pops = Pop::all();
             $radius = RadiusController::checkRadiusEnable();
             return Inertia::render(
                 'Client/EditCustomer',
@@ -468,7 +465,8 @@ class CustomerController extends Controller
                     'sn' => $sn,
                     'dn' => $dn,
                     'customer_history' => $customer_history,
-                    'radius'=>$radius
+                    'radius'=>$radius,
+                    'pops'=>$pops
                 ]
             );
         }
@@ -492,8 +490,8 @@ class CustomerController extends Controller
             'name' => 'required|max:255',
             'phone_1' => 'required|max:255',
             'address' => 'required',
-            'latitude' => 'required|max:255',
-            'longitude' => 'required|max:255',
+            // 'latitude' => 'required|max:255',
+            // 'longitude' => 'required|max:255',
             'sale_person' => 'required',
             'package' => 'required',
             'sale_channel' => 'required|max:255',
@@ -618,70 +616,41 @@ class CustomerController extends Controller
             return response()->json($customer_history, 200);
         }
     }
-    public function getmaxtclid(){
-        $customers = Customer::all();
-        $cid = array();
-        //gghtcl688803770
-        //gghmk688803770
-        //gghtclvip005
-        foreach($customers as $customer){
-            if(preg_match("/(^[a-z]{6}[0-9]{9})$/",$customer->ftth_id)){
-                $num = substr($customer->ftth_id,-4,4);
-                array_push($cid,(int)$num);
+    public function getmaxid(){
+        $customers = Customer::where(function($query){
+            return $query->where('customers.deleted', '=', 0)
+            ->orWhereNull('customers.deleted');
+        })->get();
+        $cities = City::all();
+        $max_c_id = array();
+      
+        foreach($cities as $city){
+          
+            $cid = array();
+            foreach($customers as $customer){
+                $reg = "/(^".$city->short_code."[0-9]{5})$/";
+                if(preg_match($reg,$customer->ftth_id)){
+                    $num = substr($customer->ftth_id,-5,5);
+                    array_push($cid,(int)$num);
+                }
             }
-        }
-        if(sizeof($cid))
-        return max($cid);
-        return 0;
-    }
-    public function getmaxmkid(){
-        $customers = Customer::all();
-        $cid = array();
-        //gghtcl688803770
-        //gghmk688803770
-        //gghtclvip005
-        foreach($customers as $customer){
-            if(preg_match("/(^[a-z]{5}[0-9]{9})$/",$customer->ftth_id)){
-                $num = substr($customer->ftth_id,-4,4);
-                array_push($cid,(int)$num);
+            if(!empty($cid)){
+                $max_id = max($cid);
+              //  dd($max_id);
+            }else{
+                $max_id = 0;
             }
+            
+
+            $id_array = array('id'=> $city->id , 'value'=> $max_id );
+        
+            array_push($max_c_id,$id_array);
         }
-        if(sizeof($cid))
-        return max($cid);
-        return 0;
-    }
-    public function getmaxtclvipid(){
-        $customers = Customer::all();
-        $cid = array();
-        //gghtcl688803770
-        //gghmk688803770
-        //gghtclvip005
-        foreach($customers as $customer){
-            if(preg_match("/(^[a-z]{9}[0-9]{3})$/",$customer->ftth_id)){
-                $num = substr($customer->ftth_id,-3,3);
-                array_push($cid,(int)$num);
-            }
-        }
-        if(sizeof($cid))
-        return max($cid);
-        return 0;
-    }
-    public function getmaxmkvipid(){
-        $customers = Customer::all();
-        $cid = array();
-        //gghtcl688803770
-        //gghmk688803770
-        //gghtclvip005
-        //gghmkvip005
-        foreach($customers as $customer){
-            if(preg_match("/(^[a-z]{8}[0-9]{3})$/",$customer->ftth_id)){
-                $num = substr($customer->ftth_id,-3,3);
-                array_push($cid,(int)$num);
-            }
-        }
-        if(sizeof($cid))
-        return max($cid);
-        return 0;
+       
+     //   if(sizeof($max_c_id))
+        //dd($max_c_id);
+        return $max_c_id;
+     
     }
     /**
      * Remove the specified resource from storage.

@@ -93,6 +93,9 @@
                 <jet-nav-link :href="route('equiptment.index')" :active="route().current('equiptment.index')"> <i class="fas fa-gamepad opacity-75 mr-2 text-sm w-6"></i> Bundle Setup </jet-nav-link>
               </li>
               <li>
+                <jet-nav-link :href="route('pop.index')" :active="route().current('pop.index')"> <i class="fas fa-building opacity-75 mr-2 text-sm w-6"></i> POP Setup </jet-nav-link>
+              </li>
+              <li>
                 <jet-nav-link :href="route('port.index')" :active="route().current('port.index')"> <i class="fas fa-server opacity-75 mr-2 text-sm w-6"></i> DN Setup </jet-nav-link>
               </li>
               <li>
@@ -354,7 +357,7 @@ export default {
         this.admin = false;
             this.report = false;
      }
-     else if(route().current('user.*') || route().current('role.*') || route().current('township.*') || route().current('city.*') || route().current('equiptment.*') || route().current('sla.*') || route().current('package.*') || route().current('project.*') || route().current('status.*') || route().current('template.*') || route().current('port.*') || route().current('snport.*') || route().current('announcement.*') || route().current('smsgateway.*') || route().current('radiusconfig.*') || route().current('billconfig.*') ){
+     else if(route().current('user.*') || route().current('role.*') || route().current('township.*') || route().current('city.*') || route().current('equiptment.*') || route().current('sla.*') || route().current('package.*') || route().current('project.*') || route().current('status.*') || route().current('template.*') || route().current('pop.*') || route().current('port.*') || route().current('snport.*') || route().current('announcement.*') || route().current('smsgateway.*') || route().current('radiusconfig.*') || route().current('billconfig.*') ){
             this.billing = false;
             this.user = false;
         this.admin = true;
