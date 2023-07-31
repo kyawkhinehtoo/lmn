@@ -29,34 +29,34 @@
        <div class="col-1">
          
            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg" v-if="pops.data">
-          <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-200 table-auto ">
             <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site Name</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site Description</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated At</th>
-                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
+              <tr class="text-left">
+                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">No.</th>
+                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Site Name</th>
+                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Site Description</th>
+                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Created At</th>
+                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Updated At</th>
+                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase"><span class="sr-only">Action</span></th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64 ">
               <tr v-for="(row, index) in pops.data" v-bind:key="row.id">
-                <td class="px-6 py-3 whitespace-nowrap">{{ pops.from + index }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.site_name }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.site_description }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.created_at }}</td>
-                <td class="px-6 py-3 whitespace-nowrap">{{ row.updated_at }}</td>
-                <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
-                  <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
-                  <a href="#" @click="confirmDelete(row.id)" class="text-red-600 hover:text-red-900">Delete</a>
+                <td class="px-4 py-3 text-xs font-medium">{{ pops.from + index }}</td>
+                <td class="px-4 py-3 text-xs font-medium">{{ row.site_name }}</td>
+                <td class="px-4 py-3 text-xs font-medium">{{ row.site_description }}</td>
+                <td class="px-4 py-3 text-xs font-medium">{{ row.created_at }}</td>
+                <td class="px-4 py-3 text-xs font-medium">{{ row.updated_at }}</td>
+                <td class="px-4 py-3 text-xs font-medium text-right">
+                  <a href="#" @click="edit(row)" class="text-yellow-600 ml-2">  <i class="fa fa-pen "></i></a>
+                  <a href="#" @click="confirmDelete(row)" class="text-red-600 ml-2">  <i class="fa fa-trash"></i></a> 
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
           <span v-if="pops.total" class="w-full block mt-4">
-            <label class="text-xs text-gray-600">{{ pops.data.length }} DN List in Current Page. Total Number of POP :  {{ pops.total }}</label>
+            <label class="text-xs text-gray-600">{{ pops.data.length }} POP List in Current Page. Total Number of POP :  {{ pops.total }}</label>
         </span>
         <span v-if="pops.links">
           <pagination class="mt-6" :links="pops.links" />
@@ -79,18 +79,71 @@
   <jet-dialog-modal :show="show" @close="show = false">
     <template #title> Add New Port </template>
     <template #content>
-      <div>
-        <div v-if="$page.props.errors[0]" class="text-red-500">{{ $page.props.errors[0] }}</div>
-        <div class="mt-4 text-sm">
-          <jet-input type="text" class="mt-1 block w-full" placeholder="POP Name" ref="text" v-model="form.site_name" />
-          <jet-input-error :message="form.error" class="mt-2" />
-       
-          <jet-input type="text" class="mt-1 block w-full" placeholder="POP Description" ref="text" v-model="form.site_description" />
+          <div class="mb-4 md:col-span-1">
+            <label for="site_name" class="block text-gray-700 text-sm font-bold mb-2">POP Site Name :</label>
+            <input type="text"
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="site_name" placeholder="Enter POP Site Name" v-model="form.site_name"/>
+            <div v-if="$page.props.errors.site_name" class="text-red-500">{{ $page.props.errors.site_name }}
+            </div>
+          </div>
+          <div class="mb-4 md:col-span-1">
+            <label for="description" class="block text-gray-700 text-sm font-bold mb-2">POP Site Description :</label>
+            <textarea
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="description" placeholder="Enter Description" v-model="form.site_description" />
+            <div v-if="$page.props.errors.site_description" class="text-red-500">{{ $page.props.errors.site_description }}
+            </div>
+          </div>
+          <div class="mb-4 md:col-span-1">
+            <label for="site_location" class="block text-gray-700 text-sm font-bold mb-2">POP Site Location :</label>
+            <input type="text"
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="site_location" placeholder="Enter Location (Lat,Long)" v-model="form.site_location" @input="onInputLocation" />
+            <div v-if="$page.props.errors.site_location" class="text-red-500">{{ $page.props.errors.site_location }}
+            </div>
+          </div>
+          <div class="overflow-hidden h-max ">
+            <button v-on:click="devices.push({})" type="button"
+                  class="btn bg-indigo-600 hover:bg-indigo-700 text-sm shadow-sm rounded-md px-4 py-2 text-white font-semibold">Add
+                  <i class="fa fas fa-plus"></i></button>
+                  <table class="min-w-full text-center">
+                    <thead class="border-b bg-gray-50">
+                      <tr>
+                        <th scope="col" class="text-left text-sm font-bold text-gray-900 py-4">#</th>
+                        <th scope="col" class="text-left text-sm font-bold text-gray-900 py-4">Device</th>
+                        <th scope="col" class="text-left text-sm font-bold text-gray-900 py-4">Quantity </th>
+                        <th scope="col" class="text-left text-sm font-bold text-gray-900 py-4">Remark</th>
+                        <th scope="col" class="text-left text-sm font-bold text-gray-900 py-4">#</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="bg-white border-b" v-for="(device, index) in devices" :key="index">
+                        <td class="text-sm text-gray-900 font-light w-10 py-4 whitespace-nowrap">{{ index + 1 }}</td>
+                        <td class="text-sm text-gray-900 font-light w-96 py-4 whitespace-nowrap">
+                       
+                          <input type="text" name="description" id="description" v-model="device.device_name"
+                            class="form-control w-full text-sm text-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" />
+                        </td>
+                        <td class="text-sm text-gray-900 font-light w-20 py-4 whitespace-nowrap"><input type="number"
+                            name="price" id="price" v-model="device.qty"
+                            class="form-control w-full text-sm text-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                            min="1"  /></td>
+                        <td class="text-sm text-gray-900 font-light w-28 py-4 whitespace-nowrap"><input type="text"
+                            name="remark" id="remark" v-model="device.remark"
+                            class="form-control w-full text-sm text-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                             /></td>
+                       
+                        <td class="text-sm text-gray-900 font-light w-28 py-4 whitespace-nowrap"> <button
+                            v-on:click="devices.splice(index, 1)" type="button"
+                            class="btn bg-yellow-600 hover:bg-yellow-700 text-lg shadow-sm rounded-md px-2 py-0 text-white font-semibold">&times;</button>
+                        </td>
+                      </tr>
 
-          <jet-input-error :message="form.error" class="mt-2" />
-        </div>
-      </div>
-    </template>
+                    </tbody>
+                  </table>
+                </div>
+   </template>
     <template #footer>
       <jet-secondary-button @click="cancel"> Close </jet-secondary-button>
       <jet-button class="ml-2" @click="save"> Save </jet-button>
@@ -129,6 +182,7 @@ export default {
   },
   props: {
     pops: Object,
+    pop_devices:Object,
     errors: Object,
   },
   setup(props) {
@@ -136,12 +190,20 @@ export default {
     let search = ref('');
     let editMode = ref(false);
 
+    const devices = ref([{
+              id:'',
+              device_name: '',
+              qty: 1,
+              remark:'',
+              } ]);
 
+ 
     const form = useForm({
       id: null,
       site_name: null,
       site_description: null,
-
+      site_location: null,
+      devices:null,
     });
     function confirmDelete(data) {
       form.id = data;
@@ -151,22 +213,44 @@ export default {
       form.id = null;
       form.site_name = null;
       form.site_description = null;
+      form.site_location = null;
+      form.devices = null;
+      devices.value= [];
     }
     function edit(data) {
       form.id = data.id;
       form.site_name = data.site_name;
       form.site_description = data.site_description;
+      form.site_location = data.site_location;
       show.value = true;
       editMode.value = true;
+
+      if(props.pop_devices){
+          devices.value.shift();
+          props.pop_devices.forEach(e => {
+            if(e.pop_id == data.id){
+              var newObj = {
+              id: e.id,
+              device_name: e.device_name,
+              qty: e.qty,
+              remark:e.remark,
+              } 
+             devices.value.push(newObj);
+            }
+          });
+      }
     }
     function cancel(){
       resetForm();
       show.value = false;
-      editMode = false;
+      editMode.value = false;
+      
+
     }
     function save() {
       if (!editMode.value) {
         form._method = "POST";
+        form.devices = devices;
         form.post("/pop", {
           preserveState: true,
           onSuccess: (page) => {
@@ -185,6 +269,7 @@ export default {
        
       } else {
         form._method = "PUT";
+        form.devices = devices;
         form.put("/pop/"+form.id, {
           preserveState: true,
           onSuccess: (page) => {
@@ -205,6 +290,17 @@ export default {
     function searchPort(){
       Inertia.get('/pop/', {keyword : search.value}, { preserveState: true })
     }
+    const onInputLocation = (event) => {
+      // Allow only valid format "12.3423423,19.324324"
+      const regex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+      const input = event.target.value;
+
+      // If the input matches the format, update the location value
+      if (regex.test(input)) {
+        console.log(input);
+        form.site_location = input;
+      }
+    };
     function deleteNode() {
       let data = Object({});
       data.id = form.id;
@@ -220,13 +316,13 @@ export default {
             });
           },
           onError: (errors) => {
-            showSN.value = false;
             console.log("error ..".errors);
           },
           });
 
     }
-    return {  save,edit, show, form,editMode,cancel, deleteNode, confirmDelete,searchPort,search };
+    
+    return {  show, form,editMode,search, devices, onInputLocation, cancel, deleteNode, confirmDelete,searchPort, save,edit };
   },
 };
 </script>

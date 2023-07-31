@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BundleEquiptment;
 use App\Models\City;
 use Illuminate\Http\Request;
 use App\Models\Customer;
@@ -14,7 +15,9 @@ use App\Models\Role;
 use App\Models\SnPorts;
 use App\Models\DnPorts;
 use App\Models\CustomerHistory;
+use App\Models\FileUpload;
 use App\Models\Pop;
+use App\Models\PublicIpAddress;
 use Inertia\Inertia;
 use DateTime;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +37,14 @@ class CustomerController extends Controller
     public function show(Request $request)
     {
      //   dd($request);
-     $user = User::join('roles','roles.id','=','users.role')->select('users.*','roles.name as role_name')->find(Auth::user()->id);
+     $user = User::join('roles','roles.id','=','users.role')->select('users.*','roles.name as role_name')->where('users.id','=',Auth::user()->id)->first();
+     $role = Role::join('users','roles.id','=','users.role')->select('roles.*')->where('users.id','=',Auth::user()->id)->first();
+     $packages = Package::get();
+     $townships = Township::get();
+     $projects = Project::get();
+     $status = Status::get();
+     $dn = DnPorts::get();
+     $bundle_equiptments = BundleEquiptment::get();
      $active = DB::table('customers')
      ->join('status', 'customers.status_id', '=', 'status.id')
      ->whereIn('status.type',['active','disabled'])
@@ -74,16 +84,11 @@ class CustomerController extends Controller
         })
         ->count();
         
-        $packages = Package::get();
-        $townships = Township::get();
-        $projects = Project::get();
-        $status = Status::get();
-    
-        $dn = DnPorts::get();
-
+        
         $orderform = null;
         if($request->orderform)
         $orderform['status'] = ($request->orderform == 'signed')?1:0;
+        
         $all_township = Township::select('id')
                     ->get()
                     ->toArray();
@@ -202,6 +207,8 @@ class CustomerController extends Controller
             'terminate' => $terminate,
             'radius' => $radius,
             'user' => $user,
+            'role' => $role,
+            'bundle_equiptments' => $bundle_equiptments,
             ]);
     }
   
@@ -218,6 +225,7 @@ class CustomerController extends Controller
         $sn = SnPorts::get();
         $projects = Project::get();
         $pops = Pop::get();
+        $bundle_equiptments = BundleEquiptment::get();
         $dn = DB::table('dn_ports')
         ->select(DB::raw('name, count(port) as ports'))
         ->groupBy(['name'])
@@ -249,7 +257,8 @@ class CustomerController extends Controller
         $townships = Township::join('cities','townships.city_id','=','cities.id')->select('townships.*','cities.name as city_name','cities.short_code as city_code','cities.id as city_id')->get();
         $status_list = Status::get();
         $roles = Role::get();
-        $users = User::find(Auth::user()->id);
+        $user = User::join('roles','roles.id','=','users.role')->select('users.*','roles.name as role_name')->where('users.id','=',Auth::user()->id)->first();
+        $role = Role::join('users','roles.id','=','users.role')->select('roles.*')->where('users.id','=',Auth::user()->id)->first();
         $max_id = $this->getmaxid();
         return Inertia::render(
             'Client/AddCustomer',
@@ -261,11 +270,13 @@ class CustomerController extends Controller
                 'status_list' => $status_list,
                 'subcoms' => $subcoms,
                 'roles' => $roles,
-                'users' => $users,
+                'user' => $user,
                 'sn' => $sn,
                 'dn' => $dn,
                 'pops' => $pops,
-                'max_id' => $max_id
+                'max_id' => $max_id,
+                'role'=>$role,
+                'bundle_equiptments'=>$bundle_equiptments,
             ]
         );
     }
@@ -299,9 +310,10 @@ class CustomerController extends Controller
         $check_id = Customer::where('ftth_id','=',$auto_ftth_id)->first();
         if($check_id){
             //already exists
-            if($request->township ){
+            if($request->township && $request->package){
                     $max_c_id = $this->getmaxid();
                     $city_id = $request->township['city_id'];
+                    $pacakge_type = $request->package['type'];
                     $result = null;
                     foreach($max_c_id as $value){
                         if((int)$value['id']== (int)$city_id){
@@ -310,7 +322,7 @@ class CustomerController extends Controller
                     }
                     if($result){
                      //   $max_id = $max_c_id [$request->city_id];
-                        $auto_ftth_id = $request->township['city_code'].str_pad($result+1, 5, '0', STR_PAD_LEFT);
+                        $auto_ftth_id = $request->township['city_code'].str_pad($result+1, 5, '0', STR_PAD_LEFT).'-'.strtoupper($pacakge_type);
                     }
              }
         }
@@ -343,6 +355,20 @@ class CustomerController extends Controller
                 if (!empty($request->sn_id))
                     $customer->$value = $request->sn_id['id'];
             }
+            if($value == 'bundle'){
+                if(!empty($request->bundles)){
+        
+                    $customer->bundle = '';
+                    foreach ($request->bundles as $key => $value) {
+                        if($key !== array_key_last($request->bundles))
+                        $customer->bundle .= $value['id'].',';
+                        else
+                        $customer->bundle .= $value['id'];
+                    }
+                    
+                }
+            }
+            
         }
         $customer->deleted = 0;
         $customer->save();
@@ -446,9 +472,14 @@ class CustomerController extends Controller
             $status_list = Status::get();
             $roles = Role::get();
             $users = User::find(Auth::user()->id);
-            $user = User::join('roles','roles.id','=','users.role')->find(Auth::user()->id);
+            $user = User::join('roles','roles.id','=','users.role')->select('users.*','roles.name as role_name')->where('users.id','=',Auth::user()->id)->first();
+            $role = Role::join('users','roles.id','=','users.role')->select('roles.*')->where('users.id','=',Auth::user()->id)->first();
             $pops = Pop::all();
             $radius = RadiusController::checkRadiusEnable();
+            $bundle_equiptments = BundleEquiptment::get();
+            $total_ips = PublicIpAddress::where('customer_id',$customer->id)->count(); 
+            $total_documents = FileUpload::where('customer_id',$customer->id)->whereNull('incident_id')->count(); 
+
             return Inertia::render(
                 'Client/EditCustomer',
                 [
@@ -460,13 +491,17 @@ class CustomerController extends Controller
                     'status_list' => $status_list,
                     'subcoms' => $subcoms,
                     'roles' => $roles,
+                    'role' => $role,
                     'users' => $users,
                     'user' => $user,
                     'sn' => $sn,
                     'dn' => $dn,
                     'customer_history' => $customer_history,
                     'radius'=>$radius,
-                    'pops'=>$pops
+                    'pops'=>$pops,
+                    'total_ips'=>$total_ips,
+                    'total_documents'=>$total_documents,
+                    'bundle_equiptments'=>$bundle_equiptments,
                 ]
             );
         }
@@ -590,6 +625,19 @@ class CustomerController extends Controller
                 if ($value == 'sn_id') {
                     if (!empty($request->sn_id))
                         $customer->$value = $request->sn_id['id'];
+                }
+                if($value == 'bundle'){
+                    if(!empty($request->bundles)){
+            
+                        $customer->bundle = '';
+                        foreach ($request->bundles as $key => $value) {
+                            if($key !== array_key_last($request->bundles))
+                            $customer->bundle .= $value['id'].',';
+                            else
+                            $customer->bundle .= $value['id'];
+                        }
+                        
+                    }
                 }
             }
             $customer->update();

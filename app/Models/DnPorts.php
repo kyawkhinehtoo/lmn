@@ -30,6 +30,8 @@ class DnPorts extends Model
         'name',
         'port',
         'description',
+        'location',
+        'input_dbm',
         'created_at',
         'updated_at'
     ];
@@ -52,6 +54,8 @@ class DnPorts extends Model
         'name'=> 'string',
         'port'=> 'integer',
         'description' => 'string',
+        'location' => 'string',
+        'input_dbm' => 'string',
         'created_at' => 'timestamp', 
         'updated_at' => 'timestamp'
     ];
@@ -69,6 +73,5 @@ class DnPorts extends Model
      * Indicates if the model should be timestamped.
      *
      * @var boolean
-     */
-    public $timestamps = false;
+    */
 }

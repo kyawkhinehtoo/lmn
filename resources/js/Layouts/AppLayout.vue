@@ -188,6 +188,9 @@
              <li v-if="$page.props.role.radius_report">
               <jet-nav-link :href="route('showRadius')" :active="route().current('showRadius')"> <i class="fas fa-server opacity-75 mr-2 text-sm w-6"></i> Radius User Report </jet-nav-link>
             </li>
+            <li v-if="$page.props.role.ip_report">
+              <jet-nav-link :href="route('publicIpReport')" :active="route().current('publicIpReport')"> <i class="fas fa-server opacity-75 mr-2 text-sm w-6"></i> IP Usages Report </jet-nav-link>
+            </li>
            
           </ul>
              </TransitionRoot>
@@ -363,7 +366,7 @@ export default {
         this.admin = true;
              this.report = false;
       }
-     else if(route().current('incidentReport') || route().current('dailyreceipt.*')  || route().current('showRadius')){
+     else if(route().current('incidentReport') || route().current('dailyreceipt.*')  || route().current('showRadius') || route().current('publicIpReport') ){
             this.billing = false;
             this.user = false;
             this.admin = false;

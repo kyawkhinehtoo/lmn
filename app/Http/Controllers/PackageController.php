@@ -79,7 +79,7 @@ class PackageController extends Controller
         $package->sla_id = $request->sla_id;
         $package->price = $request->price;
         $package->pop_id = ($request->pop_id)?$request->pop_id['id']:null;
-        if($radius_services)
+        if($radius_services && isset($request->radius_srvid['srvid']))
         $package->radius_package = $request->radius_srvid['srvid'];
         $package->contract_period = (string)$request->contract_period;
         $package->save();
@@ -112,6 +112,7 @@ class PackageController extends Controller
         ])->validate();
   
         if ($request->has('id')) {
+          
             $radius = new RadiusController();
             $radius_services =  $radius->getRadiusServices();
 
@@ -123,8 +124,9 @@ class PackageController extends Controller
             $package->sla_id = $request->sla_id;
             $package->status = $request->status;
             $package->price = $request->price;
+         
             $package->pop_id = ($request->pop_id)?$request->pop_id['id']:null;
-            if($radius_services)
+            if($radius_services && isset($request->radius_srvid['srvid']))
             $package->radius_package = $request->radius_srvid['srvid'];
             $package->contract_period = (string)$request->contract_period;
             $package->update();

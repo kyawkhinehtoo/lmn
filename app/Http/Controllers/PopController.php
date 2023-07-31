@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pop;
+use App\Models\PopDevice;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -19,10 +20,10 @@ class PopController extends Controller
             $query->orwhere('site_description','LIKE','%'.$keyword.'%');
         })
         ->paginate(10);
-       
+        $pop_devices = PopDevice::get();
         $pops->appends($request->all())->links();
         return Inertia::render('Setup/Pop',
-         ['pops' => $pops]);
+         ['pops' => $pops,'pop_devices'=>$pop_devices]);
     }
     public function getIdByName(Request $request)
     {
@@ -55,7 +56,18 @@ class PopController extends Controller
                 $pop = new Pop();
                 $pop->site_name = $request->site_name;
                 $pop->site_description = $request->site_description;
+                $pop->site_location = $request->site_location;
                 $pop->save();
+                    if($pop->id && $request->devices){
+                    foreach ($request->devices as $devices) {
+                            $pop_device = new PopDevice();
+                            $pop_device->pop_id = $pop->id;
+                            $pop_device->device_name = $devices['device_name'];
+                            $pop_device->qty = $devices['qty'];
+                            $pop_device->remark = $devices['remark'];
+                            $pop_device->save();
+                        }
+                    }
                 return redirect()->back()->with('message', 'POP Site Created Successfully.');
             }
     }
@@ -69,7 +81,22 @@ class PopController extends Controller
             $pop = Pop::find($request->input('id'));
             $pop->site_name = $request->site_name;
             $pop->site_description = $request->site_description;
+            $pop->site_location = $request->site_location;
             $pop->update();
+            if($pop->id && $request->devices){
+                PopDevice::where('pop_id','=',$pop->id)->delete();
+                foreach ($request->devices as $device) {
+                        
+                            $pop_device = new PopDevice();
+                            $pop_device->pop_id = $pop->id;
+                            $pop_device->device_name = $device['device_name'];
+                            $pop_device->qty = (isset($device['qty']))?$device['qty']:1;
+                            $pop_device->remark = (isset($device['remark']))?$device['remark']:null;
+                            $pop_device->save();
+                        
+                       
+                    }
+                }
             return redirect()->back()
                     ->with('message', 'POP Site Updated Successfully.');
         }

@@ -22,7 +22,7 @@ class PortController extends Controller
         $overall = DB::table('dn_ports')
                         ->leftjoin('sn_ports','sn_ports.dn_id','=','dn_ports.id')
                        // ->select(DB::raw('dn_ports.name,dn_ports.description, count(sn_ports.port) as ports'))
-                        ->select('dn_ports.id','dn_ports.name','dn_ports.description', DB::raw('count(sn_ports.id) as ports'))
+                        ->select('dn_ports.id','dn_ports.name','dn_ports.description','dn_ports.location','dn_ports.input_dbm' ,DB::raw('count(sn_ports.id) as ports'))
                         ->when($request->keyword, function ($query, $keyword){
                             $query->where('dn_ports.name','LIKE','%'.$keyword.'%');
                             $query->orwhere('dn_ports.description','LIKE','%'.$keyword.'%');
@@ -52,6 +52,8 @@ class PortController extends Controller
     {
         Validator::make($request->all(), [
             'name' => ['required'],
+            'location' => ['required'],
+            'input_dbm' => ['required'],
         ])->validate();
 
         
@@ -65,6 +67,8 @@ class PortController extends Controller
                 $dnport = new DnPorts();
                 $dnport->name = $request->name;
                 $dnport->description = $request->description;
+                $dnport->location = $request->location;
+                $dnport->input_dbm = $request->input_dbm;
                 $dnport->save();
                 return redirect()->back()->with('message', 'DN Port Created Successfully.');
             }
@@ -85,12 +89,16 @@ class PortController extends Controller
     {
         Validator::make($request->all(), [
             'name' => ['required'],
+            'location' => ['required'],
+            'input_dbm' => ['required'],
         ])->validate();
   
         if ($request->has('id')) {
             $dnport = DnPorts::find($request->input('id'));
             $dnport->name = $request->name;
             $dnport->description = $request->description;
+            $dnport->location = $request->location;
+            $dnport->input_dbm = $request->input_dbm;
             $dnport->update();
             return redirect()->back()
                     ->with('message', 'Port Updated Successfully.');

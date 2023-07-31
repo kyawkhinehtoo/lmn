@@ -24,7 +24,7 @@
           <!-- card -->
   
      
-           <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+           <div class="grid gap-2 grid-cols-1 md:grid-cols-4 xl:grid-cols-4">
              
              <!-- card item -->
             <div class="flex items-center p-2 bg-white rounded-lg shadow-md dark:bg-gray-800 max-w-xs mt-4 cursor-pointer hover:bg-gray-50" @click="goActive" >
@@ -119,7 +119,7 @@
 
                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                  <inertia-link :href="route('customer.edit', row.id)" class="text-indigo-400 hover:text-indigo-600 mr-2"><i class="fas fa-folder"></i></inertia-link> 
-                  <span v-if="user.delete_customer">  |
+                  <span v-if="role.delete_customer">  |
                <a href="#" @click="deleteRow(row)" class="text-yellow-600 hover:text-yellow-900 ml-2"><i class="fas fa-trash"></i></a>
                   </span>
                 </td>
@@ -166,7 +166,8 @@ export default {
     installation_request: Object,
     terminate: Object,
     radius: Object,
-    user: Object
+    user: Object,
+    role: Object
   },
   setup(props) {
      provide('packages', props.packages);

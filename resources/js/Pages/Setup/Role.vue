@@ -13,7 +13,7 @@
           </div>
           <button @click="openModal" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Create</button>
         </div>
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg" v-if="roles.data">
+        <div class="bg-white  shadow-xl sm:rounded-lg" v-if="roles.data">
           <!-- <button @click="openModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-3">Create New Township</button>
                  <input class="w-half rounded py-2 my-3 float-right" type="text" placeholder="Search Township" v-model="search" v-on:keyup.enter="searchTsp">
                     -->
@@ -138,6 +138,32 @@
                       </div>
                   </fieldset>
                       </div>
+                      <div class="mb-4">
+                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Public IP Control </legend>
+                     
+                      <div class="max-w-full text-sm flex">
+                        <label class="inline-flex ml-2">
+                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.read_only_ip" />
+                         Read-Only IP
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.add_ip" />
+                         Add IP
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.edit_ip" />
+                        Edit IP
+                        </label>
+                        <label class="inline-flex ml-2">
+                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.delete_ip" />
+                       Delete IP
+                        </label>
+                      
+                 
+                      </div>
+                  </fieldset>
+                      </div>
                  <div class="mb-4">
                       <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
                           <legend class="text-gray-700 text-sm font-bold">Report Control </legend>
@@ -155,7 +181,10 @@
                           <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.radius_report" />
                          View Radius User Report
                         </label>
-                      
+                        <label class="inline-flex ml-2">
+                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.ip_report" />
+                         View IP Usage Report
+                        </label>
                  
                       </div>
                   </fieldset>
@@ -223,6 +252,11 @@ export default {
       bill_report: null,
       radius_report: null,
       incident_only: null,
+      read_only_ip: null,
+      add_ip: null,
+      edit_ip: null,
+      delete_ip: null,
+      ip_report: null,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -244,6 +278,11 @@ export default {
       form.bill_report = null;
       form.radius_report = null;
       form.incident_only = null;
+      form.read_only_ip = null;
+      form.add_ip = null;
+      form.edit_ip = null;
+      form.delete_ip = null;
+      form.ip_report = null;
     }
     function submit() {
       if (!editMode.value) {
@@ -302,7 +341,11 @@ export default {
       form.bill_report = (data.bill_report)?true:false;
       form.radius_report = (data.radius_report)?true:false;
       form.incident_only = (data.incident_only)?true:false;
-
+      form.read_only_ip = (data.read_only_ip)?true:false;
+      form.add_ip = (data.add_ip)?true:false;
+      form.edit_ip = (data.edit_ip)?true:false;
+      form.delete_ip = (data.delete_ip)?true:false;
+      form.ip_report = (data.ip_report)?true:false;
       editMode.value = true;
       openModal();
     }

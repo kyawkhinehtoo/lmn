@@ -224,6 +224,7 @@ class RadiusController extends Controller
                     $data['username'] = $customer->pppoe_account;
                     $data['srvid'] = $request->srv['srvid'];
                     $data['enableuser'] = ($request->status == true)?1:0 ;
+                    $data['expiration'] = $request->expiration;
                     $response = null;
                     try {
                         $this->loginRadius();
@@ -443,7 +444,7 @@ class RadiusController extends Controller
 
             $user_data['username'] = $data->pppoe_account;
             $user_data['password'] = md5($data->pppoe_password);
-            $user_data['groupid'] = 9; //can be anything
+            $user_data['groupid'] = 1; //can be anything
             $user_data['enableuser'] = ($data->status_type == 'active')?1:0;
             $user_data['uplimit'] = 0;
             $user_data['downlimit'] = 0;
@@ -474,8 +475,8 @@ class RadiusController extends Controller
             $user_data['acctype'] = 0;
             $user_data['credits'] = 0.00;
             $user_data['cardfails'] = 0;
-            $user_data['createdby'] = 'gghbilling';
-            $user_data['owner'] = 'gghbilling';
+            $user_data['createdby'] = 'admin-api';
+            $user_data['owner'] = 'admin-api';
             $user_data['email'] = '';
             $user_data['warningsent'] = 0;
             $user_data['verified'] = 0;
@@ -486,6 +487,7 @@ class RadiusController extends Controller
             $user_data['pswactsmsnum'] = 0;
             $user_data['alertemail'] = 1;
             $user_data['alertsms'] = 1;
+            $user_data['zip'] = '';
             $user_data['lang'] = 'English';
             if($data->srvid)
             $user_data['srvid'] = $data->srvid;
@@ -568,7 +570,7 @@ class RadiusController extends Controller
             $location = explode (",", $data->location); 
             $user_data['gpslat'] = ($location[0]=='.')?'0.0':$location[0];
             $user_data['gpslong'] = ($location[1]=='.')?'0.0':$location[1];
-           
+            $user_data['zip'] = '';
             $user_data['email'] = '';
             
             //Package

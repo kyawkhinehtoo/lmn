@@ -132,7 +132,7 @@
                   <div class="col-span-1 sm:col-span-1">
                     <label for="package" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Package </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="res_packages">
-                      <multiselect deselect-label="Selected already" :options="res_packages" track-by="id" label="name" v-model="form.package" :allow-empty="false" :disabled="checkPerm('package_id')"></multiselect>
+                      <multiselect deselect-label="Selected already" :options="res_packages" track-by="id" label="name" v-model="form.package" :allow-empty="false" :disabled="checkPerm('package_id')"  :onchange="goID" @select="goID" @close="goID"></multiselect>
                     </div>
                     <p v-show="$page.props.errors.package" class="mt-2 text-sm text-red-500">{{ $page.props.errors.package }}</p>
                   </div>
@@ -380,8 +380,15 @@
                   </div>
                
                 </div>
-                <div class="grid grid-cols-4 gap-2">
-                   <div class="col-span-4 sm:col-span-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                  <div class="col-span-1 md:col-span-2">
+                    <label for="installation_remark" class="block text-sm font-medium text-gray-700"> Bundle Equiptments </label>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="bundle_equiptments.length !== 0">
+                      <multiselect deselect-label="Selected already" :options="bundle_equiptments" track-by="id" label="name" v-model="form.bundles" :allow-empty="false" :disabled="checkPerm('bundle')" :multiple="true" :taggable="true" ></multiselect>
+                    </div>
+                    <p v-show="$page.props.errors.bundles" class="mt-2 text-sm text-red-500">{{ $page.props.errors.bundles }}</p>
+                  </div>
+                   <div class="col-span-1 md:col-span-2">
                     <label for="installation_remark" class="block text-sm font-medium text-gray-700"> Installation Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
@@ -433,6 +440,8 @@ export default {
     pops:Object,
     max_id:Array,
     errors: Object,
+    role:Object,
+    bundle_equiptments:Object,
   },
   setup(props) {
     let res_sn = ref("");
@@ -477,6 +486,7 @@ export default {
       pppoe_account:"",
       pppoe_password:"",
       customer_type:1,
+      bundles:"",
     });
 
     function resetForm() {
@@ -517,6 +527,7 @@ export default {
       form.pppoe_account="";
       form.pppoe_password="";
       form.customer_type=1;
+      form.bundles="";
     }
     function submit() {
       form._method = "POST";
@@ -545,7 +556,7 @@ export default {
       }
     }
     function checkPerm(data) {
-      const my_role = props.roles.filter((d) => d.id == props.users.role)[0];
+      const my_role = props.roles.filter((d) => d.id == props.role.id)[0];
       let role_arr = my_role.permission.split(",");
       let disable = role_arr.includes(data);
       return !disable;
@@ -604,37 +615,61 @@ export default {
 
 
     function goID() {
-      if (form.township) {
+      if (form.township && form.package)  {
         
         let city_code = form.township['city_code'];
         let city_id = form.township['city_id'];
+        let service_type = form.package['type'];
+        console.log(service_type);
         var data = props.max_id.filter((id)=> id.id == city_id )[0];
-        form.ftth_id = city_code + ('00000' + (parseInt(data.value) + 1)).slice(-5);
+        form.ftth_id = city_code + ('00000' + (parseInt(data.value) + 1)).slice(-5)+'-'+service_type.toUpperCase();
       }
     }
     function fillPppoe() {
       if (!form.pppoe_account) {
-        if (form.ftth_id) {
-          var pppoe = form.ftth_id;
+        if (form.ftth_id && form.sn_id && form.dn_id && form.township) {
+          let dn_no = getNumber(form.dn_id['name']);
+          let sn_no = getNumber(form.sn_id['name']);
+          let city_code = form.township['city_code'];
+          let city_id = form.township['city_id'];
+          var data = props.max_id.filter((id)=> id.id == city_id )[0];
+          let psw = dn_no.toString()+sn_no.toString()+('00000' + (parseInt(data.value) + 1)).slice(-5);
+          let pppoe = city_code+psw+'@LMNET';
           form.pppoe_account = pppoe.toLowerCase();
+          form.pppoe_password = psw;
           pppoe_auto.value = true;
         }
       }
 
     }
     function generatePassword() {
-      var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      var passwordLength = 8;
-      var password = "";
-      for (var i = 0; i <= passwordLength; i++) {
-        var randomNumber = Math.floor(Math.random() * chars.length);
-        password += chars.substring(randomNumber, randomNumber + 1);
-      }
+      // var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      // var passwordLength = 8;
+      // var password = "";
+      // for (var i = 0; i <= passwordLength; i++) {
+      //   var randomNumber = Math.floor(Math.random() * chars.length);
+      //   password += chars.substring(randomNumber, randomNumber + 1);
+      // }
       if (!form.pppoe_password) {
-        if (form.ftth_id) {
-          form.pppoe_password = password;
+        // if (form.ftth_id) {
+        //   form.pppoe_password = password;
+        // }
+        if (form.ftth_id && form.sn_id && form.dn_id && form.township) {
+          let dn_no = getNumber(form.dn_id['name']);
+          let sn_no = getNumber(form.sn_id['name']);
+          let city_id = form.township['city_id'];
+          var data = props.max_id.filter((id)=> id.id == city_id )[0];
+          let psw = dn_no.toString()+sn_no.toString()+('00000' + (parseInt(data.value) + 1)).slice(-5);
+          form.pppoe_password = psw;
         }
       }
+    }
+    function getNumber(data){
+      const string = data;
+      const regex = /\d+/g;
+      const matches = string.match(regex);
+      const integerValue = matches ? parseInt(matches.join('')) : 0;
+      return integerValue;
     }
     onMounted(() => {
       form.township = props.townships.filter((d) => d.id == 1)[0];

@@ -29,25 +29,29 @@
 
  
           <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg" v-if="overall.data">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DN/Port</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SN Name</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Customers </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+            <table class="min-w-full divide-y divide-gray-200 table-auto ">
+            <thead class="bg-gray-50">
+              <tr class="text-left">
+                  <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">No.</th>
+                  <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">DN/Port</th>
+                  <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">SN Name</th>
+                  <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Total Customers </th>
+                  <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Description</th>
+                  <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Location</th>
+                  <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Input dbm</th>
                   <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64 ">
                 <tr v-for="(row, index) in overall.data" v-bind:key="row.id">
-                  <td class="px-6 py-3 whitespace-nowrap">{{ index + 1 }}</td>
-                  <td class="px-6 py-3 whitespace-nowrap">{{ row.dn_name }}</td>
-                  <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
-                  <td class="px-6 py-3 whitespace-nowrap">{{ row.ports }}</td>
-                  <td class="px-6 py-3 whitespace-nowrap">{{ row.description }}</td>
-                  <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+                  <td class="px-4 py-3 text-xs font-medium">{{ index + 1 }}</td>
+                  <td class="px-4 py-3 text-xs font-medium">{{ row.dn_name }}</td>
+                  <td class="px-4 py-3 text-xs font-medium">{{ row.name }}</td>
+                  <td class="px-4 py-3 text-xs font-medium">{{ row.ports }}</td>
+                  <td class="px-4 py-3 text-xs font-medium">{{ row.description }}</td>
+                  <td class="px-4 py-3 text-xs font-medium">{{ row.location }}</td>
+                  <td class="px-4 py-3 text-xs font-medium">{{ row.input_dbm }}</td>
+                  <td class="px-4 py-3 text-xs font-medium text-right">
                     <a href="#" @click="editSN(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                     <a href="#" @click="confirmDelete(row.id)" class="text-red-600 hover:text-red-900">Delete</a>
                   </td>
@@ -83,12 +87,39 @@
           <div class="mt-1 flex rounded-md shadow-sm" v-if="dns.length !== 0">
             <multiselect deselect-label="Selected already" :options="dns" track-by="id" label="name" v-model="form.dn_id" :allow-empty="true"></multiselect>
           </div>
-          <jet-input type="text" class="mt-1 block w-full" placeholder="SN Name" ref="text" v-model="form.name"  />
-   
-          <jet-input-error :message="form.error" class="mt-2" />
-          <jet-input type="text" class="mt-1 block w-full" placeholder="SN Description" ref="text" v-model="form.description" />
-
-          <jet-input-error :message="form.error" class="mt-2" />
+          <div class="mb-4 md:col-span-1">
+            <label for="name" class="block text-gray-700 text-sm font-bold mb-2">SN Name :</label>
+            <input type="text"
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="name" placeholder="Enter DN Name" v-model="form.name"/>
+            <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name }}
+            </div>
+          </div>
+          <div class="mb-4 md:col-span-1">
+            <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description :</label>
+            <textarea
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="description" placeholder="Enter Description" v-model="form.description"/>
+            <div v-if="$page.props.errors.description" class="text-red-500">{{ $page.props.errors.description }}
+            </div>
+          </div>
+          <div class="mb-4 md:col-span-1">
+            <label for="location" class="block text-gray-700 text-sm font-bold mb-2">SN Location :</label>
+            <input type="text"
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="location" placeholder="Enter Location (Lat,Long)" v-model="form.location"/>
+            <div v-if="$page.props.errors.location" class="text-red-500">{{ $page.props.errors.location }}
+            </div>
+          </div>
+          <div class="mb-4 md:col-span-1">
+            <label for="input_dbm" class="block text-gray-700 text-sm font-bold mb-2">SN Input dbm :</label>
+            <input type="text"
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="input_dbm" placeholder="Enter Input Dbm" v-model="form.input_dbm"/>
+            <div v-if="$page.props.errors.input_dbm" class="text-red-500">{{ $page.props.errors.input_dbm }}
+            </div>
+          </div>
+         
         </div>
       </div>
     </template>
@@ -148,6 +179,8 @@ export default {
       dn_id: null,
       name: null,
       description: null,
+      location: null,
+      input_dbm: null,
   
     });
     function confirmDelete(data) {
@@ -159,6 +192,8 @@ export default {
       form.sn = null;
       form.name = null;
       form.description = null;
+      form.location = null;
+      form.input_dbm = null;
     }
     function editSN(data) {
       form.id = data.id;
@@ -166,6 +201,8 @@ export default {
       form.sn = props.sns_all.filter((d) => d.name == data.name)[0];
       form.name = data.name;
       form.description = data.description;
+      form.location = data.location;
+      form.input_dbm = data.input_dbm;
       showSN.value = true;
       editMode.value = true;
     }

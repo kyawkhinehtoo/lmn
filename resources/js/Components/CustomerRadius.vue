@@ -71,14 +71,18 @@
             </div>
             <div class="bg-gray-50 px-2 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-6" v-if="radius_data.expiration">
               <dt class="text-sm font-medium text-gray-500">Expiration</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-3">{{ formatDate(radius_data.expiration) }}</dd>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-3">
+                <input type="date"
+              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              id="start_date" placeholder="Enter Start Date" v-model="form.expiration"  />
+                </dd>
             </div>
            
            
           </dl>
         </div>
        <div class="w-full flex justify-end mt-2">
-                  <button @click="saveRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150" v-if="user.radius_write">SAVE <i class="fa fas fa-save ml-2"></i></button>
+                  <button @click="saveRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150" v-if="role.radius_write">SAVE <i class="fa fas fa-save ml-2"></i></button>
 
                   <!-- <button @click="disableRadius" type="button" class="ml-2 inline-flex py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150">Disable</button> -->
                 </div>
@@ -88,7 +92,7 @@
     </div>
     <div v-else>
       <h2 class="text-center text-gray-600 text-sm font-semibold mt-2">No Data</h2>
-       <button @click="createRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150"  v-if="user.radius_write">CREATE <i class="fa fas fa-save ml-2"></i></button>
+       <button @click="createRadius" type="button" class="inline-flex text-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150"  v-if="role.radius_write">CREATE <i class="fa fas fa-save ml-2"></i></button>
 
     </div>
   </div>
@@ -108,13 +112,14 @@ export default {
         Multiselect,
   },
   setup(props) {
-    const user = inject("user");
+    const role = inject("role");
     const radius_srv = ref();
     const radius_data = ref();
      const form = useForm({
       id: props.data,
       srv:null,
       status: null,
+      expiration:null,
     });
 
 
@@ -143,6 +148,7 @@ export default {
         if (d[0]) {
           radius_data.value = d[0];
           form.status = (radius_data.value.enableuser == 1)?true:false;
+          form.expiration =  formatDate(radius_data.value.expiration);
               getRadiusServices().then((e) => {
               if (e) {
               radius_srv.value = e;
@@ -247,7 +253,9 @@ export default {
       if (month < 10) {
         month = "0" + month;
       }
-      var string = year + "-" + month + "-" + newdt + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+      // var string = newdt  + "/" + month +  "/" + year;
+      //var string = year + "-" + month + "-" + newdt + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+      var string = year + "-" + month + "-" + newdt;
       return string;
     };
     const formatSecond = (seconds) => {
@@ -270,7 +278,7 @@ export default {
       
     });
 
-    return { radius_data,radius_srv, formatDate, enableRadius, disableRadius,saveRadius,createRadius ,formatSecond,form ,user};
+    return { radius_data,radius_srv, formatDate, enableRadius, disableRadius,saveRadius,createRadius ,formatSecond,form ,role};
   },
 };
 </script>

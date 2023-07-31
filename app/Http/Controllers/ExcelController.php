@@ -16,7 +16,10 @@ use App\Exports\IncidentExport;
 use App\Exports\RadiusExport;
 use App\Exports\TempBillingExport;
 use App\Exports\RevenueExport; 
+use App\Exports\PublicIpExport; 
 use App\Imports\CustomersUpdate;
+use App\Imports\DNUpdate;
+use App\Imports\SNUpdate;
 use App\Imports\TempBillingUpdate;
 use Excel;
 use Storage;
@@ -50,6 +53,17 @@ class ExcelController extends Controller
     {
        return view('excel.customerupdate');
     }
+
+    public function updateDNView()
+    {
+       return view('excel.dnupdate');
+    }
+
+    public function updateSNView()
+    {
+       return view('excel.snupdate');
+    }
+   
    
     /**
     * @return \Illuminate\Support\Collection
@@ -85,6 +99,10 @@ class ExcelController extends Controller
     public function exportRadiusReportExcel (Request $request) 
     { 
      return (new RadiusExport($request))->download('radius_users.csv');
+    }
+    public function exportPublicIpReportExcel (Request $request) 
+    { 
+        return FacadesExcel::download(new PublicIpExport($request), 'publicIp.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
     /**
     * @return \Illuminate\Support\Collection
@@ -146,6 +164,23 @@ class ExcelController extends Controller
     public function importPayment(Request $request) 
     {
         Excel::import(new PaymentImport,$request->import_file);
+
+        Session::put('success', 'Your file is imported successfully in database.');
+           
+        return back();
+    }
+
+    public function importDN(Request $request) 
+    {
+        Excel::import(new DNUpdate,$request->import_file);
+
+        Session::put('success', 'Your file is imported successfully in database.');
+           
+        return back();
+    }
+    public function importSN(Request $request) 
+    {
+        Excel::import(new SNUpdate,$request->import_file);
 
         Session::put('success', 'Your file is imported successfully in database.');
            

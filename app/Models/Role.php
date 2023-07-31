@@ -38,6 +38,11 @@ class Role extends Model
         'bill_report',
         'radius_report',
         'incident_only',
+        'read_only_ip',
+        'add_ip',
+        'edit_ip',
+        'delete_ip',
+        'ip_report',
         'created_at', 'updated_at'
     ];
 

@@ -661,7 +661,49 @@ class ReportController extends Controller
     }
 
 
-
+    public function publicIpReport(Request $request){
+     
+        $startDate = (isset($request->end_date['startDate']))?$request->end_date['startDate'] :null;
+        $endDate = (isset($request->end_date['endDate']))?$request->end_date['endDate']: null;
+      
+        $public_ips = DB::table('public_ip_addresses')
+                    ->join('customers','public_ip_addresses.customer_id','=','customers.id')
+                    ->join('packages','customers.package_id','=','packages.id')
+                    ->join('status','customers.status_id','=','status.id')
+                    ->join('ip_usage_history','public_ip_addresses.id','=','ip_usage_history.ip_id')
+                    ->when($request->packages, function ($query, $packages) {
+                    $package_list = array();
+                    foreach($packages as $value){
+                        array_push($package_list, $value['id']);
+                    }
+                    $query->whereIn('customers.package_id', $package_list);
+                    })
+                   
+                    ->when(!is_null($startDate) && !is_null($endDate), function ($query) use ($startDate, $endDate) {
+                        $query->whereBetween('ip_usage_history.end_date',[$startDate,$endDate]);
+                    })
+                ->when($request->general, function ($query, $search) {
+                        $query->where(function ($query) use($search) {
+                            $query->where('customers.ftth_id','LIKE', '%'.$search.'%')
+                                ->orWhere('customers.name','LIKE', '%'.$search.'%')
+                                ->orWhere('public_ip_addresses.ip_address','LIKE', '%'.$search.'%')
+                                ->orWhere('public_ip_addresses.description','LIKE', '%'.$search.'%');
+                        });
+                })
+                ->where(function($query){
+                        return $query->where('customers.deleted', '=', 0)
+                        ->orwherenull('customers.deleted');
+                })
+                ->orderBy('public_ip_addresses.id')
+                ->select('public_ip_addresses.id as id', 'customers.id as customer_id', 'customers.name as customer_name','customers.ftth_id as ftth_id', 'public_ip_addresses.ip_address as ip_address', 'public_ip_addresses.description as description', 'public_ip_addresses.annual_charge as annual_charge','packages.name as package_name','ip_usage_history.start_date as start_date', 'ip_usage_history.end_date as end_date','status.name as status_name')
+                ->paginate(15);
+            $public_ips->appends($request->all())->links();
+        return Inertia::render('Client/PublicIpReport', [
+       
+            'public_ips' => $public_ips,
+            
+        ]);
+    }
 
 
 

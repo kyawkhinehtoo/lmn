@@ -31,6 +31,8 @@ class SnPorts extends Model
         'port',
         'dn_id',
         'description',
+        'location',
+        'input_dbm',
         'created_at',
         'updated_at'
     ];
@@ -54,6 +56,8 @@ class SnPorts extends Model
         'port'=> 'integer',
         'dn_id'=> 'integer',
         'description' => 'string',
+        'location' => 'string',
+        'input_dbm' => 'string',
         'created_at' => 'timestamp', 
         'updated_at' => 'timestamp'
     ];
@@ -72,5 +76,5 @@ class SnPorts extends Model
      *
      * @var boolean
      */
-    public $timestamps = false;
+   
 }

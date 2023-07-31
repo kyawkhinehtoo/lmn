@@ -60,6 +60,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/getFile/{id}', 'IncidentController@getFile');
 	Route::get('/getCustomerHistory/{id}', 'CustomerController@getHistory');
 	Route::get('/getCustomerFile/{id}', 'IncidentController@getCustomerFile');
+	Route::get('/getCustomerIp/{id}', 'PublicIpController@getCustomerIp');
 	Route::delete('/deleteFile/{id}', 'IncidentController@deleteFile');
 	Route::post('/addTask', 'IncidentController@addTask');
 	Route::put('/editTask/{id}', 'IncidentController@editTask');
@@ -85,7 +86,10 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/generateSN', 'SNPortController@generateSN');
 	Route::delete('/snport/group/{id}', 'SNPortController@deleteGroup');
 	Route::delete('/port/group/{id}', 'PortController@deleteGroup');
-	
+	Route::get('updateDNView', 'ExcelController@updateDNView')->name('updateDNView');
+	Route::get('updateSNView', 'ExcelController@updateSNView')->name('updateSNView');
+	Route::post('importDN', 'ExcelController@importDN')->name('importDN');
+	Route::post('importSN', 'ExcelController@importSN')->name('importSN');
 
 	//Billing 
 	Route::get('tempImportView', 'ExcelController@tempImportView')->name('tempImportView');
@@ -199,6 +203,13 @@ Route::group(['middleware'=> 'auth'], function(){
 
 	//POPs
 	Route::get('/getPackages/{id}', 'PackageController@getPackage');
+
+	Route::resource('/publicIP',PublicIpController::class);
+
+	Route::get('/publicIpReport','ReportController@PublicIpReport')->name('publicIpReport');
+	Route::post('/publicIpReport','ReportController@PublicIpReport');
+	Route::post('/exportPublicIpReportExcel','ExcelController@exportPublicIpReportExcel')->name('exportPublicIpReportExcel');
+
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {

@@ -25,7 +25,7 @@ class SNPortController extends Controller
         $overall = DB::table('sn_ports')
                         ->leftjoin('dn_ports','sn_ports.dn_id','=','dn_ports.id')
                         ->leftjoin('customers','sn_ports.id','=','customers.sn_id')
-                        ->select('sn_ports.id','sn_ports.name','sn_ports.description', 'sn_ports.dn_id' ,'dn_ports.name as dn_name', DB::raw('count(customers.id) as ports'))
+                        ->select('sn_ports.id','sn_ports.name','sn_ports.description', 'sn_ports.dn_id','sn_ports.location','sn_ports.input_dbm' ,'dn_ports.name as dn_name', DB::raw('count(customers.id) as ports'))
                         ->when($request->keyword, function ($query, $keyword){
                             $query->where('sn_ports.name','LIKE','%'.$keyword.'%');
                             $query->orwhere('sn_ports.description','LIKE','%'.$keyword.'%');
@@ -57,7 +57,8 @@ class SNPortController extends Controller
         Validator::make($request->all(), [
             'name' => ['required'],
             'dn_id' => ['required'],
-            
+            'location' => ['required'],
+            'input_dbm' => ['required'],
         ])->validate();
           
        
@@ -73,6 +74,8 @@ class SNPortController extends Controller
                 $snport->dn_id = $request->dn_id['id'];
                 $snport->name = $request->name;
                 $snport->description = $request->description;
+                $snport->location = $request->location;
+                $snport->input_dbm = $request->input_dbm;
                 $snport->save();
                 return redirect()->back()->with('message', 'Port Created Successfully.');
             }
@@ -88,6 +91,8 @@ class SNPortController extends Controller
         Validator::make($request->all(), [
             'dn_id' => ['required'],
             'name' => ['required'],
+            'location' => ['required'],
+            'input_dbm' => ['required'],
         ])->validate();
   
         if ($request->has('id')) {
@@ -95,6 +100,8 @@ class SNPortController extends Controller
             $snport->dn_id = $request->dn_id['id'];
             $snport->name = $request->name;
             $snport->description = $request->description;
+            $snport->location = $request->location;
+            $snport->input_dbm = $request->input_dbm;
             $snport->update();
             return redirect()->back()
                     ->with('message', 'Port Updated Successfully.');

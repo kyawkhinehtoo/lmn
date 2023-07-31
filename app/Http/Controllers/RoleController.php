@@ -55,6 +55,11 @@ class RoleController extends Controller
         $role->bill_report = $request->bill_report;
         $role->radius_report = $request->radius_report;
         $role->incident_only = $request->incident_only;
+        $role->read_only_ip = $request->read_only_ip;
+        $role->add_ip = $request->add_ip;
+        $role->edit_ip = $request->edit_ip;
+        $role->delete_ip = $request->delete_ip;
+        $role->ip_report = $request->ip_report;
         
         $role->save();
          return redirect()->route('role.index')->with('message', 'Role Created Successfully.');
@@ -100,6 +105,11 @@ class RoleController extends Controller
             $role->bill_report = $request->bill_report;
             $role->radius_report = $request->radius_report;
             $role->incident_only = $request->incident_only;
+            $role->read_only_ip = $request->read_only_ip;
+            $role->add_ip = $request->add_ip;
+            $role->edit_ip = $request->edit_ip;
+            $role->delete_ip = $request->delete_ip;
+            $role->ip_report = $request->ip_report;
             
             $role->update();
             return redirect()->back()

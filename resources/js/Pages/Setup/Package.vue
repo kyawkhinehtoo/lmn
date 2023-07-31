@@ -338,8 +338,8 @@ export default {
       form.contract_period = data.contract_period;
       form.package_id = data.package_id;
       form.sla_id = data.sla_id;
-      form.pop_id = (props.pops)?props.pops.filter((pop) => pop.id == data.pop_id):null;
-      form.radius_srvid =(props.radius_services)?props.radius_services.filter((rs) => rs.srvid == data.radius_package):null;
+      form.pop_id = (props.pops)?props.pops.filter((pop) => pop.id == data.pop_id)[0]:null;
+      form.radius_srvid =(props.radius_services)?props.radius_services.filter((rs) => rs.srvid == data.radius_package)[0]:null;
       form.qty = 1;
       if(data.status == 1){
         form.status = true;

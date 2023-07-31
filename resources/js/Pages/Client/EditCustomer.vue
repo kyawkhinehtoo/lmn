@@ -11,9 +11,10 @@
               <div class="inline-flex w-full bg-gray-50 rounded-t-lg">
                     <ul id="tabs" class="flex">
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 1 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(1)" preserve-state>Genaral</a></li>
-                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 2 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(2)" preserve-state>Documents</a></li>
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 2 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(2)" preserve-state>Documents <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ total_documents }}</span></a></li>
                       <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 3 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']"><a href="#" @click="tabClick(3)" preserve-state>History</a></li>
-                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 5 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']" v-if="radius && user.radius_read"><a href="#" @click="tabClick(5)" preserve-state>Radius</a></li>
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 4 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']" v-if="role.read_only_ip || role.add_ip  || role.add_ip || role.edit_ip"><a href="#" @click="tabClick(4)" preserve-state>Public IP <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ total_ips }}</span></a></li>
+                      <li class="px-2 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" :class="[tab == 5 ? 'border-b-2 border-indigo-400 -mb-px' : 'opacity-50']" v-if="radius && role.radius_read"><a href="#" @click="tabClick(5)" preserve-state>Radius</a></li>
                   
                      
                     </ul>
@@ -394,8 +395,15 @@
                   </div>
                
                 </div>
-                <div class="grid grid-cols-4 gap-2">
-                   <div class="col-span-4 sm:col-span-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                  <div class="col-span-1 md:col-span-2">
+                    <label for="installation_remark" class="block text-sm font-medium text-gray-700"> Bundle Equiptments </label>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="bundle_equiptments.length !== 0">
+                      <multiselect deselect-label="Selected already" :options="bundle_equiptments" track-by="id" label="name" v-model="form.bundles" :allow-empty="false" :disabled="checkPerm('bundle')" :multiple="true" :taggable="true" ></multiselect>
+                    </div>
+                    <p v-show="$page.props.errors.bundles" class="mt-2 text-sm text-red-500">{{ $page.props.errors.bundles }}</p>
+                  </div>
+                   <div class="col-span-1 md:col-span-2">
                     <label for="installation_remark" class="block text-sm font-medium text-gray-700"> Installation Remark </label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                       <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
@@ -436,6 +444,16 @@
                  
                   </div>
                </div>
+               <div class="p-4" :class="[tab == 4 ? '': 'hidden']">
+                  <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Public IP</h6>
+                  <hr class="my-4 md:min-w-full" />
+            
+                   <customer-ip :data="form.id" :permission="!checkPerm('order_date')" v-if="tab== 4"/>
+              
+                 
+                  </div>
+               </div>
              <div class="p-4" :class="[tab == 5 ? '': 'hidden']" v-if="radius">
                   <div class="px-4 py-5 bg-white space-y-6 sm:p-6"  >
                 <h6 class="md:min-w-full text-indigo-700 text-xs uppercase font-bold block pt-1 no-underline">Radius</h6>
@@ -464,6 +482,7 @@ import { Inertia } from "@inertiajs/inertia";
 import CustomerFile from "@/Components/CustomerFile";
 import CustomerHistory from "@/Components/CustomerHistory";
 import CustomerRadius from "@/Components/CustomerRadius";
+import CustomerIp from "@/Components/CustomerIP";
 export default {
   name: "EditCustomer",
   components: {
@@ -472,6 +491,7 @@ export default {
     Multiselect,
     CustomerRadius,
     CustomerHistory,
+    CustomerIp,
   },
   props: {
     packages: Object,
@@ -489,10 +509,14 @@ export default {
     dn:Object,
     radius: Object,
     customer_history: Object,
-    pops: Object
+    pops: Object,
+    role: Object,
+    total_documents: Object,
+    total_ips: Object,
+    bundle_equiptments:Object,
   },
   setup(props) {
-    provide('user', props.user);
+    provide('role', props.role);
     let res_packages = ref("");
     let res_sn = ref("");
 
@@ -503,7 +527,7 @@ export default {
         lat_long = props.customer.location.split(",", 2); 
       }
 
-      let tab = ref(true);
+      let tab = ref(1);
       let selected_id = ref("");
 
       function tabClick(val) {
@@ -550,6 +574,7 @@ export default {
       pppoe_account:props.customer.pppoe_account,
       pppoe_password:"",
       customer_type:props.customer.customer_type,
+      bundles:"",
     });
 
     function submit() {
@@ -593,16 +618,18 @@ export default {
       }
     }
     const POPSelect=(pops)=>{
+      POP(pops);
+      form.package = null;
+    }
+    const POP=(pops)=>{
       getPackages(pops.id).then((d) => {
-        console.log(d)
+       
         if(d){
-        form.package=null;
         res_packages.value = d;
         }else{
-          form.sn_id=null;
+          form.package = null; 
           res_packages.value = null;
         }
-        
        });
     }
     const getPackages = async (pop_id) => {
@@ -616,17 +643,17 @@ export default {
       }
     }
     function DNSelect(dn){
+       setDN(dn);
+       form.sn_id=null;
+    }
+    const setDN=(dn)=>{
       getSN(dn.name).then((d) => {
         console.log(d)
         if(d){
-          
-        form.sn_id=null;
         res_sn.value = d;
         }else{
-          form.sn_id=null;
           res_sn.value = null;
         }
-        
        });
     }
     const getSN = async (dn_name) => {
@@ -641,30 +668,50 @@ export default {
       }
       
     }
-    function fillPppoe(){
-          if(!form.pppoe_account){
-            if(form.ftth_id && form.sn && form.dn){
-              
-              var pppoe = form.ftth_id;
-              form.pppoe_account = pppoe.toLowerCase();
-              pppoe_auto.value = true;
-            }  
-          }
-         
-    }
-    function generatePassword() { 
-        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        var passwordLength = 8;
-        var password = "";
-        for (var i = 0; i <= passwordLength; i++) {
-        var randomNumber = Math.floor(Math.random() * chars.length);
-        password += chars.substring(randomNumber, randomNumber +1);
+    function fillPppoe() {
+      if (!form.pppoe_account) {
+        if (form.ftth_id && form.sn_id && form.dn_id && form.township) {
+          let dn_no = getNumber(form.dn_id['name']);
+          let sn_no = getNumber(form.sn_id['name']);
+          let city_code = form.township['city_code'];
+          var data = getNumber(form.ftth_id);
+          let psw = dn_no.toString()+sn_no.toString()+('00000' + (parseInt(data))).slice(-5);
+          let pppoe = city_code+psw+'@LMNET';
+          form.pppoe_account = pppoe.toLowerCase();
+          form.pppoe_password = psw;
+          pppoe_auto.value = true;
         }
-       if(!form.pppoe_password){
-            if(form.ftth_id ){
-            form.pppoe_password = password;
-            }
-          }
+      }
+
+    }
+    function generatePassword() {
+      // var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      // var passwordLength = 8;
+      // var password = "";
+      // for (var i = 0; i <= passwordLength; i++) {
+      //   var randomNumber = Math.floor(Math.random() * chars.length);
+      //   password += chars.substring(randomNumber, randomNumber + 1);
+      // }
+      if (!form.pppoe_password) {
+        // if (form.ftth_id) {
+        //   form.pppoe_password = password;
+        // }
+        if (form.ftth_id && form.sn_id && form.dn_id && form.township) {
+          let dn_no = getNumber(form.dn_id['name']);
+          let sn_no = getNumber(form.sn_id['name']);
+          let city_code = form.township['city_code'];
+          var data = getNumber(form.ftth_id);
+          let psw = dn_no.toString()+sn_no.toString()+('00000' + (parseInt(data))).slice(-5);
+          form.pppoe_password = psw;
+        }
+      }
+    }
+    function getNumber(data){
+      const string = data;
+      const regex = /\d+/g;
+      const matches = string.match(regex);
+      const integerValue = matches ? parseInt(matches.join('')) : 0;
+      return integerValue;
     }
     
     onMounted(() => {
@@ -674,16 +721,26 @@ export default {
       form.project = props.projects.filter((d) => d.id == props.customer.project_id)[0];
       form.township = props.townships.filter((d) => d.id == props.customer.township_id)[0];
       form.sale_person = props.sale_persons.filter((d) => d.id == props.customer.sale_person_id)[0];
-     
+      
+      if (props.customer.bundle) {
+        let bundle_array = props.customer.bundle.split(",");
+        let bundle_lists = [];
+        bundle_array.forEach(e => {
+          bundle_lists.push(props.bundle_equiptments.filter((d) => d.id == e)[0]);
+        });
+        form.bundles = bundle_lists;
+      }
       
       res_sn.value = props.sn;
       if(props.customer.sn_id){
         let sn_id =  props.sn.filter((d) => d.id == props.customer.sn_id)[0];
         if( sn_id !== undefined){
-          form.sn_id = sn_id;
+         
           let dn_id = props.dn.filter((e) => e.name == sn_id.dn_name)[0];
           if(dn_id !== undefined){
-            form.dn_id = dn_id
+            setDN(dn_id);
+            form.sn_id = sn_id;
+            form.dn_id = dn_id;
           }
         }
       }
@@ -691,11 +748,14 @@ export default {
       if(props.customer.package_id){
         let pop_package =  props.packages.filter((d) => d.id == props.customer.package_id)[0];
         if( pop_package !== undefined){
-          form.package = pop_package;
-          let pop_id = props.pops.filter((e) => e.site_id == pop_package.site_id)[0];
+          console.log(pop_package);
+          let pop_id = props.pops.filter((e) => e.id == pop_package.pop_id)[0];
           if(pop_id !== undefined){
+            console.log(pop_id);
+            POP(pop_id);
             form.pop_id = pop_id;
-          }
+            form.package = pop_package;
+         }
         }
       }
       form.pppoe_password = (!checkPerm('pppoe_password'))?props.customer.pppoe_password:"********";
