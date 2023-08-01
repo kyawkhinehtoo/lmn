@@ -10,7 +10,7 @@ class PublicIpAddress extends Model
     use HasFactory;
     protected $table = 'public_ip_addresses';
     protected $fillable = [
-        'ip_address','description','annual_charge','customer_id','created_at', 'updated_at'
+        'ip_address','description','annual_charge','currency','customer_id','created_at', 'updated_at'
     ];
     protected $dates = [
         'created_at', 'updated_at'

@@ -18,7 +18,7 @@
           <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">ID</th>
           <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">IP Address</th>
           <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Description</th>
-          <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Annual Fees</th>
+          <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase text-right">Annual Fees</th>
           <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">From Date</th>
           <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">To Date</th>
           <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Created At</th>
@@ -34,7 +34,7 @@
             <p v-if="row.description.length > 30">{{ row.description.substring(0, 30) + '...' }}</p>
             <p v-else>{{ row.description }}</p>
           </td>
-          <td class="px-4 py-3 text-xs font-medium"> {{ row.annual_charge }} </td>
+          <td class="px-4 py-3 text-xs font-medium whitespace-nowrap text-right"> {{ row.annual_charge }} {{ row.currency.toUpperCase() }} </td>
           <td class="px-4 py-3 text-xs font-medium whitespace-nowrap"> {{ row.start_date }} </td>
           <td class="px-4 py-3 text-xs font-medium whitespace-nowrap"> {{ (row.end_date) ? row.end_date : 'N/A' }} </td>
           <td class="px-4 py-3 text-xs font-medium"> {{ row.created_at }} </td>
@@ -60,9 +60,9 @@
     <template #content>
       <div>
         <div v-if="$page.props.errors[0]" class="text-red-500">{{ $page.props.errors[0] }}</div>
-        <div class="mt-4 text-sm">
+        <div class="mt-4 text-sm grid grid-cols-1 md:grid-cols-2 gap-6">
           
-          <div class="mb-4 md:col-span-1">
+          <div class="mb-4 md:col-span-2">
             <label for="ip_address" class="block text-gray-700 text-sm font-bold mb-2">IP Address : (IPv4, /32)</label>
             <input type="text"
               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -71,7 +71,7 @@
             </div>
           </div>
 
-          <div class="mb-4 md:col-span-1">
+          <div class="mb-4 md:col-span-2">
             <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description :</label>
             <textarea
               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -81,15 +81,26 @@
           </div>
 
           <div class="mb-4 md:col-span-1">
-            <label for="annual_charge" class="block text-gray-700 text-sm font-bold mb-2">Annual Fees (USD):</label>
+            <label for="annual_charge" class="block text-gray-700 text-sm font-bold mb-2">Annual Fees :</label>
             <input type="number"
               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               id="annual_charge" placeholder="Enter Annual Fees" v-model="form.annual_charge" min="0" />
             <div v-if="$page.props.errors.annual_charge" class="text-red-500">{{ $page.props.errors.annual_charge }}
             </div>
+            </div>
+            <div class="mb-4 md:col-span-1">
+            <label for="currency" class="block text-gray-700 text-sm font-bold mb-2"> Currency Type :</label>
+                            <div class="md:mt-4 flex">
+                              <label class="flex-auto items-center"> <input type="radio" class="form-radio h-5 w-5 text-green-600" checked name="currency" v-model="form.currency" value="baht" /><span class="ml-2 text-gray-700 text-sm">TBH</span></label>
+
+                              <label class="flex-auto items-center"> <input type="radio" class="form-radio h-5 w-5 text-indigo-600" name="currency" v-model="form.currency" value="usd" /><span class="ml-2 text-gray-700 text-sm">USD</span> </label>
+
+                              <label class="flex-auto items-center"> <input type="radio" class="form-radio h-5 w-5 text-yellow-600" name="currency" v-model="form.currency" value="mmk" /><span class="ml-2 text-gray-700 text-sm">MMK</span> </label>
+            </div>
           </div>
           
-          <div class="mb-4 md:col-span-1">
+          
+          <div class="mb-4 md:col-span-2">
             <label for="start_date" class="block text-gray-700 text-sm font-bold mb-2">From Date:</label>
             <input type="date"
               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -98,7 +109,7 @@
             </div>
           </div>
 
-          <div class="mb-4 md:col-span-1">
+          <div class="mb-4 md:col-span-2">
             <label for="end_date" class="block text-gray-700 text-sm font-bold mb-2">To Date:</label>
             <input type="date"
               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -152,6 +163,7 @@ export default {
       ip_address: null,
       description: null,
       annual_charge: null,
+      currency: 'baht',
       start_date: null,
       end_date: null,
       customer_id: props.data,
@@ -162,6 +174,7 @@ export default {
       form.ip_usage_history_id = null;
       form.description = null;
       form.annual_charge = null;
+      form.currency = 'baht';
       form.start_date = null;
       form.end_date = null;
       form.customer_id = props.data;
@@ -239,6 +252,7 @@ export default {
       form.ip_address = data.ip_address;
       form.description = data.description;
       form.annual_charge = data.annual_charge;
+      form.currency = data.currency;
       form.start_date = data.start_date;
       form.end_date = data.end_date;
       form.customer_id = data.customer_id;
@@ -251,6 +265,7 @@ export default {
       form.ip_address = data.ip_address;
       form.description = data.description;
       form.annual_charge = data.annual_charge;
+      form.currency = data.currency;
       form.start_date = data.start_date;
       form.end_date = data.end_date;
       form.customer_id = data.customer_id;

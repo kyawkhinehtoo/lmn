@@ -28,6 +28,7 @@ class PublicIpController extends Controller
             'ip_address' => 'required|unique:public_ip_addresses,ip_address', 
             'description' => 'required|max:255', 
             'annual_charge' => 'required|numeric', // Ensure it is a numeric value
+            'currency' => 'required|max:255', 
             'customer_id' => 'required|exists:customers,id', // Ensure it exists in the customers table
             'start_date' => 'required|date|date_format:Y-m-d', // Ensure it is a valid date with the format 'Y-m-d'
             'end_date' => 'required|date|date_format:Y-m-d|after_or_equal:start_date', // Ensure it is a valid date after or equal to start_date
@@ -37,6 +38,7 @@ class PublicIpController extends Controller
             $public_ip->ip_address = $request->ip_address;
             $public_ip->description = $request->description;
             $public_ip->annual_charge = $request->annual_charge;
+            $public_ip->currency = $request->currency;
             $public_ip->customer_id = $request->customer_id;
             $public_ip->save();
             if($public_ip->id){
@@ -61,6 +63,7 @@ class PublicIpController extends Controller
             ],
             'description' => 'required|max:255', 
             'annual_charge' => 'required|numeric',
+            'currency' => 'required|max:255', 
             'customer_id' => 'required',
             'start_date' => 'required|date', 
             'end_date' => 'required|date', 
@@ -70,6 +73,7 @@ class PublicIpController extends Controller
             $public_ip->ip_address = $request->ip_address;
             $public_ip->description = $request->description;
             $public_ip->annual_charge = $request->annual_charge;
+            $public_ip->currency = $request->currency;
             $public_ip->customer_id = $request->customer_id;
             $public_ip->update();
             if($request->ip_usage_history_id){

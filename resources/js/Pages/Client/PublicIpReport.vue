@@ -55,7 +55,7 @@
                 <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Customer ID</th>
                 <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Package</th>
                 <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Description</th>
-                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Annual Fees</th>
+                <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase text-right">Annual Fees</th>
                 <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Start Date</th>
                 <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">End Date</th>
                 <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -72,7 +72,7 @@
                   <p v-if="row.description.length > 30">{{ row.description.substring(0, 30) + '...' }}</p>
                   <p v-else>{{ row.description }}</p>
                 </td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.annual_charge }}</td>
+                <td class="px-4 py-3 text-xs font-medium text-right">{{ row.annual_charge }} {{ row.currency.toUpperCase() }}</td>
                 <td class="px-4 py-3 text-xs font-medium whitespace-nowrap">{{ row.start_date }}</td>
                 <td class="px-4 py-3 text-xs font-medium whitespace-nowrap">{{ row.end_date }}</td>
                 <td class="px-4 py-3 text-xs font-medium">{{ row.status_name }}</td>

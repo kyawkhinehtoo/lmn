@@ -695,7 +695,7 @@ class ReportController extends Controller
                         ->orwherenull('customers.deleted');
                 })
                 ->orderBy('public_ip_addresses.id')
-                ->select('public_ip_addresses.id as id', 'customers.id as customer_id', 'customers.name as customer_name','customers.ftth_id as ftth_id', 'public_ip_addresses.ip_address as ip_address', 'public_ip_addresses.description as description', 'public_ip_addresses.annual_charge as annual_charge','packages.name as package_name','ip_usage_history.start_date as start_date', 'ip_usage_history.end_date as end_date','status.name as status_name')
+                ->select('public_ip_addresses.id as id', 'customers.id as customer_id', 'customers.name as customer_name','customers.ftth_id as ftth_id', 'public_ip_addresses.ip_address as ip_address', 'public_ip_addresses.description as description', 'public_ip_addresses.annual_charge as annual_charge','public_ip_addresses.currency as currency','packages.name as package_name','ip_usage_history.start_date as start_date', 'ip_usage_history.end_date as end_date','status.name as status_name')
                 ->paginate(15);
             $public_ips->appends($request->all())->links();
         return Inertia::render('Client/PublicIpReport', [
