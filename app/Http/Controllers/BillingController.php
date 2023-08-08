@@ -142,7 +142,7 @@ class BillingController extends Controller
 
                     $billing = new BillingTemp();
                     $billing->period_covered = $request->period_covered_name;
-                    $billing->bill_number = strtoupper($request->bill_number . "-" . trim($value->ftth_id) . "-" . $value->type);
+                    $billing->bill_number = strtoupper($request->bill_number . "-" . trim($value->ftth_id));
                     $billing->customer_id = $value->id;
                     $billing->ftth_id = $value->ftth_id;
                     $billing->date_issued = $request->issue_date;
@@ -162,7 +162,7 @@ class BillingController extends Controller
                     $billing->total_payable = $total_cost;
                     $billing->discount = 0;
                     $billing->amount_in_word = 'Amount in words: ' . ucwords($inWords->format($total_cost));
-                    $billing->commercial_tax = "The Prices are inclusive of Commerial Tax (5%)";
+                    $billing->commercial_tax = "The Prices are inclusive of Commerial Tax (15%)";
                     $phone = ($value->phone_2) ? trim($value->phone_1) . ',' . trim($value->phone_2) : trim($value->phone_1);
                     $billing->phone = $phone;
                     $billing->bill_month = $request->bill_month;
@@ -172,7 +172,7 @@ class BillingController extends Controller
             }
             return redirect()->back()->with('message', 'Billing Created Successfully.');
         } else {
-            return redirect()->back()->with('message', 'Package Created Successfully.');
+            return redirect()->back()->with('message', 'Billing Created Successfully.');
         }
     }
 
@@ -648,6 +648,17 @@ class BillingController extends Controller
             ->first();
        
         return view('voucher', $billing_invoice);
+    }
+    public function showInvoice(Request $request)
+    {
+       
+        $billing_invoice = Invoice::join('customers', 'invoices.customer_id', 'customers.id')
+            ->join('packages', 'customers.package_id', 'packages.id')
+            ->where('invoices.id', '=', $request->id)
+            ->select('invoices.*', 'packages.type as service_type')
+            ->first();
+       
+        return view('invoice', $billing_invoice);
     }
   
     public function saveSingle(Request $request)

@@ -21,18 +21,15 @@
                 /* change the margins as you want them to be. */
             }
             .container {
-            width: 100%;
-            bottom: 0;
-                    position: absolute;
-            }
-
-            /* .footer {
-                position: absolute;
-                bottom: 0;
                 width: 100%;
-                height: 30px;
+                top: 0;
+                position: absolute;
+            }
+            /* .footer {
+                width: 100%;
+                bottom: 0;
+                position: absolute;
             } */
-
         }
 
         html,
@@ -50,19 +47,18 @@
     
         .header-img {
             width: 100%;
+            margin-bottom: 50px;
             height: auto;
         }
 
         .footer {
             float: left;
+            margin-top: 140px;
             width: 100%;
-            position: relative;
             color: #ffffff;
             text-align: center;
         }
-    
-       
-
+ 
         .container {
             width: 100%;
         }
@@ -114,17 +110,21 @@
             text-align: center;
             margin-top: 20px;
             float: left;
+            display: table;
         }
-     
-        .collapse tbody tr:last-child{
-            height: 400px;
+       
+        .collapse > tbody > tr {
+            display: table-row;
+        }
+        .collapse > tbody tr:last-child{
+            height: 300px;
         }
         tbody td{
             text-align: center;
             vertical-align: top;
         }
         .collapse th,
-        .collapse td {
+        .collapse  td {
             border:1px solid #000000;
             height: 1em;
             width: auto;
@@ -166,7 +166,7 @@
             color:#000000;
             background-color: #f27036;
         }
-      
+  
 
         .header h2.title {
             padding: 25px 0 ;
@@ -177,7 +177,35 @@
             text-transform: uppercase;
             font-family: 'Times New Roman', Times, serif;
         }
-
+        .sign_area{
+            overflow: hidden;
+        }
+        .signature{
+            float: left;
+            margin-top: 40px;
+            width: 100%;
+            text-align: left;
+            overflow: hidden;
+            position: relative;
+        }
+        .signature .txt:after{
+            content: " ....................................................................................................................... ";
+            position: absolute;
+            padding-left: 5px;
+        }
+        .label{
+            float: left;
+            margin-top: 10px;
+            width: 100%;
+            text-align: left;
+        }
+        .center div{
+            float:left;
+            width: 50%;
+            padding:5px 0;
+            font-size: medium;
+            font-weight: bold;
+        }
        
     </style>
    
@@ -204,31 +232,15 @@
        
         <div class="center" style="margin-top:5px;">
      
-       <table class="collapse" style="margin-top:0px; width:100%; ">
-               <tbody>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Invoice to : </td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Date : </td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Invoice No. : </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Customer Name : </td>
-                    <td>Package : </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Customer ID : </td>
-                    <td rowspan="3" class="left">Internet Speed : </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Address : </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Contact No. : </td>
-                </tr>
+     
+               
+                
+                    <div>Customer Name :  {{$bill_to}}</div>
+                    <div>Invoice No. :  </div>
+                    <div>Address : {{$attn}}</div>
+                    <div>Date :  {{ date("j F Y",strtotime($date_issued)) }}</div>
+                    <div>Contact No. : {{$phone}}</div>
+               
 
                <!-- </tbody>
        </table>
@@ -237,6 +249,8 @@
 
                         </thead>
                         <tbody> -->
+             <table class="collapse" style="margin-top:20px; width:100%; ">
+               <tbody>
                     <tr>
                         <td>No.</td>
                         <td>Description</td>
@@ -247,7 +261,7 @@
 
                  <tr >
                             <td>1</td>
-                            <td>{{$service_description}} for {{$period_covered}} </td>
+                            <td>{{$service_description}} for <br /> {{$period_covered}} </td>
                             <td >{{$qty}}</td>
                             <td>{{number_format($normal_cost)}}</td>
                             <td>{{number_format($sub_total)}}</td>
@@ -291,18 +305,12 @@
                           <td class="title" colspan="4">Grand Total </td>
                           <td class="text">{{number_format($total_payable)}}</td>
                       </tr>
-                       <tr>
-                          <td class="title left" colspan="5">Period : {{$period_covered}}</td>
-                       </tr>
-                       <tr>
-                          <td class="title left" colspan="5">Remark : {{$remark ?? '' }}</td>
-                       </tr>
-                      
+                                                
                     </tfoot>
                        
                    
                 </table>
-
+            
         
         
             

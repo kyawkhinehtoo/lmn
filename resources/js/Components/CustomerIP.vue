@@ -275,6 +275,7 @@ export default {
     }
     function save() {
       if (!editMode.value) {
+        form._method = "POST";
         form.post("/publicIP", {
           preserveState: true,
           onSuccess: (page) => {
@@ -293,7 +294,9 @@ export default {
         });
 
       } else {
+        form._method = "PATCH";
         form.put("/publicIP/" + form.id, {
+    
           preserveState: true,
           onSuccess: (page) => {
             add.value = false;

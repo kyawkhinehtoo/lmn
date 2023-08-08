@@ -16,7 +16,6 @@ class CreatePublicIpAddressesTable extends Migration
         Schema::create('public_ip_addresses', function (Blueprint $table) {
             $table->id();
             $table->string('ip_address', 45)->unique();
-            $table->string('subnetmask', 45)->unique();
             $table->string('description')->nullable();
             $table->decimal('annual_charge', 10, 2);
             $table->unsignedBigInteger('customer_id')->nullable();

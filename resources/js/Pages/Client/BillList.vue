@@ -89,6 +89,9 @@
                   -->
                 <!-- <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th> -->
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <i class="fa fa-print"></i> Invoice Print
+                </th>
+                <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt Status</th>
@@ -118,7 +121,7 @@
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.sent_date ? row.sent_date : "None" }}</td>
                   -->
                 <!-- <td class="px-2 py-3 text-xs whitespace-nowrap"><a :href="`/pdfpreview2/${row.id}`" target="_blank"><i class="fa fas fa-eye text-gray-400"></i></a></td> -->
-
+                <td class="px-2 py-3 text-xs whitespace-nowrap"><a :href="`/showInvoice/${row.id}`" target="_blank"><i class="fa fas fa-eye text-gray-400"></i></a></td> 
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <button type="button" @click="openReceipt(row)"
                     class="h-8 text-md w-24 bg-green-600 rounded text-white hover:bg-green-700"

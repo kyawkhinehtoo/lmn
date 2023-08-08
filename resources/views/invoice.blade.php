@@ -21,18 +21,15 @@
                 /* change the margins as you want them to be. */
             }
             .container {
-            width: 100%;
-            bottom: 0;
-                    position: absolute;
-            }
-
-            /* .footer {
-                position: absolute;
-                bottom: 0;
                 width: 100%;
-                height: 30px;
+                top: 0;
+                position: absolute;
+            }
+            /* .footer {
+                width: 100%;
+                bottom: 0;
+                position: absolute;
             } */
-
         }
 
         html,
@@ -50,14 +47,14 @@
     
         .header-img {
             width: 100%;
+            margin-bottom: 50px;
             height: auto;
         }
 
         .footer {
             float: left;
-            margin-top: 80px;
+            margin-top: 140px;
             width: 100%;
-            position: relative;
             color: #ffffff;
             text-align: center;
         }
@@ -120,7 +117,7 @@
             display: table-row;
         }
         .collapse > tbody tr:last-child{
-            height: 150px;
+            height: 300px;
         }
         tbody td{
             text-align: center;
@@ -169,7 +166,7 @@
             color:#000000;
             background-color: #f27036;
         }
-      
+  
 
         .header h2.title {
             padding: 25px 0 ;
@@ -202,7 +199,13 @@
             width: 100%;
             text-align: left;
         }
-
+        .center div{
+            float:left;
+            width: 50%;
+            padding:5px 0;
+            font-size: medium;
+            font-weight: bold;
+        }
        
     </style>
    
@@ -223,38 +226,21 @@
     <div class="container">
         <div class="header">
             <img src="{{ asset('storage/images/invoice-header.png') }}" class="header-img" />
-            <h2 class="title">Receipt</h2>
+            <h2 class="title">Invoice</h2>
         </div>
     
        
         <div class="center" style="margin-top:5px;">
      
-       <table class="collapse" style="margin-top:0px; width:100%; ">
-               <tbody>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Invoice to : {{$attn}} </td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Date : {{ date("j F Y",strtotime($date_issued)) }}</td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Invoice No. : 
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Customer Name :  {{$bill_to}}</td>
-                    <td>Package :  {{$service_description}}</td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Customer ID : {{$ftth_id}}</td>
-                    <td rowspan="3" class="left">Internet Speed : {{$qty}} </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Address : {{$attn}}</td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Contact No. : {{$phone}}</td>
-                </tr>
+     
+               
+                
+                    <div>Customer Name :  {{$bill_to}}</div>
+                    <div>Invoice No. :  {{$invoice_number}}</div>
+                    <div>Address : {{$attn}}</div>
+                    <div>Date :  {{ date("j F Y",strtotime($date_issued)) }}</div>
+                    <div>Contact No. : {{$phone}}</div>
+               
 
                <!-- </tbody>
        </table>
@@ -263,6 +249,8 @@
 
                         </thead>
                         <tbody> -->
+             <table class="collapse" style="margin-top:20px; width:100%; ">
+               <tbody>
                     <tr>
                         <td>No.</td>
                         <td>Description</td>
@@ -273,7 +261,7 @@
 
                  <tr >
                             <td>1</td>
-                            <td>{{$service_description}} </td>
+                            <td>{{$service_description}} for <br /> {{$period_covered}} </td>
                             <td >{{$qty}}</td>
                             <td>{{number_format($normal_cost)}}</td>
                             <td>{{number_format($sub_total)}}</td>
@@ -317,23 +305,7 @@
                           <td class="title" colspan="4">Grand Total </td>
                           <td class="text">{{number_format($total_payable)}}</td>
                       </tr>
-                       <tr>
-                          <td class="title left" colspan="5">Period : {{$period_covered}}</td>
-                       </tr>
-                       <tr>
-                          <td class="title left" colspan="5">Remark : {{$remark ?? '' }}</td>
-                       </tr>
-                        <tr>
-                            <td colspan="2" class="sign_area">
-                                <span class="label"> Sale Person</span>
-                                <span class="signature"><span class="txt">Signature</span> </span>
-                            </td>
-                            <td colspan="3" class="sign_area">
-                                <span class="label"> Paid By</span>
-                                <span class="signature"><span class="txt">Signature</span> </span>
-                            </td>
-                        </tr>
-                          
+                                                
                     </tfoot>
                        
                    

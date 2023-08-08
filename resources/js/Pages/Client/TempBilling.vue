@@ -369,6 +369,7 @@ export default {
             icon: "success",
             title: page.props.flash.message,
           });
+          closeFinal();
         },
         onError: (errors) => {
           console.log(errors);

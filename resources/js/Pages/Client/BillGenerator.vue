@@ -56,13 +56,13 @@
 
               <p v-if="errors.due_date" class="mt-2 text-sm text-red-500">{{ errors.due_date }}</p>
             </div>
-             <div class="px-4 py-2">
+             <!-- <div class="px-4 py-2">
               <label for="bill" class="block text-sm font-medium text-gray-700">Additional to Existing Bill ? </label>
               <div class="flex rounded-md shadow-sm">
                 <multiselect deselect-label="Selected already" :options="bill" track-by="id" label="name" v-model="form.bill_id" :allow-empty="true"></multiselect>
               </div>
               <p v-if="$page.props.errors.bill_id" class="mt-2 text-sm text-red-500">{{ $page.props.errors.bill_id }}</p>
-            </div>
+            </div> -->
           </div>
 
           <!-- ... -->
@@ -304,6 +304,10 @@ export default {
      function submit() {
       form.post("/doGenerate",{
          onSuccess: (page) => {
+          Toast.fire({
+              icon: "success",
+              title: page.props.flash.message,
+            });
            resetForm();
           
          },

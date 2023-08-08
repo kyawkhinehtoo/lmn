@@ -223,7 +223,7 @@
     <div class="container">
         <div class="header">
             <img src="{{ asset('storage/images/invoice-header.png') }}" class="header-img" />
-            <h2 class="title">Receipt</h2>
+            <h2 class="title">Invoice</h2>
         </div>
     
        
@@ -273,7 +273,7 @@
 
                  <tr >
                             <td>1</td>
-                            <td>{{$service_description}} </td>
+                            <td>{{$service_description}} for {{$period_covered}} </td>
                             <td >{{$qty}}</td>
                             <td>{{number_format($normal_cost)}}</td>
                             <td>{{number_format($sub_total)}}</td>

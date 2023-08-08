@@ -124,6 +124,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	//Billing PDF
 	Route::get('/pdfpreview1/{id}', 'BillingController@preview_1');
 	Route::get('/pdfpreview2/{id}', 'BillingController@preview_2');
+	Route::get('/showInvoice/{id}', 'BillingController@showInvoice');
 	Route::get('/ReceiptTemplate/{id}', 'ReceiptController@template');
 
 	Route::post('/getSinglePDF/{id}', 'BillingController@makeSinglePDF');
