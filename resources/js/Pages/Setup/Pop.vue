@@ -42,12 +42,12 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64 ">
               <tr v-for="(row, index) in pops.data" v-bind:key="row.id">
-                <td class="px-4 py-3 text-xs font-medium">{{ pops.from + index }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.site_name }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.site_description }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.created_at }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.updated_at }}</td>
-                <td class="px-4 py-3 text-xs font-medium text-right">
+                <td class="px-6 py-3 font-medium">{{ pops.from + index }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.site_name }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.site_description }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.created_at }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.updated_at }}</td>
+                <td class="px-6 py-3 font-medium text-right">
                   <a href="#" @click="edit(row)" class="text-yellow-600 ml-2">  <i class="fa fa-pen "></i></a>
                   <a href="#" @click="confirmDelete(row)" class="text-red-600 ml-2">  <i class="fa fa-trash"></i></a> 
                 </td>

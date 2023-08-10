@@ -10,8 +10,8 @@
               <img src="/storage/images/logo.png"  class="md:w-full w-32" />
              </div>
              <div class=" col-span-1 w-2/3">
-              <span class="text-sm font-bold antialiased text-lm-orange ">
-                 Lao Mao
+              <span class="text-sm font-bold antialiased text-lm-orange whitespace-nowrap">
+                Long Mao
               </span>
               <span class="text-sm font-bold antialiased text-lm-gray">
                  Network
@@ -263,7 +263,14 @@
             </div>
             <div class="w-full md:w-8/12 px-4">
               <ul class="flex flex-wrap list-none md:justify-end justify-center">
-                <li class="text-sm text-blueGray-500 font-semibold py-1">Demo ISP MANAGER</li>
+                <li class="text-sm text-blueGray-500 font-semibold py-1">
+                  <span class="text-lm-orange ">
+                    Long Mao
+                    </span>
+                    <span class="text-lm-gray">
+                    Network
+                    </span>  
+                </li>
               </ul>
             </div>
           </div>

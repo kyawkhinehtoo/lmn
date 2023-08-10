@@ -3,8 +3,15 @@
             <template #logo>
             <span class="flex flex-col items-center align-middle uppercase text-blueGray-400">
             <img src="/storage/images/logo.png" class="w-32 opacity-90 select-none" />
-         
-           <h2 class="mt-2 font-bold antialiased flex">Operation Support System</h2>
+               <div class="text-md font-bold antialiased inline-flex gap-2">
+                    <span class="text-lm-orange ">
+                    Long Mao
+                    </span>
+                    <span class="text-lm-gray">
+                    Network
+                    </span>  
+               </div> 
+           <h2 class="mt-2 font-bold antialiased flex">OSS/BSS System</h2>
            </span>
         </template>
 

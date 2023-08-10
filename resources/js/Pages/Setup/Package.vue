@@ -34,15 +34,15 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="(row,index) in packages.data" v-bind:key="row.id" :class="{'text-gray-400':!row.status}">
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ packages.from + index }}</td>
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap">{{ row.name }}</td>
+                <td class="px-6 py-3  text-left text-md font-medium whitespace-nowrap">{{ packages.from + index }}</td>
+                <td class="px-6 py-3  text-left text-md font-medium whitespace-nowrap">{{ row.name }}</td>
                 <!-- <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap"><Bundle :data="row.id" :key="form.componentKey" /></td> -->
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase" v-if="radius_services!=null">{{ getRadiusPackage(row.id) }}</td>
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap uppercase">{{ row.price }} <span class="uppercase">{{row.currency}}</span> </td>
-                <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.contract_period }} Months</td>
-                <td class="px-6 py-3  text-left text-sm font-medium  whitespace-nowrap">{{ row.site_name }}</td>
-                <td class="px-6 py-3  text-left text-sm font-medium whitespace-nowrap text-right">
+                <td class="px-6 py-3  text-left text-md font-medium whitespace-nowrap uppercase" v-if="radius_services!=null">{{ getRadiusPackage(row.id) }}</td>
+                <td class="px-6 py-3  text-left text-md font-medium whitespace-nowrap uppercase">{{ row.type }}</td>
+                <td class="px-6 py-3  text-left text-md font-medium whitespace-nowrap uppercase">{{ row.price }} <span class="uppercase">{{row.currency}}</span> </td>
+                <td class="px-6 py-3  text-left text-md font-medium  whitespace-nowrap">{{ row.contract_period }} Months</td>
+                <td class="px-6 py-3  text-left text-md font-medium  whitespace-nowrap">{{ row.site_name }}</td>
+                <td class="px-6 py-3  text-left text-md font-medium whitespace-nowrap text-right">
                   <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                   <a href="#" @click="deleteRow(row)" class="text-red-600 hover:text-red-900">Delete</a>
                 </td>

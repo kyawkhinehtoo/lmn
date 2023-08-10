@@ -43,13 +43,13 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="(row, index) in overall.data" v-bind:key="row.id">
-                <td class="px-4 py-3 text-xs font-medium">{{ overall.from + index }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.name }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.ports }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.description }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.location }}</td>
-                <td class="px-4 py-3 text-xs font-medium">{{ row.input_dbm }}</td>
-                <td class="px-4 py-3 text-xs font-medium text-right">
+                <td class="px-6 py-3 font-medium">{{ overall.from + index }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.name }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.ports }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.description }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.location }}</td>
+                <td class="px-6 py-3 font-medium">{{ row.input_dbm }}</td>
+                <td class="px-6 py-3 font-medium text-right">
                   <a href="#" @click="editDN(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                   <a href="#" @click="confirmDelete(row.id)" class="text-red-600 hover:text-red-900">Delete</a>
                 </td>
