@@ -180,6 +180,7 @@
             text-transform: uppercase;
             font-family: 'Times New Roman', Times, serif;
         }
+
         .sign_area{
             overflow: hidden;
         }
@@ -202,7 +203,23 @@
             width: 100%;
             text-align: left;
         }
-
+        td.title{
+        text-align: right;
+       }
+        .header_warapper div{
+            float:left;
+            width: calc(50% - 10px);
+            padding:10px 5px;
+            font-size: small;
+            font-weight: bold;
+        }
+       .header_warapper{
+            float: left;
+            position: relative;
+            width: calc(100% - 2px);
+            border:1px solid #000000;
+            border-bottom: 0;
+       }
        
     </style>
    
@@ -228,33 +245,21 @@
     
        
         <div class="center" style="margin-top:5px;">
-     
-       <table class="collapse" style="margin-top:0px; width:100%; ">
+        <div class="header_warapper">
+                    <div>Customer Name :  {{$bill_to}}</div>
+                    <div>Receipt No. :  {{$receipt_number}}</div>
+                    <div>Customer ID :  {{$ftth_id}}</div>
+                    <div>Invoice No. :  {{$invoice_number}}</div>
+                    <div>Address : {{$attn}}</div>
+                    <div>Date :  {{ date("j F Y",strtotime($date_issued)) }}</div>
+                   
+                    <div>Package : {{$service_description}}</div>
+                    <div>Contact No. : {{$phone}}</div>
+                    <div>Internet Speed : {{$qty}}</div>
+            </div>
+       <table class="collapse" style=" width:100%; ">
                <tbody>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Invoice to : {{$attn}} </td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Date : {{ date("j F Y",strtotime($date_issued)) }}</td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="left orange_bg">Invoice No. : 
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Customer Name :  {{$bill_to}}</td>
-                    <td>Package :  {{$service_description}}</td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Customer ID : {{$ftth_id}}</td>
-                    <td rowspan="3" class="left">Internet Speed : {{$qty}} </td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Address : {{$attn}}</td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="left">Contact No. : {{$phone}}</td>
-                </tr>
+               
 
                <!-- </tbody>
        </table>
@@ -318,13 +323,13 @@
                           <td class="text">{{number_format($total_payable)}}</td>
                       </tr>
                        <tr>
-                          <td class="title left" colspan="5">Period : {{$period_covered}}</td>
+                          <td class=" left" colspan="5">Period : {{$period_covered}}</td>
                        </tr>
                        <tr>
-                          <td class="title left" colspan="5">Remark : {{$remark ?? '' }}</td>
+                          <td class=" left" colspan="5">Remark : {{$remark ?? '' }}</td>
                        </tr>
                         <tr>
-                            <td colspan="2" class="sign_area">
+                            <td colspan="3" class="sign_area">
                                 <span class="label"> Sale Person</span>
                                 <span class="signature"><span class="txt">Signature</span> </span>
                             </td>

@@ -40,7 +40,7 @@
                 <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 uppercase"><span class="sr-only">Action</span></th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64 ">
+            <tbody class="bg-white divide-y divide-gray-200 max-h-64 ">
               <tr v-for="(row, index) in pops.data" v-bind:key="row.id">
                 <td class="px-6 py-3 font-medium">{{ pops.from + index }}</td>
                 <td class="px-6 py-3 font-medium">{{ row.site_name }}</td>

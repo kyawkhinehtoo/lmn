@@ -676,10 +676,17 @@ class CustomerController extends Controller
           
             $cid = array();
             foreach($customers as $customer){
-                $reg = "/(^".$city->short_code."[0-9]{5})$/";
+                ///(^TCL[0-9]{5}-[A-Z]{3,})$/
+                $reg = "/(^".$city->short_code."[0-9]{5}-[A-Z]{3,})$/";
                 if(preg_match($reg,$customer->ftth_id)){
-                    $num = substr($customer->ftth_id,-5,5);
-                    array_push($cid,(int)$num);
+                    $pattern = '/\d+/'; // Regular expression to match integers
+                    preg_match($pattern, $customer->ftth_id, $matches);
+                    
+                    if (isset($matches[0])) {
+                        $integer = (int)$matches[0];
+                        array_push($cid,$integer);
+                    } 
+                   
                 }
             }
             if(!empty($cid)){

@@ -53,7 +53,7 @@
 
         .footer {
             float: left;
-            margin-top: 140px;
+            margin-top: 50px;
             width: 100%;
             color: #ffffff;
             text-align: center;
@@ -117,7 +117,7 @@
             display: table-row;
         }
         .collapse > tbody tr:last-child{
-            height: 300px;
+            height: 250px;
         }
         tbody td{
             text-align: center;
@@ -199,14 +199,32 @@
             width: 100%;
             text-align: left;
         }
-        .center div{
+        .header_warapper div{
             float:left;
-            width: 50%;
-            padding:5px 0;
+            width: calc(50% - 10px);
+            padding:10px 5px;
             font-size: medium;
             font-weight: bold;
         }
-       
+       .header_warapper{
+            float: left;
+            position: relative;
+            width: calc(100% - 2px);
+            border:1px solid #000000;
+            border-bottom: 0;
+       }
+       td.title{
+        text-align: right;
+       }
+       td.thankyou{
+            padding: 25px 0 ;
+            color: #f27036 !important;
+            text-align: center;
+            margin:0;
+            font-size: x-large;
+            text-transform: capitalize;
+            font-family: sans-serif;
+       }
     </style>
    
 </head>
@@ -232,14 +250,21 @@
        
         <div class="center" style="margin-top:5px;">
      
-     
-               
-                
+            <div class="header_warapper">
                     <div>Customer Name :  {{$bill_to}}</div>
+                    <div>&nbsp;</div>
+                    <div>Customer ID :  {{$ftth_id}}</div>
                     <div>Invoice No. :  {{$invoice_number}}</div>
                     <div>Address : {{$attn}}</div>
                     <div>Date :  {{ date("j F Y",strtotime($date_issued)) }}</div>
+                   
+                    <div>Package : {{$service_description}}</div>
                     <div>Contact No. : {{$phone}}</div>
+                    <div>Internet Speed : {{$qty}}</div>
+            </div>
+               
+                
+                  
                
 
                <!-- </tbody>
@@ -249,7 +274,7 @@
 
                         </thead>
                         <tbody> -->
-             <table class="collapse" style="margin-top:20px; width:100%; ">
+             <table class="collapse" style="width:100%; ">
                <tbody>
                     <tr>
                         <td>No.</td>
@@ -262,7 +287,7 @@
                  <tr >
                             <td>1</td>
                             <td>{{$service_description}} for <br /> {{$period_covered}} </td>
-                            <td >{{$qty}}</td>
+                            <td >1</td>
                             <td>{{number_format($normal_cost)}}</td>
                             <td>{{number_format($sub_total)}}</td>
                         </tr>
@@ -272,9 +297,9 @@
                         <tr >
                             <td>2</td>
                             <td>Discount </td>
-                            <td ></td>
+                            <td >1</td>
                          
-                            <td></td>
+                            <td>{{number_format($discount)}}</td>
                             <td>{{number_format($discount)}}</td>
                         </tr>
                         @php 
@@ -288,12 +313,12 @@
                     <tr>
                           
                             <td class="title" colspan="4">Subtotal</td>
-                            <td class="text">{{number_format($discount)}}</td>
+                            <td class="text">{{number_format($sub_total)}}</td>
                         </tr>
                         <tr>
                           
                           <td class="title" colspan="4">Discount</td>
-                          <td class="text">{{number_format($sub_total)}}</td>
+                          <td class="text">{{number_format($discount)}}</td>
                       </tr>
                       <tr>
                           
@@ -304,6 +329,11 @@
                           
                           <td class="title" colspan="4">Grand Total </td>
                           <td class="text">{{number_format($total_payable)}}</td>
+                      </tr>
+                      <tr>
+                        <td class="thankyou" colspan="5">
+                            Thank you For Choosing Our Services.
+                        </td>
                       </tr>
                                                 
                     </tfoot>

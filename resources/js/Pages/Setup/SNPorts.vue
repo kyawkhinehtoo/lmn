@@ -42,7 +42,7 @@
                   <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200 text-sm max-h-64 ">
+              <tbody class="bg-white divide-y divide-gray-200 max-h-64 ">
                 <tr v-for="(row, index) in overall.data" v-bind:key="row.id">
                   <td class="px-6 py-3 font-medium">{{ index + 1 }}</td>
                   <td class="px-6 py-3 font-medium">{{ row.dn_name }}</td>
