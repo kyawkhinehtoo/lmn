@@ -409,14 +409,15 @@
                 <div v-if="$page.props.errors.payment_duedate" class="text-red-500">{{
                     $page.props.errors.payment_duedate
                 }}</div>
-                <label for="end_date" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Last End Date
+
+                <!-- <label for="end_date" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Last End Date
                   :</label>
                 <input type="date"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="end_date" placeholder="Last End Date" v-model="form_2.end_date" disabled />
                 <div v-if="$page.props.errors.end_date" class="text-red-500">{{
                     $page.props.errors.end_date
-                }}</div>
+                }}</div> -->
               </div>
 
               <div class="mb-4 md:col-span-2">
@@ -654,12 +655,16 @@ export default {
     paid: Object,
     current_bill: Object,
     last_invoices: Object,
+    package_speed: Object,
+    package_type: Object,
   },
   setup(props) {
     provide("packages", props.packages);
     provide("projects", props.projects);
     provide("townships", props.townships);
     provide("status", props.status);
+    provide("package_speed", props.package_speed);
+    provide("package_type", props.package_type);
     const formatter = ref({
       date: "YYYY-MM-DD",
       month: "MMM",
@@ -1257,9 +1262,12 @@ export default {
     }
     onMounted(() => {
       props.packages.map(function (x) {
-        return (x.item_data = `${x.price} Baht - ${x.name}`);
+        return (x.item_data = `${x.price} Baht - ${x.name} ${x.site_name}`);
       });
-
+      props.package_speed.map(function (x) {
+        return (x.item_data = `${x.speed} Mbps - ${x.type.toUpperCase()}`);
+      });
+      
     //   if (typeof   props.billings == 'object' ) {
     //   props.billings.data.map(function (x) {
     //     let end_date = null;
@@ -1304,6 +1312,9 @@ export default {
     onUpdated(() => {
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name}`);
+      });
+      props.package_speed.map(function (x) {
+        return (x.item_data = `${x.speed} Mbps - ${x.type.toUpperCase()}`);
       });
 //  if (typeof   props.billings == 'object' ) {
 //       props.billings.data.map(function (x) {

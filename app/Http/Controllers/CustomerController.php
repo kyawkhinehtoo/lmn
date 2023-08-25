@@ -95,7 +95,9 @@ class CustomerController extends Controller
         $all_packages = Package::select('id')
                     ->get()
                     ->toArray();
-        
+        $package_speed = $packages = Package::select('speed','type')
+                    ->groupBy('speed','type')
+                    ->orderBy('speed', 'ASC')->get();
         $customers =  DB::table('customers')
             ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
             ->leftjoin('townships', 'customers.township_id', '=', 'townships.id')
@@ -145,6 +147,13 @@ class CustomerController extends Controller
                     $query->where('customers.package_id','=',$package);
                 }
               
+            })
+            ->when($request->package_speed, function ($query, $package_speed) {
+                $speed_type =  explode("|",$package_speed);
+                $speed = $speed_type[0];
+                $type = $speed_type[1];
+                $query->where('packages.speed', '=', $speed);
+                $query->where('packages.type', '=', $type);
             })
             ->when($request->township, function ($query, $township) use ($all_township) {
                 if($township == 'empty'){
@@ -196,6 +205,7 @@ class CustomerController extends Controller
         $customers->appends($request->all())->links();
         return Inertia::render('Client/Customer', [
             'packages' => $packages,
+            'package_speed' => $package_speed,
             'townships' => $townships,
             'projects' => $projects,
             'status' => $status,
@@ -441,7 +451,6 @@ class CustomerController extends Controller
             $projects = Project::get();
             $sale_persons = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
-                ->where('roles.name', 'LIKE', '%sale%')
                 ->where('disabled','<>',1)
                 ->select('users.name as name', 'users.id as id')
                 ->get();
@@ -455,7 +464,6 @@ class CustomerController extends Controller
              
                     $sale_persons = DB::table('users')
                 ->join('roles', 'users.role', '=', 'roles.id')
-                ->where('roles.name', 'LIKE', '%sale%')
                 ->where('users.id','=',$customer->sale_person_id)
                 ->select('users.name as name', 'users.id as id')
                 ->get();

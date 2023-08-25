@@ -60,6 +60,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
         ->leftjoin('projects', 'customers.project_id', '=', 'projects.id')
         ->leftjoin('sn_ports', 'customers.sn_id', '=', 'sn_ports.id')
         ->leftjoin('dn_ports', 'sn_ports.dn_id', '=', 'dn_ports.id')
+        ->leftjoin('pops','packages.pop_id','=','pops.id')
         ->join('status', 'customers.status_id', '=', 'status.id')
         ->where(function($query){
             return $query->where('customers.deleted', '=', 0)
@@ -100,6 +101,13 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
             }
           
         })
+        ->when($request->package_speed, function ($query, $package_speed) {
+            $speed_type =  explode("|",$package_speed);
+            $speed = $speed_type[0];
+            $type = $speed_type[1];
+            $query->where('packages.speed', '=', $speed);
+            $query->where('packages.type', '=', $type);
+        })
         ->when($request->township, function ($query, $township) use ($all_township) {
             if($township == 'empty'){
                 $query->whereNotIn('customers.township_id',$all_township);
@@ -139,7 +147,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
         },function ($query){
             $query->orderBy('customers.id','desc');
         })
-            ->select('customers.*','projects.name as project_name');
+            ->select('customers.*','projects.name as project_name','pops.site_name');
         return $mycustomer;
     
     }
@@ -172,6 +180,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
             'Fiber Distance',
             'ONU Serial',
             'ONU Power',
+            'POP Site',
             'DN',
             'SN',
             'PPPOE Account',
@@ -231,6 +240,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
             $mycustomer->fiber_distance,      
             $mycustomer->onu_serial,      
             $mycustomer->onu_power, 
+            $mycustomer->site_name, 
             (isset($sn_dn))?$sn_dn->dn_name:"",
             (isset($sn_dn))?$sn_dn->sn_name:"",  
             $mycustomer->pppoe_account,    

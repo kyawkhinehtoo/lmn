@@ -67,7 +67,7 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
                 
                  $query->whereDate('receipt_records.created_at',Carbon::today());
             })
-            ->select('bills.name as bill_name','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','receipt_records.status as receipt_status','receipt_records.payment_channel','invoices.period_covered','invoices.usage_days','invoices.qty','invoices.normal_cost','users.name as user_name');
+            ->select('bills.name as bill_name','invoices.invoice_number','invoices.bill_number','receipt_records.receipt_number','customers.ftth_id','receipt_records.issue_amount','receipt_records.collected_amount','receipt_records.month','receipt_records.year','receipt_records.created_at','receipt_records.receipt_date','receipt_records.status as receipt_status','receipt_records.payment_channel','invoices.period_covered','invoices.usage_days','invoices.qty','invoices.normal_cost','users.name as user_name');
   
         return $receipt_records;
     
@@ -79,6 +79,7 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             'Bill Start Date',
             'Bill End Date',
             'Bill For',
+            'Bill Number',
             'Invoice Number',
             'Receipt Number',
             'Customer ID',
@@ -109,7 +110,8 @@ class ReceiptExport implements FromQuery, WithMapping,WithHeadings
             (isset($t_date[1]))?$t_date[1]:'',
             $receipt_records->year .'-'.$receipt_records->month,
             $receipt_records->bill_number,
-            ($receipt_records->receipt_number)?'R'.substr($receipt_records->bill_number,0, 4).'-'.$receipt_records->ftth_id.'-'.str_pad($receipt_records->receipt_number,5,"0", STR_PAD_LEFT):null,
+            ($receipt_records->invoice_number)?'INV'.substr($receipt_records->bill_number,0, 4).str_pad($receipt_records->invoice_number,5,"0", STR_PAD_LEFT):null,
+            ($receipt_records->receipt_number)?'REC'.substr($receipt_records->bill_number,0, 4).str_pad($receipt_records->receipt_number,5,"0", STR_PAD_LEFT):null,
             $receipt_records->ftth_id,
             $receipt_records->qty,
             $receipt_records->normal_cost,

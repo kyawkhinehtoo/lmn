@@ -13,7 +13,7 @@
           </div>
         </div>
       </div>
-      <div class="col-span-1 sm:col-span-1">
+      <!-- <div class="col-span-1 sm:col-span-1">
         <div class="py-2">
           <label for="sh_package" class="block text-sm font-medium text-gray-700">Package </label>
           <div class="mt-1 flex rounded-md shadow-sm">
@@ -24,6 +24,20 @@
               <option value="0">-Choose Package-</option>
               <option value="empty">-No Package-</option>
               <option v-for="row in packages" v-bind:key="row.id" :value="row.id">{{ row.item_data }}</option>
+            </select>
+          </div>
+        </div>
+      </div> -->
+      <div class="col-span-1 sm:col-span-1">
+        <div class="py-2">
+          <label for="sh_package_speed" class="block text-sm font-medium text-gray-700">Package </label>
+          <div class="mt-1 flex rounded-md shadow-sm">
+            <span class="z-10 leading-snug font-normal text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+              <i class="fas fa-user"></i>
+            </span>
+            <select id="sh_package_speed" v-model="sh_package_speed" name="sh_package" class="pl-10 py-2.5 block w-full px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="2">
+              <option value="0">-Choose Package-</option>
+              <option v-for="row in package_speed" v-bind:key="row.speed" :value="row.speed+'|'+row.type">{{ row.item_data }}</option>
             </select>
           </div>
         </div>
@@ -123,6 +137,7 @@ export default {
     const townships = inject("townships");
     const status = inject("status");
     const dn = inject("dn");
+    const package_speed = inject("package_speed");
     const formatter = ref({
       date: "YYYY-MM-DD",
       month: "MMM",
@@ -142,6 +157,7 @@ export default {
     let sh_partner = ref(0);
     let sh_dn = ref(0);
     let sh_sn = ref(0);
+    let sh_package_speed = ref(0);
 
     const clearSearch = () => {
       let myurl = Object.create({});
@@ -152,6 +168,7 @@ export default {
       sh_status.value = 0;
       sh_dn.value = 0;
       sh_sn.value = 0;
+      sh_package_speed.value = 0;
       sh_installation.value = Object({ from: "", to: "" });
       sh_prefer.value = Object({ from: "", to: "" });
       res_sn.value = null;
@@ -181,6 +198,9 @@ export default {
       }
       if (sh_sn.value != 0) {
         myurl.sn = sh_sn.value;
+      }
+      if (sh_package_speed.value != 0) {
+        myurl.package_speed = sh_package_speed.value;
       }
       if (sh_installation.value.from != "" && sh_installation.value.to != "") {
         myurl.installation = sh_installation.value;
@@ -228,6 +248,9 @@ export default {
       if (sh_sn.value != 0) {
         myurl.sn = sh_sn.value;
       }
+      if (sh_package_speed.value != 0) {
+        myurl.package_speed = sh_package_speed.value;
+      }
       if (sh_installation.value.from != "" && sh_installation.value.to != "") {
         myurl.installation = sh_installation.value;
       }
@@ -274,11 +297,13 @@ export default {
       sh_partner,
       sh_dn,
       sh_sn,
+      sh_package_speed,
       packages,
       projects,
       townships,
       status,
       dn,
+      package_speed,
       doSearch,
       clearSearch,
       DNSelect,

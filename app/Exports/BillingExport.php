@@ -56,6 +56,7 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
     public function headings(): array
     {
         return [
+            'Invoice Number',
             'Period Covered',
             'Bill Start Date',
             'Bill End Date',
@@ -112,6 +113,7 @@ class BillingExport implements FromQuery, WithMapping,WithHeadings
            }
                   
         return [
+            ($billings->invoice_number)?'INV'.substr($billings->bill_number,0, 4).str_pad($billings->invoice_number,5,"0", STR_PAD_LEFT):null,
             $billings->period_covered,
             (isset($t_date[0]))?$t_date[0]:$t_date,
             (isset($t_date[1]))?$t_date[1]:$t_date,

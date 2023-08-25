@@ -42,7 +42,9 @@ class BillingController extends Controller
     public function BillGenerator()
     {
 
-        $packages = Package::orderBy('name', 'ASC')->get();
+        $packages = Package::join('pops','pops.id','=','packages.pop_id')
+        ->select('packages.*','pops.site_name')
+        ->orderBy('name', 'ASC')->get();
         $townships = Township::get();
         $bill = Bills::get();
         return Inertia::render('Client/BillGenerator', [
@@ -142,7 +144,7 @@ class BillingController extends Controller
 
                     $billing = new BillingTemp();
                     $billing->period_covered = $request->period_covered_name;
-                    $billing->bill_number = strtoupper($request->bill_number . "-" . trim($value->ftth_id));
+                    $billing->bill_number = strtoupper($request->bill_number);
                     $billing->customer_id = $value->id;
                     $billing->ftth_id = $value->ftth_id;
                     $billing->date_issued = $request->issue_date;
@@ -601,7 +603,7 @@ class BillingController extends Controller
         $invoice->bill_id = $request->bill_id;
         $invoice->invoice_number = ($max_invoice_id) ? ($max_invoice_id->max_invoice_number + 1) : 1;
         $invoice->period_covered = $request->period_covered;
-        $invoice->bill_number = $bill->bill_number . '-' . $request->ftth_id['ftth_id'] . '-' . strtoupper($customer_status->package_type);
+        $invoice->bill_number = $bill->bill_number . '-' . $request->ftth_id['ftth_id'];
         $invoice->ftth_id = $request->ftth_id['ftth_id'];
         $invoice->date_issued = $request->date_issued;
         $invoice->bill_to = $request->bill_to;
@@ -778,7 +780,15 @@ class BillingController extends Controller
         $user = User::find(Auth::user()->id);
         if ($request->bill_id) {
             $lists = Bills::all();
-            $packages = Package::orderBy('price', 'ASC')->get();
+            $packages = $packages = Package::join('pops','pops.id','=','packages.pop_id')
+                        ->select('packages.*','pops.site_name')
+                        ->orderBy('price', 'ASC')->get();
+            $package_speed = $packages = Package::select('speed','type')
+                        ->groupBy('speed','type')
+                        ->orderBy('speed', 'ASC')->get();
+            $package_type = $packages = Package::select('type')
+                        ->groupBy('type')
+                        ->orderBy('type', 'ASC')->get();
             $townships = Township::get();
             $status = Status::get();
             $users = User::join('roles', 'users.role', 'roles.id')
@@ -865,6 +875,16 @@ class BillingController extends Controller
                 })
                 ->when($request->package, function ($query, $package) {
                     $query->where('customers.package_id', '=', $package);
+                })
+                ->when($request->package_speed, function ($query, $package_speed) {
+                    $speed_type =  explode("|",$package_speed);
+                    $speed = $speed_type[0];
+                    $type = $speed_type[1];
+                    $query->where('packages.speed', '=', $speed);
+                    $query->where('packages.type', '=', $type);
+                })
+                ->when($request->package_type, function ($query, $package_type) {
+                    $query->where('packages.type', '=', $package_type);
                 })
                 ->when($request->township, function ($query, $township) {
                     $query->where('customers.township_id', '=', $township);
@@ -962,11 +982,21 @@ class BillingController extends Controller
                 'paid' => $paid,
                 'current_bill' => $current_bill,
                 'last_invoices' => $last_invoices,
+                'package_speed' => $package_speed,
+                'package_type' => $package_type,
             ]);
         } else {
 
             $lists = Bills::all();
-            $packages = Package::orderBy('name', 'ASC')->get();
+            $packages = $packages = Package::join('pops','pops.id','=','packages.pop_id')
+            ->select('packages.*','pops.site_name')
+            ->orderBy('price', 'ASC')->get();
+            $package_speed = $packages = Package::select('speed','type')
+                        ->groupBy('speed','type')
+                        ->orderBy('speed', 'ASC')->get();
+            $package_type = $packages = Package::select('type')
+                        ->groupBy('type')
+                        ->orderBy('type', 'ASC')->get();
             $townships = Township::get();
             $status = Status::get();
             $users = User::orderBy('name', 'ASC')->get();
@@ -978,6 +1008,8 @@ class BillingController extends Controller
                 'users' => $users,
                 'user' => $user,
                 'roles' => $roles,
+                'package_speed' => $package_speed,
+                'package_type' => $package_type,
             ]);
         }
     }

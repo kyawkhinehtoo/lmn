@@ -156,6 +156,7 @@ export default {
   props: {
     customers: Object,
     packages: Object,
+    package_speed: Object,
     projects: Object,
     townships: Object,
     status: Object,
@@ -175,6 +176,7 @@ export default {
      provide('townships', props.townships);
      provide('status', props.status);
      provide('dn', props.dn);
+     provide('package_speed', props.package_speed);
      const search = ref("");
      const sort = ref("");
      let show_search = ref(false);
@@ -237,6 +239,9 @@ export default {
       onMounted(() => {
       props.packages.map(function (x) {
         return (x.item_data = `${x.name} - ${x.type.toUpperCase()}`);
+      });
+      props.package_speed.map(function (x) {
+        return (x.item_data = `${x.speed} Mbps - ${x.type.toUpperCase()}`);
       });
     });
    return {  deleteRow, searchTsp,toggleAdv,goSearch,sort, search,show_search,goActive,goRequest,goSuspense,goTerminate,goAll };

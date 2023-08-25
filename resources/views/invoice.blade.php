@@ -239,7 +239,7 @@
                             $last_date = $to->format("d-M-Y");
                             $period_covered = $first_date.' to '.$last_date;
                         }  
-                   
+                $invoice_no = "INV".substr($bill_number,0, 4).str_pad($invoice_number,5,"0", STR_PAD_LEFT);
                 @endphp
     <div class="container">
         <div class="header">
@@ -254,7 +254,7 @@
                     <div>Customer Name :  {{$bill_to}}</div>
                     <div>&nbsp;</div>
                     <div>Customer ID :  {{$ftth_id}}</div>
-                    <div>Invoice No. :  {{$invoice_number}}</div>
+                    <div>Invoice No. :  {{$invoice_no}}</div>
                     <div>Address : {{$attn}}</div>
                     <div>Date :  {{ date("j F Y",strtotime($date_issued)) }}</div>
                    

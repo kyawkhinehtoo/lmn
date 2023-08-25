@@ -1,7 +1,7 @@
 <template>
     <!-- Advance Search -->
         <div class="bg-white shadow sm:rounded-t-lg flex justify-between space-x-2 items-end py-2 px-2 md:px-2">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
             <div class="col-span-1 sm:col-span-1">
               <div class="py-2">
                       <label for="sh_general" class="block text-sm font-medium text-gray-700">General </label>
@@ -82,6 +82,36 @@
                       
                 </div>
             </div>
+            <div class="col-span-1 sm:col-span-1">
+              <div class="py-2">
+                      <label for="sh_package_speed" class="block text-sm font-medium text-gray-700">Speed </label>
+                      <div class="mt-1 flex rounded-md shadow-sm">
+                        <span class="z-10 leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                          <i class="fas fa-user"></i>
+                        </span>
+                        <select id="sh_package_speed" v-model="sh_package_speed" name="sh_package_speed" class="pl-10 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="3">
+                            <option value="0"> -Choose Package Speed -</option>
+                               <option v-for="row in package_speed" v-bind:key="row.speed" :value="row.speed+'|'+row.type">{{ row.item_data }}</option>
+                        </select>
+                      
+                      </div>
+                      
+                </div>
+              <div class="py-2">
+                      <label for="sh_package_type" class="block text-sm font-medium text-gray-700">Package Type </label>
+                      <div class="mt-1 flex rounded-md shadow-sm">
+                        <span class="z-10 leading-snug font-normal text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-2">
+                          <i class="fas fa-user"></i>
+                        </span>
+                       <select id="sh_package_type" v-model="sh_package_type" name="sh_package_type" class="pl-10 py-2.5 block w-full px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" tabindex="7">
+                            <option value="0"> -Choose Type -</option>
+                               <option v-for="row in package_type" v-bind:key="row.type" :value="row.type">{{ row.type.toUpperCase() }}</option>
+                        </select>
+                      
+                      </div>
+                      
+                </div>
+            </div>
      
           </div>
           
@@ -109,6 +139,8 @@ export default {
   },
     setup (props,context) {
         const packages = inject("packages");
+        const package_speed = inject("package_speed");
+        const package_type = inject("package_type");
         const townships = inject("townships");
         const status = inject("status");
         const formatter = ref({
@@ -124,6 +156,8 @@ export default {
         let sh_package = ref(0); 
         let sh_township = ref(0);
         let sh_status = ref(0); 
+        let sh_package_speed = ref(0); 
+        let sh_package_type = ref(0); 
     
 
     const clearSearch = () =>{
@@ -134,6 +168,8 @@ export default {
        
         sh_payment.value = 0;
         sh_status.value = 0;
+        sh_package_speed.value = 0;
+        sh_package_type.value = 0;
         sh_installation.value = Object({ from: "", to:""}); 
 
         context.emit('search_parameter',myurl);
@@ -162,6 +198,13 @@ export default {
          if(sh_payment.value != 0){
             myurl.payment_type=sh_payment.value;
         }
+        if(sh_package_speed.value != 0){
+            myurl.package_speed=sh_package_speed.value;
+        }
+        if(sh_package_type.value != 0){
+            myurl.package_type=sh_package_type.value;
+        }
+      
       
         context.emit('search_parameter',myurl);
         };
@@ -171,7 +214,7 @@ export default {
         }
     
         return {
-            formatter,sh_general,sh_general,sh_installation,sh_payment,sh_package,sh_township,sh_status,packages,townships,status, doSearch,clearSearch
+            formatter,sh_general,sh_general,sh_installation,sh_payment,sh_package,sh_township,sh_status,sh_package_speed,sh_package_type,packages,package_speed,package_type,townships,status, doSearch,clearSearch
         }
     }
 }

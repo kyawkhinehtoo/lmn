@@ -50,6 +50,7 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
     public function headings(): array
     {
         return [
+            'Invoice Number',
             'Period Covered',
             'Bill Start Date',
             'Bill End Date',
@@ -91,6 +92,7 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
             $t_date = explode(" to ",  $billings->period_covered);
         }
         return [
+            ($billings->invoice_number)?'INV'.substr($billings->bill_number,0, 4).str_pad($billings->invoice_number,5,"0", STR_PAD_LEFT):null,
             $billings->period_covered,
             $t_date[0],
             $t_date[1],
@@ -115,7 +117,7 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
             $billings->total_payable,
             $billings->commercial_tax,
             $billings->phone,
-            ($billings->receipt_number)?'R'.substr($billings->bill_number,0, 4).'-'.$billings->ftth_id.'-'.str_pad($billings->receipt_number,5,"0", STR_PAD_LEFT):null,
+            ($billings->receipt_number)?'REC'.substr($billings->bill_number,0, 4).str_pad($billings->receipt_number,5,"0", STR_PAD_LEFT):null,
             $billings->collected_amount,
             $billings->payment_channel,
             ($billings->collected_person)?$this->collectedPerson($billings->collected_person):null,
