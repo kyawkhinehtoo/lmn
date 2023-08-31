@@ -443,7 +443,7 @@ class RadiusController extends Controller
             $sn = ($data->sn_name)?'/'.$data->sn_name:null;
 
             $user_data['username'] = $data->pppoe_account;
-            $user_data['password'] = md5($data->pppoe_password);
+            $user_data['password'] = $data->pppoe_password;
             $user_data['groupid'] = 1; //can be anything
             $user_data['enableuser'] = ($data->status_type == 'active')?1:0;
             $user_data['uplimit'] = 0;
@@ -475,8 +475,8 @@ class RadiusController extends Controller
             $user_data['acctype'] = 0;
             $user_data['credits'] = 0.00;
             $user_data['cardfails'] = 0;
-            $user_data['createdby'] = 'admin-api';
-            $user_data['owner'] = 'admin-api';
+            $user_data['createdby'] = 'adminapi';
+            $user_data['owner'] = 'adminapi';
             $user_data['email'] = '';
             $user_data['warningsent'] = 0;
             $user_data['verified'] = 0;
@@ -534,9 +534,9 @@ class RadiusController extends Controller
             $user_data['username'] = $data->pppoe_account;
             
             if(isset($data->pppoe_password))
-            $user_data['password'] = md5($data->pppoe_password);
+            $user_data['password'] = $data->pppoe_password;
 
-            $user_data['groupid'] = 3; //default HTI
+            $user_data['groupid'] = 1; //default HTI
 
             // switch ($data->project_id) {
             //     case 4:

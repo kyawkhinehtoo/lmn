@@ -1261,6 +1261,7 @@ export default {
       }
     }
     onMounted(() => {
+      console.log(props.packages);
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name} ${x.site_name}`);
       });
@@ -1311,7 +1312,7 @@ export default {
     });
     onUpdated(() => {
       props.packages.map(function (x) {
-        return (x.item_data = `${x.price} Baht - ${x.name}`);
+        return (x.item_data = `${x.price} Baht - ${x.name} ${x.site_name}`);
       });
       props.package_speed.map(function (x) {
         return (x.item_data = `${x.speed} Mbps - ${x.type.toUpperCase()}`);

@@ -780,13 +780,13 @@ class BillingController extends Controller
         $user = User::find(Auth::user()->id);
         if ($request->bill_id) {
             $lists = Bills::all();
-            $packages = $packages = Package::join('pops','pops.id','=','packages.pop_id')
+            $packages =  Package::join('pops','pops.id','=','packages.pop_id')
                         ->select('packages.*','pops.site_name')
                         ->orderBy('price', 'ASC')->get();
-            $package_speed = $packages = Package::select('speed','type')
+            $package_speed =  Package::select('speed','type')
                         ->groupBy('speed','type')
                         ->orderBy('speed', 'ASC')->get();
-            $package_type = $packages = Package::select('type')
+            $package_type = Package::select('type')
                         ->groupBy('type')
                         ->orderBy('type', 'ASC')->get();
             $townships = Township::get();
@@ -988,13 +988,13 @@ class BillingController extends Controller
         } else {
 
             $lists = Bills::all();
-            $packages = $packages = Package::join('pops','pops.id','=','packages.pop_id')
+            $packages =  Package::join('pops','pops.id','=','packages.pop_id')
             ->select('packages.*','pops.site_name')
             ->orderBy('price', 'ASC')->get();
-            $package_speed = $packages = Package::select('speed','type')
+            $package_speed =  Package::select('speed','type')
                         ->groupBy('speed','type')
                         ->orderBy('speed', 'ASC')->get();
-            $package_type = $packages = Package::select('type')
+            $package_type =  Package::select('type')
                         ->groupBy('type')
                         ->orderBy('type', 'ASC')->get();
             $townships = Township::get();
