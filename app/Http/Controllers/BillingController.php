@@ -82,7 +82,7 @@ class BillingController extends Controller
                 return $query->where('customers.deleted', '=', 0)
                     ->orwherenull('customers.deleted');
             })
-            ->whereNotIn('status.id', [4, 5, 8])
+            ->whereNotIn('status.type', ['new','pending','cancel'])
 
             ->select(
                 'customers.id as id',
@@ -113,10 +113,54 @@ class BillingController extends Controller
                     ->whereNotNull($request->bill_month)
                     ->first();
 
-                if (!$receipt_summeries) {
+                
+                    $bill_month_year = $request->month;
+                    $bill_month = $request->bill_month;
                     $billing_cost = $value->price;
-                    $total_cost = ceil($billing_cost);
+                    $total_cost = round($billing_cost,2);
+                    $period_covered = $request->period_covered_name;
                     $billing_day = '1 Month';
+
+                    if($receipt_summeries){
+                        $receipt_invoice_id = $receipt_summeries->$bill_month;
+                        
+                        $orginal_invoice = Invoice::join('receipt_records','receipt_records.invoice_id','invoices.id')
+                                   ->where('receipt_records.id','=',$receipt_invoice_id)
+                                   ->select('invoices.id','invoices.period_covered')
+                                   ->first();
+                        $last_adjustment = BillAdjustment::where('invoice_id','=',$orginal_invoice->id)->latest('id')->first();
+                        $invoice = ($last_adjustment)?$last_adjustment:$orginal_invoice;
+                        if($invoice)
+                        {
+                            
+                            
+                            $dates = explode(" to ", $invoice->period_covered);
+                            $second_date = strtotime($dates[1]);
+    
+                            // Convert $month to a timestamp for comparison
+                            $month_timestamp = strtotime($bill_month_year);
+                            if (date("Y-m", $second_date) === date("Y-m", $month_timestamp)) {
+                                // Calculate the number of days remaining in the month
+                                $last_day_of_month = date("t", $month_timestamp);
+                                $days_remaining = $last_day_of_month - date("j", $second_date) + 1;
+                                
+                                $cost_per_day = $value->price / $last_day_of_month;
+                                $billing_day = ($days_remaining - 1 ).' Days';
+                                $billing_cost = $cost_per_day * ($days_remaining - 1) ;
+                                $total_cost = round($billing_cost,2);
+
+                                //set new period covered
+                                $given_pc =  explode(" to ", $period_covered);
+                                $from = (new DateTime($dates[1]))->modify("+1 day"); 
+                                $first_date =  $from->format("Y-m-d");
+                                $last_date = (new DateTime( $given_pc[1]));
+                                $period_covered = $first_date.' to '.$last_date->format("Y-m-d");
+                               // echo $first_date;
+                            } 
+                        }
+                        // Extract the second date from $period_covered
+                       
+                    }
                     // if($value->advance_payment){
 
                     //     if($value->status_id == 2){
@@ -143,7 +187,7 @@ class BillingController extends Controller
                     $inWords = new NumberFormatter('en', NumberFormatter::SPELLOUT);
 
                     $billing = new BillingTemp();
-                    $billing->period_covered = $request->period_covered_name;
+                    $billing->period_covered = $period_covered;
                     $billing->bill_number = strtoupper($request->bill_number);
                     $billing->customer_id = $value->id;
                     $billing->ftth_id = $value->ftth_id;
@@ -170,7 +214,7 @@ class BillingController extends Controller
                     $billing->bill_month = $request->bill_month;
                     $billing->bill_year = $request->bill_year;
                     $billing->save();
-                }
+                
             }
             return redirect()->back()->with('message', 'Billing Created Successfully.');
         } else {
@@ -267,6 +311,7 @@ class BillingController extends Controller
         //Customer Status 
         //4 = Suspense
         //5 = Terminate
+        
         $billing_day = "0";
         $total_cost = $price;
         $customer = Customer::find($customer_id);
@@ -792,7 +837,7 @@ class BillingController extends Controller
             $townships = Township::get();
             $status = Status::get();
             $users = User::join('roles', 'users.role', 'roles.id')
-                ->where('roles.name', '=', 'Cashier Team')
+                ->where('roles.name', 'LIKE', '%Cashier%')
                 ->select('users.*')
                 ->orderBy('users.name', 'ASC')->get();
 

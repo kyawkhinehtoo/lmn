@@ -897,13 +897,17 @@ export default {
       var month = dt.getMonth();
       var year = dt.getFullYear();
       var daysInMonth = 30;
-      var dailyCost = (form_2.normal_cost) ? Math.round(form_2.normal_cost / daysInMonth) : 0;
+      var dailyCost = (form_2.normal_cost) ? form_2.normal_cost / daysInMonth : 0;
+      var dailyCost = dailyCost.toFixed(2);
+      console.log("Daily Cost : " + dailyCost);
       // var daysInMonth = new Date(year, month, 0).getDate();
       form_2.usage_days = (form_2.usage_mo) ? form_2.usage_mo + ' Months' : '';
       form_2.usage_days += (form_2.usage_d) ? ' and ' + form_2.usage_d + ' Days' : '';
       let daycount = (form_2.usage_d) ? dailyCost * form_2.usage_d : 0;
       let monthcount = (form_2.usage_mo) ? form_2.usage_mo * form_2.normal_cost : 0;
-      form_2.current_charge = daycount + monthcount;
+      let current_charge = daycount + monthcount;
+      form_2.current_charge = current_charge.toFixed(2);
+      console.log("current charges : " + form_2.current_charge)
       form2_calc();
     }
     function resetEdit() {
@@ -1230,17 +1234,20 @@ export default {
 
     }
     function calTax() {
-      form_2.sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip)  - parseInt(form_2.compensation);
-      form_2.tax = Math.round((parseInt(form_2.sub_total) / 100) * 5);
+      let sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip)  - parseInt(form_2.compensation);
+      form_2.sub_total = sub_total.toFixed(2);
+      form_2.tax = (parseInt(form_2.sub_total) / 100) * 5;
+      form_2.tax = form_2.tax.toFixed(2);
       form2_calc();
     }
     function form2_calc() {
-      form_2.sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip) - parseInt(form_2.compensation);
-
-      form_2.total_payable = parseInt(form_2.sub_total) - parseInt(form_2.discount);
+      let sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip) - parseInt(form_2.compensation);
+      form_2.sub_total = sub_total.toFixed(2);
+      let total_payable = parseInt(form_2.sub_total) - parseInt(form_2.discount);
       if (form_2.tax) {
-        form_2.total_payable = parseInt(form_2.total_payable) + parseInt(form_2.tax);
+          total_payable = parseInt(form_2.total_payable) + parseInt(form_2.tax);
       }
+      form_2.total_payable = total_payable.toFixed(2);
     }
     function checkEdit() {
       const my_role = props.roles.filter((d) => d.id == props.user.role)[0];
@@ -1255,7 +1262,7 @@ export default {
       if (props.paid != 0) {
 
         let temp = (props.paid / props.receivable) * 100;
-        paid_percent.value = temp.toFixed(0);
+        paid_percent.value = temp.toFixed(2);
       } else {
         paid_percent.value = 0;
       }

@@ -203,7 +203,7 @@
 
             <table class="collapse" style="margin-top:20px;">
             <tr>
-                <td class="border" style="width:25%;padding:10px;text-align:center"><p class="text-semibold" >Amount (MMK)</p>{{number_format($collected_amount)}}</td>
+                <td class="border" style="width:25%;padding:10px;text-align:center"><p class="text-semibold" >Amount (MMK)</p>{{number_format($collected_amount,2,'.')}}</td>
               
                 <td style="width:75%;text-align:center;">
                 <div class="border" style="width:calc(100% - 40px);margin-left:20px;padding:10px;">

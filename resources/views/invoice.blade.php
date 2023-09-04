@@ -288,8 +288,8 @@
                             <td>1</td>
                             <td>{{$service_description}} for <br /> {{$period_covered}} </td>
                             <td >1</td>
-                            <td>{{number_format($normal_cost)}}</td>
-                            <td>{{number_format($sub_total)}}</td>
+                            <td>{{number_format($normal_cost,2,'.')}}</td>
+                            <td>{{number_format($sub_total,2,'.')}}</td>
                         </tr>
                         @php
                         if($discount){
@@ -299,8 +299,8 @@
                             <td>Discount </td>
                             <td >1</td>
                          
-                            <td>{{number_format($discount)}}</td>
-                            <td>{{number_format($discount)}}</td>
+                            <td>{{number_format($discount,2,'.')}}</td>
+                            <td>{{number_format($discount,2,'.')}}</td>
                         </tr>
                         @php 
                         }
@@ -313,22 +313,22 @@
                     <tr>
                           
                             <td class="title" colspan="4">Subtotal</td>
-                            <td class="text">{{number_format($sub_total)}}</td>
+                            <td class="text">{{number_format($sub_total,2,'.')}}</td>
                         </tr>
                         <tr>
                           
                           <td class="title" colspan="4">Discount</td>
-                          <td class="text">{{number_format($discount)}}</td>
+                          <td class="text">{{number_format($discount,2,'.')}}</td>
                       </tr>
                       <tr>
                           
                           <td class="title" colspan="4">Commercial Tax</td>
-                          <td class="text">{{number_format($tax)}}</td>
+                          <td class="text">{{number_format($tax,2,'.')}}</td>
                       </tr>
                       <tr>
                           
                           <td class="title" colspan="4">Grand Total </td>
-                          <td class="text">{{number_format($total_payable)}}</td>
+                          <td class="text">{{number_format($total_payable,2,'.')}}</td>
                       </tr>
                       <tr>
                         <td class="thankyou" colspan="5">

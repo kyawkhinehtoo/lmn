@@ -51,6 +51,7 @@ class BillAdjustment extends Model
         'bill_year',
         'adjustment_type',
         'coupon_id',
+        'adjusted_by',
         'created_at',
         'updated_at'
         

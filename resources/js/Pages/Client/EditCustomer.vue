@@ -281,7 +281,7 @@
                    <div class="col-span-1 sm:col-span-1">
                     <label for="fiber_distance" class="block text-sm font-medium text-gray-700"> Please Choose DN </label>
                     <div class="mt-1 flex rounded-md shadow-sm" v-if="dn.length !== 0">
-                      <multiselect deselect-label="Selected already" :options="dn" track-by="name" label="name" v-model="form.dn_id" :allow-empty="false" @select="DNSelect"></multiselect>
+                      <multiselect deselect-label="Selected already" :options="dn" track-by="name" label="name" v-model="form.dn_id" :allow-empty="false" @select="DNSelect" :disabled="checkPerm('sn_id')"></multiselect>
                     </div>
                   </div>
                   <div class="col-span-1 sm:col-span-1">
