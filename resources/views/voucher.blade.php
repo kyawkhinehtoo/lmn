@@ -280,7 +280,7 @@
                  <tr >
                             <td>1</td>
                             <td>{{$service_description}} </td>
-                            <td >{{$qty}}</td>
+                            <td >1</td>
                             <td>{{number_format($normal_cost,2,'.')}}</td>
                             <td>{{number_format($sub_total,2,'.')}}</td>
                         </tr>

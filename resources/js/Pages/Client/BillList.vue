@@ -485,7 +485,7 @@
                     Days </span>
                   <input type="number"
                     class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                    id="usage_mo" v-model="form_2.usage_mo" @change="updateUsage" />
+                    id="usage_mo" v-model="form_2.usage_mo" @change="updateUsage"/>
                   <span
                     class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                     Months </span>
@@ -802,10 +802,10 @@ export default {
       form_2.payment_duedate = data.payment_duedate;
       form_2.service_description = data.service_description;
       form_2.qty = data.qty;
-      form_2.usage_days = data.usage_days;
+      form_2.usage_days = (data.usage_days)?data.usage_days:'0 Month';
       form_2.tax = data.tax;
       form_2.normal_cost = data.normal_cost;
-      form_2.type = data.type;
+      form_2.type = (data.type)?data.type:'MRC';
       form_2.total_payable = data.total_payable;
       form_2.discount = data.discount;
       form_2.email = data.email;
