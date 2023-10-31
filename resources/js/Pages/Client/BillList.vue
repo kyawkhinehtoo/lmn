@@ -70,17 +70,18 @@
                 <th scope="col"
                   class="pl-3 px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Bill Number</th>
+                  Bill No.</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer ID</th>
+                  C-ID</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Package</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Speed</th>
+                  BW</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Usage</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total Payable</th>
+                  Total</th>
+                
                 <!--
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Deliver SMS</th>
@@ -89,14 +90,14 @@
                   -->
                 <!-- <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th> -->
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <i class="fa fa-print"></i> Invoice Print
+                  <i class="fa fa-print"></i> Invoice
                 </th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt Status</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <i class="fa fa-print"></i> Print
+                  <i class="fa fa-print"></i> Receipt
                 </th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only" v-if="invoiceEdit">Action</span></th>
               </tr>
@@ -110,6 +111,14 @@
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.qty }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.usage_days }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.total_payable }}</td>
+                <td class="px-2 py-3 text-xs whitespace-nowrap">
+                  <span v-if="row.total_payable > 0">
+                    <span v-if="row.invoice_file"><a :href="'/s/' + row.invoice_url">Download</a></span><span v-else><button
+                        type="button" @click="generatePDF(row.id)"
+                        class="h-8 text-md w-24 bg-blue-600 rounded text-white hover:bg-blue-700">Make PDF</button></span>
+                  </span>
+                </td>
+               
                 <!--
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.total_payable > 0">
@@ -121,7 +130,7 @@
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.sent_date ? row.sent_date : "None" }}</td>
                   -->
                 <!-- <td class="px-2 py-3 text-xs whitespace-nowrap"><a :href="`/pdfpreview2/${row.id}`" target="_blank"><i class="fa fas fa-eye text-gray-400"></i></a></td> -->
-                <td class="px-2 py-3 text-xs whitespace-nowrap"><a :href="`/showInvoice/${row.id}`" target="_blank"><i class="fa fas fa-eye text-gray-400"></i></a></td> 
+                <!-- <td class="px-2 py-3 text-xs whitespace-nowrap"><a :href="`/showInvoice/${row.id}`" target="_blank"><i class="fa fas fa-eye text-gray-400"></i></a></td>  -->
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <button type="button" @click="openReceipt(row)"
                     class="h-8 text-md w-24 bg-green-600 rounded text-white hover:bg-green-700"
@@ -135,8 +144,9 @@
                 }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.receipt_status">
-                    <a :href="`/pdfpreview2/${row.receipt_id}`" target="_blank"><i
-                        class="fa fas fa-eye text-gray-400"></i></a>
+                    <span v-if="row.receipt_file"><a :href="'/s/' + row.receipt_url">Download</a></span><span v-else><button
+                        type="button" @click="generateReceiptPDF(row.receipt_id)"
+                        class="h-8 text-md w-24 bg-blue-600 rounded text-white hover:bg-blue-700">Make PDF</button></span>
                   </span>
                 </td>
                 <td class="px-6 py-3 text-xs whitespace-nowrap text-right font-medium" v-if="invoiceEdit">

@@ -25,7 +25,7 @@ class ReceiptRecord extends Model
     * @var array
     */
    protected $fillable = [
-       'customer_id','receipt_number','month','year','bill_no','invoice_id','status','issue_amount','issue_currenty','receipt_person','payment_channel','collected_person','receipt_date','remark','collected_amount','outstanding_amount','collected_currency','collected_exchangerate','file','created_at', 'updated_at'
+       'customer_id','receipt_number','month','year','bill_no','invoice_id','status','issue_amount','issue_currenty','receipt_person','payment_channel','collected_person','receipt_date','remark','collected_amount','outstanding_amount','collected_currency','collected_exchangerate','receipt_file','receipt_url','created_at', 'updated_at'
    ];
 
    /**

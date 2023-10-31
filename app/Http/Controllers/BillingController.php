@@ -23,8 +23,8 @@ use Inertia\Inertia;
 use NumberFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PDF;
-use Storage;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
+use Illuminate\Support\Facades\Storage;
 use Mail;
 use DateTime;
 use Illuminate\Support\Facades\Http;
@@ -34,10 +34,10 @@ class BillingController extends Controller
 {
     static $sms_post_url = 'https://api.smsbrix.com/v1/message/send';
     static $sms_status_url = 'https://api.smsbrix.com/v1/message/info/';
-    static $sid = 'SB75107534857625535893739362750761';
-    static $token = '7hsayCpJlpMnT6vfizMO0qIZzFesLhtreDgHZZ215HqF';
-    static $senderid = 'Link Fast';
-    static $header = ['Authorization' => 'Basic U0I3NTEwNzUzNDg1NzYyNTUzNTg5MzczOTM2Mjc1MDc2MTo3aHNheUNwSmxwTW5UNnZmaXpNTzBxSVp6RmVzTGh0cmVEZ0haWjIxNUhxRg=='];
+    // static $sid = 'SB75107534857625535893739362750761';
+    // static $token = '7hsayCpJlpMnT6vfizMO0qIZzFesLhtreDgHZZ215HqF';
+    // static $senderid = 'Link Fast';
+    // static $header = ['Authorization' => 'Basic U0I3NTEwNzUzNDg1NzYyNTUzNTg5MzczOTM2Mjc1MDc2MTo3aHNheUNwSmxwTW5UNnZmaXpNTzBxSVp6RmVzTGh0cmVEZ0haWjIxNUhxRg=='];
 
     public function BillGenerator()
     {
@@ -964,8 +964,8 @@ class BillingController extends Controller
                     'invoices.amount_in_word as amount_in_word',
                     'invoices.qty as qty',
                     'invoices.usage_days as usage_days',
-                    'invoices.file as file',
-                    'invoices.url as url',
+                    'invoices.invoice_file as invoice_file',
+                    'invoices.invoice_url as invoice_url',
                     'invoices.sent_date as sent_date',
                     'invoices.payment_duedate as payment_duedate',
                     'invoices.previous_balance as previous_balance',
@@ -982,13 +982,16 @@ class BillingController extends Controller
                     'receipt_records.collected_currency as currency',
                     'receipt_records.id as receipt_id',
                     'receipt_records.receipt_number as receipt_number',
-                    'receipt_records.file as receipt_file',
+                    'receipt_records.receipt_file as receipt_file',
+                    'receipt_records.receipt_url',
                     'receipt_records.status as receipt_status',
                     DB::raw('DATE_FORMAT(receipt_records.receipt_date,"%Y-%m-%d") as receipt_date'),
                     'receipt_records.collected_person as collected_person',
                     'receipt_records.collected_amount as collected_amount',
                     'receipt_records.remark as remark',
-                    'receipt_records.payment_channel as payment_channel'
+                    'receipt_records.payment_channel as payment_channel',
+            
+                    
                 )
                 ->orderBy('invoices.id')
                 ->paginate(10);
@@ -1060,40 +1063,89 @@ class BillingController extends Controller
     }
     public function makeSinglePDF(Request $request)
     {
-        $invoice = Invoice::find($request->id);
+        
+        $invoice = Invoice::join('customers', 'invoices.customer_id', 'customers.id')
+            ->join('packages', 'customers.package_id', 'packages.id')
+            ->where('invoices.id', '=', $request->id)
+            ->select('invoices.*', 'packages.type as service_type')
+            ->first();
+            $options = [
+                'default_font_size' => '11',
+                'orientation'   => 'P',
+                'encoding'      => 'UTF-8',
+                'margin_top'  => 45,
+                'title' => $invoice->ftth_id,
+              ];
+        
+      // dd($invoice);
+        view()->share('invoice', $invoice);
+        $pdf = PDF::loadView('invoice',$invoice,[],$options);
 
-        $options = [
-            'enable-local-file-access' => true,
-            'orientation'   => 'portrait',
-            'encoding'      => 'UTF-8',
-            'footer-spacing' => 5,
-            'header-spacing' => 5,
-            'margin-top'  => 20,
-            'footer-html'   => view('footer')
-        ];
+      //  $pdf->setOptions($options);
+     // return $pdf->stream('test.pdf'); 
+     $output = $pdf->output();
+     $name = date("ymdHis").'-'.$invoice->bill_number.".pdf";
+     $disk = Storage::disk('public');
+  
+     if ($disk->put($invoice->ftth_id.'/'.$name, $output)) {
+      // Successfully stored. Return the full path.
+      $invoice->invoice_file =  $disk->path($invoice->ftth_id.'/'.$name);
+      $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
 
-        view()->share('voucher', $invoice);
-        $pdf = PDF::loadView('voucher', $invoice);
-
-        $pdf->setOptions($options);
-        $output = $pdf->output();
-        $name = $invoice->bill_number . ".pdf";
-        $disk = Storage::disk('public');
-
-        if ($disk->put($invoice->ftth_id . '/' . $name, $output)) {
-            // Successfully stored. Return the full path.
-            $invoice->file =  $disk->path($invoice->ftth_id . '/' . $name);
-            // $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
-
-            // $shortURLObject = $builder->destinationUrl('https://oss.marga.com.mm/storage/'.$invoice->ftth_id.'/'.$name)->make();
-            // $shortURL = $shortURLObject->url_key;
-            // $invoice->url = $shortURL;
-
-            $invoice->update();
-        }
+      $app_url = getenv('APP_URL','https://localhost:8000');
+      $shortURLObject = $builder->destinationUrl($app_url.'/storage/'.$invoice->ftth_id.'/'.$name)->make();
+      $shortURL = $shortURLObject->url_key;
+      $invoice->invoice_url = $shortURL;
+      $invoice->update();
+    }
 
         // download PDF file with download method
         return redirect()->back()->with('message', 'PDF Generated Successfully.');
+    }
+
+    public function makeReceiptPDF(Request $request)
+    {
+        
+        $receipt =  Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
+        ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
+        ->join('customers', 'receipt_records.customer_id', 'customers.id')
+        ->join('packages', 'customers.package_id', 'packages.id')
+        ->where('receipt_records.id', '=', $request->id)
+        ->select('invoices.*', 'packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
+        ->first();
+   
+            $options = [
+                'default_font_size' => '11',
+                'orientation'   => 'P',
+                'encoding'      => 'UTF-8',
+                'margin_top'  => 45,
+                'title' => $receipt->ftth_id,
+              ];
+        
+      // dd($invoice);
+        view()->share('receipt', $receipt);
+        $pdf = PDF::loadView('receipt',$receipt,[],$options);
+
+      //  $pdf->setOptions($options);
+     // return $pdf->stream('test.pdf'); 
+     $output = $pdf->output();
+     $name = date("ymdHis").'-'.$receipt->bill_number.".pdf";
+     $disk = Storage::disk('public');
+  
+     if ($disk->put($receipt->ftth_id.'/'.$name, $output)) {
+      // Successfully stored. Return the full path.
+      $receipt->receipt_file =  $disk->path($receipt->ftth_id.'/'.$name);
+      $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
+
+      $app_url = getenv('APP_URL','https://localhost:8000');
+      $shortURLObject = $builder->destinationUrl($app_url.'/storage/'.$receipt->ftth_id.'/'.$name)->make();
+      $shortURL = $shortURLObject->url_key;
+      $receipt->receipt_url = $shortURL;
+      $receipt->update();
+    }
+
+        // download PDF file with download method
+        return redirect()->back()->with('message', 'Receipt PDF Generated Successfully.');
     }
 
     public function makeAllPDF(Request $request)

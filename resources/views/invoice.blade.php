@@ -8,46 +8,23 @@
     <meta charset="UTF-8" />
   
     <title>{{ config('app.name', 'Laravel') }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="{{ asset('storage/css/burglish.css')}}">
 <style>
-        @media print {
-            body {
-                width: 21cm;
-                height: 29.7cm;
-                margin: 30mm 45mm 30mm 45mm;
-                page-break-inside: avoid;
-                /* change the margins as you want them to be. */
-            }
-            .container {
-                width: 100%;
-                top: 0;
-                position: absolute;
-            }
-            /* .footer {
-                width: 100%;
-                bottom: 0;
-                position: absolute;
-            } */
-        }
+       
 
         html,
         body {
             margin: 0 auto;
-            height: 297mm;
-            width: 210mm;
+           
         }
 
 
         body {
-            font-family: sans-serif;
+            font-family: sans-serif,Tharlon;
             font-size: 0.9rem;
         }
     
         .header-img {
             width: 100%;
-            margin-bottom: 50px;
             height: auto;
         }
 
@@ -74,6 +51,13 @@
         }
         table.head{
             border-spacing: 0;
+        }
+        table.header{
+            width: 100%;
+        }
+        table.header td{
+            width: 50%;
+            padding: 5px;
         }
        .text-bold {
             font-weight: 800;
@@ -169,10 +153,9 @@
   
 
         .header h2.title {
-            padding: 25px 0 ;
+            margin: 50px;
             color: #f27036;
             text-align: center;
-            margin:0;
             font-size: xx-large;
             text-transform: uppercase;
             font-family: 'Times New Roman', Times, serif;
@@ -216,20 +199,26 @@
        td.title{
         text-align: right;
        }
-       td.thankyou{
+       .thankyou {
             padding: 25px 0 ;
-            color: #f27036 !important;
+            color: #f27036;
             text-align: center;
             margin:0;
-            font-size: x-large;
+            font-weight: 700;
+            font-size: 2.4em !important;
             text-transform: capitalize;
             font-family: sans-serif;
        }
+       @page {
+        header: page-header;
+        footer: page-footer;
+        }
     </style>
    
 </head>
 
 <body class="font-sans antialiased" style="border-top:0 !important">
+
 @php
                         if (strpos($period_covered, ' to ')) {
                             $p_months = explode(" to ", ($period_covered));
@@ -242,25 +231,24 @@
                 $invoice_no = "INV".substr($bill_number,0, 4).str_pad($invoice_number,5,"0", STR_PAD_LEFT);
                 @endphp
     <div class="container">
-        <div class="header">
-            <img src="{{ asset('storage/images/invoice-header.png') }}" class="header-img" />
-            <h2 class="title">Invoice</h2>
-        </div>
-    
-       
-        <div class="center" style="margin-top:5px;">
-     
+    <htmlpageheader name="page-header">
+        
+        <img src="{{ public_path('storage/images/invoice-header.png') }}" class="header-img" />
+            </htmlpageheader>
+            <div class="header">
+        <h2 class="title">Invoice</h2>
+        </div>     
+        <div class="center" >
+      
             <div class="header_warapper">
-                    <div>Customer Name :  {{$bill_to}}</div>
-                    <div>&nbsp;</div>
-                    <div>Customer ID :  {{$ftth_id}}</div>
-                    <div>Invoice No. :  {{$invoice_no}}</div>
-                    <div>Address : {{$attn}}</div>
-                    <div>Date :  {{ date("j F Y",strtotime($date_issued)) }}</div>
-                   
-                    <div>Package : {{$service_description}}</div>
-                    <div>Contact No. : {{$phone}}</div>
-                    <div>Internet Speed : {{$qty}}</div>
+                <table class="header">
+                    <tr><td colspan="2">Customer Name :  {{$bill_to}}</td></tr>
+                    <tr><td colspan="2">Customer ID :  {{$ftth_id}}</td></tr>
+                    <tr><td>Invoice No. :  {{$invoice_no}}</td> <td>Address : {{$attn}}</td></tr>
+                    <tr><td>Date :  {{ date("j F Y",strtotime($date_issued)) }}</td><td>Package : {{$service_description}}</td></tr>
+                    <tr><td>Contact No. : {{$phone}}</td><td>Internet Speed : {{$qty}}</td></tr>
+                </table>
+                  
             </div>
                
                 
@@ -277,11 +265,11 @@
              <table class="collapse" style="width:100%; ">
                <tbody>
                     <tr>
-                        <td>No.</td>
-                        <td>Description</td>
-                        <td>Qty</td>
-                        <td>Price (THB)</td>
-                        <td>Total Amount (THB)</td>
+                        <td style="width:10%">No.</td>
+                        <td style="width:50%">Description</td>
+                        <td style="width:10%">Qty</td>
+                        <td style="width:15%">Price (THB)</td>
+                        <td style="width:15%">Total Amount (THB)</td>
                     </tr>
 
                  <tr >
@@ -331,8 +319,8 @@
                           <td class="text">{{number_format($total_payable,2,'.')}}</td>
                       </tr>
                       <tr>
-                        <td class="thankyou" colspan="5">
-                            Thank you For Choosing Our Services.
+                        <td  colspan="5">
+                            <p class="thankyou">Thank you For Choosing Our Services.</p>
                         </td>
                       </tr>
                                                 
@@ -346,9 +334,9 @@
             
 
         </div>
-        <div class="footer">
-        <img src="{{ asset('storage/images/invoice-footer.png') }}" class="header-img" />
-        </div>
+        <htmlpagefooter name="page-footer">
+        <img src="{{ public_path('storage/images/invoice-footer.png') }}" class="header-img" />
+        </htmlpagefooter>
    
 </body>
 

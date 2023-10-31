@@ -12,16 +12,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ asset('storage/css/burglish.css')}}">
     <style>
-        .wininnwa {
-            font-family: 'WinInnwa';
-            font-size: 1.2rem !important;
-        }
+       
 
         body {
-            font-family: 'Calibri',sans-serif;
+            font-family: 'Calibri',sans-serif,Tharlon;
             font-size: 0.9rem;
         }
-
+    
         .logo-img {
             width: 117px;
             height: 87px;

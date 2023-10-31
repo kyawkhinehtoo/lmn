@@ -210,10 +210,10 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/publicIpReport','ReportController@PublicIpReport')->name('publicIpReport');
 	Route::post('/publicIpReport','ReportController@PublicIpReport');
 	Route::post('/exportPublicIpReportExcel','ExcelController@exportPublicIpReportExcel')->name('exportPublicIpReportExcel');
+	Route::resource('/test',TestController::class);
+	Route::post('/doTestPDF','TestController@makeSinglePDF');
+	Route::post('/delTestPDF','TestController@destroyPDF');
 
 });
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/test', function () {
-    return Inertia::render('Test');
-})->name('test');
 Route::get('/s/{shortURLKey}', '\AshAllenDesign\ShortURL\Controllers\ShortURLController');

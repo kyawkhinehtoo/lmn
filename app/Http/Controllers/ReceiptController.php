@@ -14,8 +14,8 @@ use NumberFormatter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PDF;
-use Storage;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
+use Illuminate\Support\Facades\Storage;
 use Mail;
 use DateTime;
 use DatePeriod;
@@ -195,41 +195,90 @@ class ReceiptController extends Controller
 
         return view('receipt_template', $receipt);
     }
+    // public function makeReceiptPDF(Request $request)
+    // {
+    //     $receipt = ReceiptRecord::where('receipt_records.id', '=', $request->id)
+    //         ->join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+    //         ->select('invoices.*', 'receipt_records.*', DB::raw('DATE_FORMAT(receipt_records.receipt_date,"%Y-%m-%d") as receipt_date_2'))
+    //         ->first();
+
+    //     $options = [
+    //         'enable-local-file-access' => true,
+    //         'orientation'   => 'portrait',
+    //         'encoding'      => 'UTF-8',
+    //         'footer-spacing' => 5,
+    //         'header-spacing' => 5,
+    //         'margin-top'  => 20,
+    //         'footer-html'   => view('footer')
+    //     ];
+
+    //     view()->share('receipt_template', $receipt);
+    //     $pdf = PDF::loadView('receipt_template', $receipt);
+
+    //     $pdf->setOptions($options);
+    //     $output = $pdf->output();
+    //     $receipt_num = 'R' . str_pad($receipt->receipt_number, 5, "0", STR_PAD_LEFT) . '-' . substr($receipt->bill_number, 0, 4) . '-' . substr($receipt->ftth_id, 0, 5);
+    //     $name = $receipt_num . ".pdf";
+    //     $disk = Storage::disk('public');
+
+    //     if ($disk->put('bill_receipt/' . $receipt->year . '/' . $receipt->month . '/' . $receipt->ftth_id . '/' . $name, $output)) {
+    //         // Successfully stored. Return the full path.
+    //         $receipt->file =  $disk->path('bill_receipt/' . $receipt->year . '/' . $receipt->month . '/' . $receipt->ftth_id . '/' . $name);
+
+    //         $receipt->update();
+    //     }
+
+    //     // download PDF file with download method
+    //     return redirect()->back()->with('message', 'PDF Generated Successfully.');
+    // }
     public function makeReceiptPDF(Request $request)
     {
-        $receipt = ReceiptRecord::where('receipt_records.id', '=', $request->id)
-            ->join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
-            ->select('invoices.*', 'receipt_records.*', DB::raw('DATE_FORMAT(receipt_records.receipt_date,"%Y-%m-%d") as receipt_date_2'))
-            ->first();
+        
+        // $receipt =  ReceiptRecord::join('invoices', 'receipt_records.invoice_id', '=', 'invoices.id')
+        // ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
+        // ->join('customers', 'receipt_records.customer_id', 'customers.id')
+        // ->join('packages', 'customers.package_id', 'packages.id')
+        // ->where('receipt_records.id', '=', $request->id)
+        // ->select('invoices.*', 'packages.type as service_type','receipt_records.id', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number','receipt_records.receipt_file','receipt_records.receipt_url' ,'users.name as collector')
+       // ->first();
+       $receipt = ReceiptRecord::where('receipt_records.id', '=', $request->id)
+       ->join('invoices', 'invoices.id', '=', 'receipt_records.invoice_id')
+       ->select('invoices.*', 'receipt_records.*', DB::raw('DATE_FORMAT(receipt_records.receipt_date,"%Y-%m-%d") as receipt_date_2'))
+       ->first();
+            $options = [
+                'default_font_size' => '11',
+                'orientation'   => 'P',
+                'encoding'      => 'UTF-8',
+                'margin_top'  => 45,
+                'margin_bottom'  => 1,
+                'title' => $receipt->ftth_id,
+              ];
+        
+      // dd($invoice);
+        view()->share('receipt', $receipt);
+        $pdf = PDF::loadView('receipt',$receipt,[],$options);
 
-        $options = [
-            'enable-local-file-access' => true,
-            'orientation'   => 'portrait',
-            'encoding'      => 'UTF-8',
-            'footer-spacing' => 5,
-            'header-spacing' => 5,
-            'margin-top'  => 20,
-            'footer-html'   => view('footer')
-        ];
-
-        view()->share('receipt_template', $receipt);
-        $pdf = PDF::loadView('receipt_template', $receipt);
-
-        $pdf->setOptions($options);
-        $output = $pdf->output();
-        $receipt_num = 'R' . str_pad($receipt->receipt_number, 5, "0", STR_PAD_LEFT) . '-' . substr($receipt->bill_number, 0, 4) . '-' . substr($receipt->ftth_id, 0, 5);
-        $name = $receipt_num . ".pdf";
-        $disk = Storage::disk('public');
-
-        if ($disk->put('bill_receipt/' . $receipt->year . '/' . $receipt->month . '/' . $receipt->ftth_id . '/' . $name, $output)) {
-            // Successfully stored. Return the full path.
-            $receipt->file =  $disk->path('bill_receipt/' . $receipt->year . '/' . $receipt->month . '/' . $receipt->ftth_id . '/' . $name);
-
-            $receipt->update();
+      //  $pdf->setOptions($options);
+     // return $pdf->stream('test.pdf'); 
+     $output = $pdf->output();
+     $name = date("ymdHis").'-R'.$receipt->bill_number.".pdf";
+     $disk = Storage::disk('public');
+  
+        if ($disk->put($receipt->ftth_id.'/'.$name, $output)) {
+         
+        // Successfully stored. Return the full path.
+        $receipt->receipt_file =  $disk->path($receipt->ftth_id.'/'.$name);
+        $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
+        
+        $app_url = getenv('APP_URL','https://localhost:8000');
+        $shortURLObject = $builder->destinationUrl($app_url.'/storage/'.$receipt->ftth_id.'/'.$name)->make();
+        $shortURL = $shortURLObject->url_key;
+        $receipt->receipt_url = $shortURL;
+        $receipt->update();
         }
-
-        // download PDF file with download method
-        return redirect()->back()->with('message', 'PDF Generated Successfully.');
+         // download PDF file with download method
+         return redirect()->back()->with('message', 'Receipt PDF Generated Successfully.');
+        
     }
     public function ReceiptPaid($receipt_id, $customer_id)
     {
