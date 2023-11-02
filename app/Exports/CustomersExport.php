@@ -186,6 +186,7 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
             'PPPOE Account',
             'PPPOE Password',
             'Status',
+            'Customer Type',
             
         ];
     }
@@ -246,6 +247,27 @@ class CustomersExport implements FromQuery, WithColumnFormatting,WithMapping,Wit
             $mycustomer->pppoe_account,    
             $mycustomer->pppoe_password,    
             $status->name,       
+            ($mycustomer->customer_type)?$this->getCustomerType($mycustomer->customer_type):"Normal Customer",       
          ];
+    }
+
+    public function getCustomerType($type){
+        switch ($type) {
+            case 1:
+                return "Normal Customer";
+                break;
+            case 2:
+                return "VIP Customer";
+                break;
+            case 3:
+                return "Partner Customer";
+                break;
+            case 4:
+                return "Office Staff";
+                break;
+            default:
+                return "Normal Customer";
+                break;
+        }
     }
 }

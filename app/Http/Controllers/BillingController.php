@@ -83,7 +83,7 @@ class BillingController extends Controller
                     ->orwherenull('customers.deleted');
             })
             ->whereNotIn('status.type', ['new','pending','cancel'])
-
+            //->where('customers.ftth_id','=','TCL00009-FTTH')//just for debugging
             ->select(
                 'customers.id as id',
                 'customers.ftth_id as ftth_id',
@@ -107,6 +107,7 @@ class BillingController extends Controller
             ->get();
 
         if ($customers) {
+          
             foreach ($customers as $value) {
                 $receipt_summeries = ReceiptSummery::where('customer_id', '=', $value->id)
                     ->where('year', '=', $request->bill_year)
@@ -123,13 +124,14 @@ class BillingController extends Controller
 
                     if($receipt_summeries){
                         $receipt_invoice_id = $receipt_summeries->$bill_month;
-                        
+                       
                         $orginal_invoice = Invoice::join('receipt_records','receipt_records.invoice_id','invoices.id')
                                    ->where('receipt_records.id','=',$receipt_invoice_id)
                                    ->select('invoices.id','invoices.period_covered')
                                    ->first();
                         $last_adjustment = BillAdjustment::where('invoice_id','=',$orginal_invoice->id)->latest('id')->first();
                         $invoice = ($last_adjustment)?$last_adjustment:$orginal_invoice;
+                        
                         if($invoice)
                         {
                             
@@ -141,6 +143,7 @@ class BillingController extends Controller
                             $month_timestamp = strtotime($bill_month_year);
                             if (date("Y-m", $second_date) === date("Y-m", $month_timestamp)) {
                                 // Calculate the number of days remaining in the month
+                            
                                 $last_day_of_month = date("t", $month_timestamp);
                                 $days_remaining = $last_day_of_month - date("j", $second_date) + 1;
                                 
@@ -156,6 +159,11 @@ class BillingController extends Controller
                                 $last_date = (new DateTime( $given_pc[1]));
                                 $period_covered = $first_date.' to '.$last_date->format("Y-m-d");
                                // echo $first_date;
+                            }else if(date("Y-m", $second_date) > date("Y-m", $month_timestamp)){
+                                $billing_cost = 0;
+                                $total_cost = 0;
+                                $period_covered = $request->period_covered_name;
+                                $billing_day = '0';
                             } 
                         }
                         // Extract the second date from $period_covered
@@ -182,9 +190,8 @@ class BillingController extends Controller
                         }
                     }
 
-
-
-                    $inWords = new NumberFormatter('en', NumberFormatter::SPELLOUT);
+                    if($billing_cost <> 0 ){
+                        $inWords = new NumberFormatter('en', NumberFormatter::SPELLOUT);
 
                     $billing = new BillingTemp();
                     $billing->period_covered = $period_covered;
@@ -214,6 +221,9 @@ class BillingController extends Controller
                     $billing->bill_month = $request->bill_month;
                     $billing->bill_year = $request->bill_year;
                     $billing->save();
+                    }
+
+                    
                 
             }
             return redirect()->back()->with('message', 'Billing Created Successfully.');
