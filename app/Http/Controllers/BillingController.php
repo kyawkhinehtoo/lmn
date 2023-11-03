@@ -501,10 +501,10 @@ class BillingController extends Controller
                 $invoice->sent_date = null;
                 $invoice->sms_sent_status = null;
             }
-            if ($request->reset_pdf) {
-                $invoice->file = null;
-                $invoice->url = null;
-            }
+          
+                $invoice->invoice_file = null;
+                $invoice->invoice_url = null;
+            
             //if ($request->reset_receipt) {
 
 
@@ -524,6 +524,7 @@ class BillingController extends Controller
                         }
                         $months--;
                     }
+                    $receipt->delete();
                 }
                 $old_c = Customer::find($request->customer_id);
 
