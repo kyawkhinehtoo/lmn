@@ -15,11 +15,11 @@ class Invoice extends Model
      * @var array
      */
     protected $fillable = [
-        'period_covered', 
-        'bill_number', 
-        'customer_id', 
+        'period_covered',
+        'bill_number',
+        'customer_id',
         'invoice_number',
-        'ftth_id', 
+        'ftth_id',
         'date_issued',
         'bill_to',
         'attn',
@@ -50,8 +50,10 @@ class Invoice extends Model
         'invoice_url',
         'bill_month',
         'bill_year',
+        'reminder_sms_sent_status',
+        'reminder_sms_sent_date',
         'created_at',
         'updated_at'
-        
+
     ];
 }

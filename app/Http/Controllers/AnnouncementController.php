@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AnnouncementSMSJob;
 use Illuminate\Http\Request;
 use App\Models\Township;
 use App\Models\Project;
@@ -31,22 +32,11 @@ class AnnouncementController extends Controller
     static $senderid;
     static $header;
 
-    public function __construct()
-    {
-        $smsgateway = SmsGateway::first();
-        if ($smsgateway) {
-            if ($smsgateway->status == '1') {
-                self::$sid = $smsgateway->sid;
-                self::$token = $smsgateway->token;
-                self::$senderid = 'MG Telecom';
-                self::$header = ['Authorization' => 'Basic ' . base64_encode($smsgateway->sid . ':' . $smsgateway->token)];
-            }
-        }
-    }
     public function index(Request $request)
     {
         $announcements = Announcement::get();
-        $templates = EmailTemplate::get();
+        $templates = EmailTemplate::whereJsonContains('default_name', ['key' => 'general'])->get();
+        //  $sms_template = EmailTemplate::whereJsonContains('default_name', 'key', 'bill_invoice')
         $packages = Package::orderBy('name', 'ASC')->get();
         $townships = Township::get();
         $projects = Project::get();
@@ -54,6 +44,10 @@ class AnnouncementController extends Controller
         $package_except = $request->package_except;
         $township_except = $request->township_except;
         $status_except = $request->status_except;
+
+        $package_speed = Package::select('speed', 'type')
+            ->groupBy('speed', 'type')
+            ->orderBy('speed', 'ASC')->get();
         $customers =  DB::table('customers')
             ->join('packages', 'customers.package_id', '=', 'packages.id')
             ->join('townships', 'customers.township_id', '=', 'townships.id')
@@ -70,15 +64,21 @@ class AnnouncementController extends Controller
                 });
             })
             ->when($request->package, function ($query, $packages) use ($package_except) {
-                $package_list = array();
-                foreach ($packages as $value) {
-                    array_push($package_list, $value['id']);
-                }
-                if ($package_except) {
-                    $query->whereNotIn('customers.package_id', $package_list);
-                } else {
-                    $query->whereIn('customers.package_id', $package_list);
-                }
+
+                $query->where(function ($query) use ($packages, $package_except) {
+                    foreach ($packages as $package) {
+                        if ($package_except) {
+                            $query->orwhere(function ($query) use ($package) {
+                                $query->where('packages.speed', '<>', $package['speed'])->where('packages.type', '<>', $package['type']);
+                            });
+                        } else {
+
+                            $query->orwhere(function ($query) use ($package) {
+                                $query->where('packages.speed', '=', $package['speed'])->where('packages.type', '=', $package['type']);
+                            });
+                        }
+                    }
+                });
             })
             ->when($request->partner, function ($query, $project) {
                 $query->where('customers.project_id', '=', $project);
@@ -156,6 +156,7 @@ class AnnouncementController extends Controller
             'customers' => $customers,
             'announcements' => $announcements,
             'templates' => $templates,
+            'package_speed' => $package_speed,
         ]);
     }
 
@@ -174,28 +175,46 @@ class AnnouncementController extends Controller
             'template' => 'required|max:255',
             'type' => 'required|max:255',
         ])->validate();
+        // $package_except = $request->package_except;
+        // $packages = Package::when($request->package, function ($query, $packages) use ($package_except) {
+        //     $query->where(function ($query) use ($packages, $package_except) {
+        //         foreach ($packages as $package) {
+        //             if ($package_except) {
+        //                 $query->orwhere(function ($query) use ($package) {
+        //                     $query->where('packages.speed', '<>', $package['speed'])->where('packages.type', '<>', $package['type']);
+        //                 });
+        //             } else {
+
+        //                 $query->orwhere(function ($query) use ($package) {
+        //                     $query->where('packages.speed', '=', $package['speed'])->where('packages.type', '=', $package['type']);
+        //                 });
+        //             }
+        //         }
+        //     });
+        // })
+        //     ->get()->toArray();
 
         $announcement = new Announcement();
         $announcement->name = $request->name;
         $announcement->general = $request->general;
         $announcement->template_id = $request->template;
         $announcement->packages_invert = $request->package_except;
+        $announcement->packages = ($request->package) ? json_encode($request->package) : null;
+        // if ($packages) {
+        //     $announcement->packages = null;
+        //     if (isset($packages[0])) {
+        //         foreach ($packages as $key => $package) {
 
-        if ($request->package) {
-            $announcement->packages = null;
-            if (isset($request->package[0])) {
-                foreach ($request->package as $key => $package) {
-
-                    if ($key != array_key_last($request->package)) {
-                        $announcement->packages .= $package['id'] . ',';
-                    } else {
-                        $announcement->packages .= $package['id'];
-                    }
-                }
-            } else {
-                $announcement->packages = $request->package['id'];
-            }
-        }
+        //             if ($key != array_key_last($packages)) {
+        //                 $announcement->packages .= $package['id'] . ',';
+        //             } else {
+        //                 $announcement->packages .= $package['id'];
+        //             }
+        //         }
+        //     } else {
+        //         $announcement->packages = $packages['id'];
+        //     }
+        // }
         if ($request->status) {
             $announcement->customer_status = null;
             if (isset($request->status[0])) {
@@ -212,7 +231,7 @@ class AnnouncementController extends Controller
         }
 
         $announcement->announcement_type = $request->type;
-      //  $announcement->townships = $request->township;
+        //  $announcement->townships = $request->township;
         if ($request->township) {
             $announcement->townships = null;
             if (isset($request->township[0])) {
@@ -249,22 +268,7 @@ class AnnouncementController extends Controller
         $announcement->general = $request->general;
         $announcement->template_id = $request->template;
         $announcement->packages_invert = ($request->package_except == 0) ? null : true;
-        $announcement->packages = null;
-        if ($request->package) {
-
-            if (isset($request->package[0])) {
-                foreach ($request->package as $key => $package) {
-
-                    if ($key != array_key_last($request->package)) {
-                        $announcement->packages .= $package['id'] . ',';
-                    } else {
-                        $announcement->packages .= $package['id'];
-                    }
-                }
-            } else {
-                $announcement->packages = $request->package['id'];
-            }
-        }
+        $announcement->packages = ($request->package) ? json_encode($request->package) : null;
         $announcement->customer_status = null;
         if ($request->status) {
             if (isset($request->status[0])) {
@@ -298,11 +302,6 @@ class AnnouncementController extends Controller
                 ->where('announcements.id', '=', $request->id)
                 ->select('announcements.*', 'email_templates.name as template_name', 'email_templates.title as template_title', 'email_templates.cc_email as cc_email', 'email_templates.body as template_body', 'email_templates.type as template_type')
                 ->first();
-            $templates = EmailTemplate::get();
-            $packages = Package::orderBy('name', 'ASC')->get();
-            $townships = Township::get();
-            $projects = Project::get();
-            $status = Status::get();
             $package_except = $announcement->packages_invert;
             $status_except = $announcement->customer_status_invert;
             $customers =  DB::table('customers')
@@ -320,15 +319,22 @@ class AnnouncementController extends Controller
                             ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%');
                     });
                 })
-                ->when($announcement->packages, function ($query, $packages) use ($package_except) {
-                    $package_list = array();
-                    $package_list = preg_split("/\,/", $packages);
+                ->when($request->package, function ($query, $packages) use ($package_except) {
 
-                    if ($package_except) {
-                        $query->whereNotIn('customers.package_id', $package_list);
-                    } else {
-                        $query->whereIn('customers.package_id', $package_list);
-                    }
+                    $query->where(function ($query) use ($packages, $package_except) {
+                        foreach ($packages as $package) {
+                            if ($package_except) {
+                                $query->orwhere(function ($query) use ($package) {
+                                    $query->where('packages.speed', '<>', $package['speed'])->where('packages.type', '<>', $package['type']);
+                                });
+                            } else {
+
+                                $query->orwhere(function ($query) use ($package) {
+                                    $query->where('packages.speed', '=', $package['speed'])->where('packages.type', '=', $package['type']);
+                                });
+                            }
+                        }
+                    });
                 })
                 ->when($announcement->projects, function ($query, $project) {
                     $query->where('customers.project_id', '=', $project);
@@ -382,74 +388,21 @@ class AnnouncementController extends Controller
                 })
                 ->select('customers.id as id', 'customers.ftth_id as ftth_id', 'customers.name as name', 'customers.order_date as order_date', 'customers.phone_1 as phone', 'townships.name as township', 'packages.name as package', 'status.name as status', 'status.color as color')
                 ->get();
-            // dd($customers->toSQL(), $customers->getBindings());
-            //$customers->appends($request->all())->links();
 
-            // return Inertia::render('Client/AnnouncementDetail', [
-            //     'announcement' => $announcement,
-            //     'packages' => $packages,
-            //     'townships' => $townships,
-            //     'projects' => $projects,
-            //     'status' => $status,
-            //     'customers' => $customers,
-            //     'templates' => $templates,
-            // ]);
 
             if ($customers) {
 
                 foreach ($customers as $customer) {
-                    $log_check = DB::table('announcement_log')->where('announcement_id', '=', $announcement->id)
-                        ->where('customer_id', '=', $customer->id)
-                        ->where('status', '=', 'sent')
-                        ->first();
-                    if (!$log_check) {
-                        $response_status = null;
-                        $msg_id = null;
-                        if($announcement->announcement_type != 'email') {
-                          $response_status = $this->sendSMS($customer->id, $announcement->template_id);
-                          if(isset($response_status['messageId'])){
-                              $msg_id = $response_status['messageId'];
-                          }else{
-                              $msg_id = null;
-                          }
-                        }else{
-                          $response_status = $this->sendEmail($customer->id, $announcement->template_id);
-                        }
-                        $log = new AnnouncementLog();
-                        $log->customer_id = $customer->id;
-                        $log->sender_id = Auth::user()->id;
-                        $log->template_id = $announcement->template_id;
-                        $log->announcement_id = $announcement->id;
-                        $log->title = ($announcement->announcement_type == 'email') ? $announcement->template_title : 'SMS';
-                        $log->detail = $this->replaceMarkup($announcement->template_body, $customer->id);
-                        $log->status = ($announcement->announcement_type == 'email') ? $response_status : $response_status['status'];
-                        $log->message_id =($announcement->announcement_type == 'email')?null: $msg_id;
-                        $log->date = date("Y-m-j h:m:s");
-                        $log->type = $announcement->announcement_type;
-                        $log->save();
-                    }
+                    dispatch(new AnnouncementSMSJob($customer->id, $announcement->id, count($customers), Auth::id()));
                 }
             }
         }
         return redirect()->back()->with('message', 'Announcement Sent Successfully.');
     }
-    public function replaceMarkup($data, $id)
-    {
-        $customer = Customer::join('packages', 'packages.id', 'customers.package_id')
-            ->where('customers.id', '=', $id)
-            ->select('customers.*', 'packages.name as package_name', 'packages.speed as package_speed', 'packages.type as package_type', 'packages.currency as package_currency', 'packages.price as package_price')
-            ->first();
 
-        if ($customer) {
-            $search = array('{{customer_name}}', '{{ftth_id}}', '{{package_name}}', '{{package_speed}}', '{{package_price}}', '{{package_currency}}', '{{package_type}}');
-            $replace = array($customer->name, $customer->ftth_id, $customer->package_name, $customer->package_speed, $customer->package_price, strtoupper($customer->package_currency), strtoupper($customer->package_type));
-            $replaced = str_replace($search, $replace, $data);
-            return $replaced;
-        }
-    }
     public function listAll(Request $request)
     {
-        $announcements = DB::table('announcements')->paginate(10);
+        $announcements = DB::table('announcements')->orderBy('id', 'desc')->paginate(10);
         return Inertia::render('Client/AnnouncementList', [
             'announcements' => $announcements,
         ]);
@@ -463,6 +416,9 @@ class AnnouncementController extends Controller
             $townships = Township::get();
             $projects = Project::get();
             $status = Status::get();
+            $package_speed = Package::select('speed', 'type')
+                ->groupBy('speed', 'type')
+                ->orderBy('speed', 'ASC')->get();
             $package_except = $announcement->packages_invert;
             $status_except = $announcement->customer_status_invert;
             $customers =  DB::table('customers')
@@ -480,15 +436,38 @@ class AnnouncementController extends Controller
                             ->orWhere('customers.sale_channel', 'LIKE', '%' . $general . '%');
                     });
                 })
-                ->when($announcement->packages, function ($query, $packages) use ($package_except) {
-                    $package_list = array();
-                    $package_list = preg_split("/\,/", $packages);
+                // ->when($announcement->packages, function ($query, $packages) use ($package_except) {
+                //     $package_list = array();
+                //     $package_list = preg_split("/\,/", $packages);
 
-                    if ($package_except) {
-                        $query->whereNotIn('customers.package_id', $package_list);
-                    } else {
-                        $query->whereIn('customers.package_id', $package_list);
-                    }
+                //     if ($package_except) {
+                //         $query->whereNotIn('customers.package_id', $package_list);
+                //     } else {
+                //         $query->whereIn('customers.package_id', $package_list);
+                //     }
+                // })
+                ->when($request->package, function ($query, $packages) use ($package_except) {
+                    // dd($packages);
+                    //  $package_list = array();
+                    // foreach ($packages as $value) {
+                    //     array_push($package_list, $value['speed']);
+                    // }
+                    //  dd($packages);
+                    // $packages = json_decode($packages);
+                    $query->where(function ($query) use ($packages, $package_except) {
+                        foreach ($packages as $package) {
+                            if ($package_except) {
+                                $query->orwhere(function ($query) use ($package) {
+                                    $query->where('packages.speed', '<>', $package['speed'])->where('packages.type', '<>', $package['type']);
+                                });
+                            } else {
+
+                                $query->orwhere(function ($query) use ($package) {
+                                    $query->where('packages.speed', '=', $package['speed'])->where('packages.type', '=', $package['type']);
+                                });
+                            }
+                        }
+                    });
                 })
                 ->when($announcement->projects, function ($query, $project) {
                     $query->where('customers.project_id', '=', $project);
@@ -553,6 +532,7 @@ class AnnouncementController extends Controller
                 'status' => $status,
                 'customers' => $customers,
                 'templates' => $templates,
+                'package_speed' => $package_speed,
             ]);
         }
     }
@@ -645,113 +625,8 @@ class AnnouncementController extends Controller
         return "failed";
     }
 
-    public function sendSMS($customer_id, $template_id)
-    {
-        $response_status = null; 
-        if ($customer_id) {
-            $customer = Customer::whereNotNull('phone_1')->where('customers.id', '=', $customer_id)->first();
-            $sms_template = EmailTemplate::where('id', '=', $template_id)
-                ->where('type', '=', 'sms')
-                ->first();
-            if ($sms_template && $customer) {
-                $sms_body = $sms_template->body;
-                $customer_phone = $customer->phone_1;
-                if ($customer->phone_2) {
-                    $customer_phone .= ',' . $customer->phone_2;
-                }
-                $phones = $customer_phone;
-                if (strpos($customer_phone, ',') !== false) {
-                    $phones = explode(",", $customer_phone);
-                }
-                if (strpos($customer_phone, ';') !== false) {
-                    $phones = explode(';', $customer_phone);
-                }
-                if (strpos($customer_phone, ':') !== false) {
-                    $phones = explode(':', $customer_phone);
-                }
-                if (strpos($customer_phone, ' ') !== false) {
-                    $phones = explode(' ', $customer_phone);
-                }
-                if (strpos($customer_phone, '/') !== false) {
-                    $phones = explode('/', $customer_phone);
-                }
-                // $sms_message = 'Testing';
-                $sms_message = $sms_template->body;
-                $sms_response = null;
-                $success = false;
-                if (is_array($phones)) {
-                    foreach ($phones as $phone) {
-                        $pattern = "/^(959)+[0-9]+$/";
-                        if (preg_match($pattern, $phone)) {
-                            //$phone = '09'.$phone;
-                            $phone = preg_split("/^959/", $phone);
-                            // $phone = $phone[1];
-                            $phone = '9' . $phone[1];
-                        }
-                        $phone_pattern = "/^(9|09)+[0-9]+$/";
-                        if (preg_match($phone_pattern, $phone)) {
-                            $message_body = $this->replaceMarkup($sms_message, $customer_id);
-                            $sms_response = $this->sendSMSData($phone, $message_body);
-                            if ($sms_response['status'] == 'success') {
-                                $response_status['messageId'] = $sms_response['messageId'];
-                                $client = new \GuzzleHttp\Client();
-                                $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
-                                $statusresponseBody = json_decode($status_response->getBody(), true);
-                                if ($statusresponseBody['status'] == 'Sent') {
-                                    $success = true;
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    $pattern = "/^(959|\+959)+[0-9]+$/";
-                    $phone_pattern = "/^(9|09)+[0-9]+$/";
-                    if (preg_match($pattern, $phones)) {
-                        //$phone = '09'.$phone;
-                        $phones = preg_split("/(^\+959|959)/", $phones);
-                        // $phones = $phones[1];
-                        $phones = '9' . $phones[1];
-                    }
-                    if (preg_match($phone_pattern, $phones)) {
-                        $message_body = $this->replaceMarkup($sms_message, $customer_id);
-                        $sms_response = $this->sendSMSData($phones, $message_body);
-                        if ($sms_response['status'] == 'success') {
-                            $response_status['messageId'] = $sms_response['messageId'];
-                            $client = new \GuzzleHttp\Client();
-                            $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
-                            $statusresponseBody = json_decode($status_response->getBody(), true);
-                            if ($statusresponseBody['status'] == 'Sent') {
-                                $success = true;
-                            }
-                        }
-                    }
-                }
-                if ($success) {
-                    $response_status['status'] = 'sent';
-                    return $response_status;
-                } else {
-                    $response_status['status'] = 'failed';
-                    return $response_status;
-                }
-            } //check $sms_template && $customer
-        } //check customer_id
-        $response_status['status'] = 'failed';
-        return $response_status;
-    }
-    public function sendSMSData($phone, $message)
-    {
-        $postInput  =  [
-            'senderid' => self::$senderid,
-            'number' => trim($phone),
-            'message' => trim($message),
-        ];
-        //$response = Http::withHeaders($header)->post(self::$sms_post_url,$postInput );
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', self::$sms_post_url, ['form_params' => $postInput, 'headers' => self::$header]);
-        $responseBody = json_decode($response->getBody(), true);
-        sleep(1);
-        return $responseBody;
-    }
+
+
     // public function updateSMSStatus(Request $request)
     // {
     //     if ($request->id) {
@@ -798,14 +673,14 @@ class AnnouncementController extends Controller
     //                         }
     //                         $phone_pattern = "/^(9|09)+[0-9]+$/";
     //                         if (preg_match($phone_pattern, $phone)) {
-                               
+
     //                                 $client = new \GuzzleHttp\Client();
     //                                 $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
     //                                 $statusresponseBody = json_decode($status_response->getBody(), true);
     //                                 if ($statusresponseBody['status'] == 'Sent') {
     //                                     $success = true;
     //                                 }
-                                
+
     //                         }
     //                     }
     //                 } else {
@@ -818,15 +693,15 @@ class AnnouncementController extends Controller
     //                         $phones = '9' . $phones[1];
     //                     }
     //                     if (preg_match($phone_pattern, $phones)) {
-                  
-                         
+
+
     //                             $client = new \GuzzleHttp\Client();
     //                             $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
     //                             $statusresponseBody = json_decode($status_response->getBody(), true);
     //                             if ($statusresponseBody['status'] == 'Sent') {
     //                                 $success = true;
     //                             }
-                            
+
     //                     }
     //                 }
     //                 if ($success) {

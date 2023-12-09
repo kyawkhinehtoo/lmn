@@ -29,22 +29,23 @@ use Mail;
 use DateTime;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\PdfTrait;
+use App\Traits\MarkupTrait;
+use App\Traits\SMSTrait;
+use App\Models\SmsGateway;
+use App\Jobs\PDFCreateJob;
+use App\Jobs\BillingSMSJob;
+use App\Jobs\ReminderSMSJob;
 
 class BillingController extends Controller
 {
-    static $sms_post_url = 'https://api.smsbrix.com/v1/message/send';
-    static $sms_status_url = 'https://api.smsbrix.com/v1/message/info/';
-    // static $sid = 'SB75107534857625535893739362750761';
-    // static $token = '7hsayCpJlpMnT6vfizMO0qIZzFesLhtreDgHZZ215HqF';
-    // static $senderid = 'Link Fast';
-    // static $header = ['Authorization' => 'Basic U0I3NTEwNzUzNDg1NzYyNTUzNTg5MzczOTM2Mjc1MDc2MTo3aHNheUNwSmxwTW5UNnZmaXpNTzBxSVp6RmVzTGh0cmVEZ0haWjIxNUhxRg=='];
-
+    use PdfTrait, MarkupTrait, SMSTrait;
     public function BillGenerator()
     {
 
-        $packages = Package::join('pops','pops.id','=','packages.pop_id')
-        ->select('packages.*','pops.site_name')
-        ->orderBy('name', 'ASC')->get();
+        $packages = Package::join('pops', 'pops.id', '=', 'packages.pop_id')
+            ->select('packages.*', 'pops.site_name')
+            ->orderBy('name', 'ASC')->get();
         $townships = Township::get();
         $bill = Bills::get();
         return Inertia::render('Client/BillGenerator', [
@@ -82,7 +83,7 @@ class BillingController extends Controller
                 return $query->where('customers.deleted', '=', 0)
                     ->orwherenull('customers.deleted');
             })
-            ->whereNotIn('status.type', ['new','pending','cancel'])
+            ->whereNotIn('status.type', ['new', 'pending', 'cancel'])
             //->where('customers.ftth_id','=','TCL00009-FTTH')//just for debugging
             ->select(
                 'customers.id as id',
@@ -107,91 +108,90 @@ class BillingController extends Controller
             ->get();
 
         if ($customers) {
-          
+
             foreach ($customers as $value) {
                 $receipt_summeries = ReceiptSummery::where('customer_id', '=', $value->id)
                     ->where('year', '=', $request->bill_year)
                     ->whereNotNull($request->bill_month)
                     ->first();
 
-                
-                    $bill_month_year = $request->month;
-                    $bill_month = $request->bill_month;
-                    $billing_cost = $value->price;
-                    $total_cost = round($billing_cost,2);
-                    $period_covered = $request->period_covered_name;
-                    $billing_day = '1 Month';
 
-                    if($receipt_summeries){
-                        $receipt_invoice_id = $receipt_summeries->$bill_month;
-                       
-                        $orginal_invoice = Invoice::join('receipt_records','receipt_records.invoice_id','invoices.id')
-                                   ->where('receipt_records.id','=',$receipt_invoice_id)
-                                   ->select('invoices.id','invoices.period_covered')
-                                   ->first();
-                        $last_adjustment = BillAdjustment::where('invoice_id','=',$orginal_invoice->id)->latest('id')->first();
-                        $invoice = ($last_adjustment)?$last_adjustment:$orginal_invoice;
-                        
-                        if($invoice)
-                        {
-                            
-                            
-                            $dates = explode(" to ", $invoice->period_covered);
-                            $second_date = strtotime($dates[1]);
-    
-                            // Convert $month to a timestamp for comparison
-                            $month_timestamp = strtotime($bill_month_year);
-                            if (date("Y-m", $second_date) === date("Y-m", $month_timestamp)) {
-                                // Calculate the number of days remaining in the month
-                            
-                                $last_day_of_month = date("t", $month_timestamp);
-                                $days_remaining = $last_day_of_month - date("j", $second_date) + 1;
-                                
-                                $cost_per_day = $value->price / $last_day_of_month;
-                                $billing_day = ($days_remaining - 1 ).' Days';
-                                $billing_cost = $cost_per_day * ($days_remaining - 1) ;
-                                $total_cost = round($billing_cost,2);
+                $bill_month_year = $request->month;
+                $bill_month = $request->bill_month;
+                $billing_cost = $value->price;
+                $total_cost = round($billing_cost, 2);
+                $period_covered = $request->period_covered_name;
+                $billing_day = '1 Month';
 
-                                //set new period covered
-                                $given_pc =  explode(" to ", $period_covered);
-                                $from = (new DateTime($dates[1]))->modify("+1 day"); 
-                                $first_date =  $from->format("Y-m-d");
-                                $last_date = (new DateTime( $given_pc[1]));
-                                $period_covered = $first_date.' to '.$last_date->format("Y-m-d");
-                               // echo $first_date;
-                            }else if(date("Y-m", $second_date) > date("Y-m", $month_timestamp)){
-                                $billing_cost = 0;
-                                $total_cost = 0;
-                                $period_covered = $request->period_covered_name;
-                                $billing_day = '0';
-                            } 
-                        }
-                        // Extract the second date from $period_covered
-                       
-                    }
-                    // if($value->advance_payment){
+                if ($receipt_summeries) {
+                    $receipt_invoice_id = $receipt_summeries->$bill_month;
 
-                    //     if($value->status_id == 2){
-                    //         $billing_cost['total_cost'] =  $value->price * $value->prepaid_period;
-                    //         $total_cost = ceil($billing_cost['total_cost']);
-                    //         $billing_day = $value->prepaid_period.' Months';
-                    //     }  
-                    // }
-                    if ($request->is_mmk) {
-                        if ($value->currency == "usd") {
-                            $total_cost =  (int)$total_cost * (int)$request->usd_exchange_rate;
-                        }
-                        if ($value->currency == "baht") {
-                            $total_cost =  (int)$total_cost * (int)$request->baht_exchange_rate;
-                        }
-                    } else {
-                        if ($value->currency == "usd") {
-                            $total_cost =  (int)$total_cost * (int)$request->usd_exchange_rate;
+                    $orginal_invoice = Invoice::join('receipt_records', 'receipt_records.invoice_id', 'invoices.id')
+                        ->where('receipt_records.id', '=', $receipt_invoice_id)
+                        ->select('invoices.id', 'invoices.period_covered')
+                        ->first();
+                    $last_adjustment = BillAdjustment::where('invoice_id', '=', $orginal_invoice->id)->latest('id')->first();
+                    $invoice = ($last_adjustment) ? $last_adjustment : $orginal_invoice;
+
+                    if ($invoice) {
+
+
+                        $dates = explode(" to ", $invoice->period_covered);
+                        $second_date = strtotime($dates[1]);
+
+                        // Convert $month to a timestamp for comparison
+                        $month_timestamp = strtotime($bill_month_year);
+                        if (date("Y-m", $second_date) === date("Y-m", $month_timestamp)) {
+                            // Calculate the number of days remaining in the month
+
+                            $last_day_of_month = date("t", $month_timestamp);
+                            $days_remaining = $last_day_of_month - date("j", $second_date) + 1;
+
+                            $cost_per_day = $value->price / $last_day_of_month;
+                            $billing_day = ($days_remaining - 1) . ' Days';
+                            $billing_cost = $cost_per_day * ($days_remaining - 1);
+                            $total_cost = round($billing_cost, 2);
+
+                            //set new period covered
+                            $given_pc =  explode(" to ", $period_covered);
+                            $from = (new DateTime($dates[1]))->modify("+1 day");
+                            $first_date =  $from->format("Y-m-d");
+                            $last_date = (new DateTime($given_pc[1]));
+                            $period_covered = $first_date . ' to ' . $last_date->format("Y-m-d");
+                            // echo $first_date;
+                        } else if (date("Y-m", $second_date) > date("Y-m", $month_timestamp)) {
+                            $billing_cost = 0;
+                            $total_cost = 0;
+                            $period_covered = $request->period_covered_name;
+                            $billing_day = '0';
                         }
                     }
+                    // Extract the second date from $period_covered
 
-                    if($billing_cost <> 0 ){
-                        $inWords = new NumberFormatter('en', NumberFormatter::SPELLOUT);
+                }
+                // if($value->advance_payment){
+
+                //     if($value->status_id == 2){
+                //         $billing_cost['total_cost'] =  $value->price * $value->prepaid_period;
+                //         $total_cost = ceil($billing_cost['total_cost']);
+                //         $billing_day = $value->prepaid_period.' Months';
+                //     }  
+                // }
+                if ($request->is_mmk) {
+                    if ($value->currency == "usd") {
+                        $total_cost =  (int)$total_cost * (int)$request->usd_exchange_rate;
+                    }
+                    if ($value->currency == "baht") {
+                        $total_cost =  (int)$total_cost * (int)$request->baht_exchange_rate;
+                    }
+                } else {
+                    if ($value->currency == "usd") {
+                        $total_cost =  (int)$total_cost * (int)$request->usd_exchange_rate;
+                    }
+                }
+
+                if ($billing_cost <> 0) {
+                    $inWords = new NumberFormatter('en', NumberFormatter::SPELLOUT);
 
                     $billing = new BillingTemp();
                     $billing->period_covered = $period_covered;
@@ -221,10 +221,7 @@ class BillingController extends Controller
                     $billing->bill_month = $request->bill_month;
                     $billing->bill_year = $request->bill_year;
                     $billing->save();
-                    }
-
-                    
-                
+                }
             }
             return redirect()->back()->with('message', 'Billing Created Successfully.');
         } else {
@@ -321,7 +318,7 @@ class BillingController extends Controller
         //Customer Status 
         //4 = Suspense
         //5 = Terminate
-        
+
         $billing_day = "0";
         $total_cost = $price;
         $customer = Customer::find($customer_id);
@@ -466,7 +463,7 @@ class BillingController extends Controller
     }
     public function updateInvoice(Request $request)
     {
-       
+
 
         if ($request->id) {
             $invoice = Invoice::find($request->id);
@@ -501,119 +498,113 @@ class BillingController extends Controller
                 $invoice->sent_date = null;
                 $invoice->sms_sent_status = null;
             }
-          
-                $invoice->invoice_file = null;
-                $invoice->invoice_url = null;
-            
+
+            $invoice->invoice_file = null;
+            $invoice->invoice_url = null;
+
             //if ($request->reset_receipt) {
 
 
             $receipt = ReceiptRecord::where('invoice_id', '=', $invoice->id)->first();
-            if ($receipt) 
-                {
-                    $receipt_id = $receipt->id;
-                    ReceiptRecord::find($receipt_id)->delete();
-                    $months = 12;
-                    while ($months > 0) {
-                        $status =  ReceiptSummery::where($months, '=', $receipt_id)
-                            ->where('customer_id', '=', $invoice->customer_id)
-                            ->first();
-                        if ($status) {
-                            $status->$months = null;
-                            $status->update();
-                        }
-                        $months--;
+            if ($receipt) {
+                $receipt_id = $receipt->id;
+                ReceiptRecord::find($receipt_id)->delete();
+                $months = 12;
+                while ($months > 0) {
+                    $status =  ReceiptSummery::where($months, '=', $receipt_id)
+                        ->where('customer_id', '=', $invoice->customer_id)
+                        ->first();
+                    if ($status) {
+                        $status->$months = null;
+                        $status->update();
                     }
-                    $receipt->delete();
+                    $months--;
                 }
-                $old_c = Customer::find($request->customer_id);
+                $receipt->delete();
+            }
+            $old_c = Customer::find($request->customer_id);
 
-                if($request->package['id'] != $old_c->package_id || $request->attn != $old_c->address )
-                {
-                    $new_history = new CustomerHistory();
-                    $new_history->customer_id = $request->customer_id;
-                    $new_history->actor_id = Auth::user()->id;
-                    if ($request->package)
-                    {
-                        if($request->package['id'] != $old_c->package_id ){
-                            $new_history->type = 'plan_change';
-                            $new_history->new_package =$request->package['id']; 
-                            $new_history->old_package = $old_c->package_id;
-                            $myDateTime = new DateTime;
-                            if ($request->start_date){
-                                $myDateTime = new DateTime($request->start_date);
-                            }
-                                $newtime = clone $myDateTime;
-                                $new_history->start_date = $newtime->format('Y-m-j h:m:s');
+            if ($request->package['id'] != $old_c->package_id || $request->attn != $old_c->address) {
+                $new_history = new CustomerHistory();
+                $new_history->customer_id = $request->customer_id;
+                $new_history->actor_id = Auth::user()->id;
+                if ($request->package) {
+                    if ($request->package['id'] != $old_c->package_id) {
+                        $new_history->type = 'plan_change';
+                        $new_history->new_package = $request->package['id'];
+                        $new_history->old_package = $old_c->package_id;
+                        $myDateTime = new DateTime;
+                        if ($request->start_date) {
+                            $myDateTime = new DateTime($request->start_date);
                         }
-                        
+                        $newtime = clone $myDateTime;
+                        $new_history->start_date = $newtime->format('Y-m-j h:m:s');
                     }
-                    if ($request->attn != $old_c->address){
-                        $new_history->type = 'relocation';
-                        //new
-                        if ($request->attn)
+                }
+                if ($request->attn != $old_c->address) {
+                    $new_history->type = 'relocation';
+                    //new
+                    if ($request->attn)
                         $new_history->new_address = $request->attn;
-                        $new_history->old_address = $old_c->address;
-                    }
-                    $new_history->active = 1;
-                    $new_history->date = date("Y-m-j h:m:s");
-                    $new_history->save();
+                    $new_history->old_address = $old_c->address;
                 }
-                    $customer = Customer::find($request->customer_id);
-                    $customer->name = $request->bill_to;
-                    $customer->address = $request->attn;
-                    $customer->package_id = $request->package['id'];
-                   
-                    
-                    if($request->phone)
-                    {
-                       
-                        $phones = $billing_phone = preg_replace('/\s+/', '', $request->phone);
-                        if (strpos($billing_phone, ',') !== false) {
-                            $phones = explode(",", $billing_phone);
-                        }
-                        if (strpos($billing_phone, ';') !== false) {
-                            $phones = explode(';', $billing_phone);
-                        }
-                        if (strpos($billing_phone, ':') !== false) {
-                            $phones = explode(':', $billing_phone);
-                        }
-                        if (strpos($billing_phone, ' ') !== false) {
-                            $phones = explode(' ', $billing_phone);
-                        }
-                        if (strpos($billing_phone, '/') !== false) {
-                            $phones = explode('/', $billing_phone);
-                        }
-                        //possible phone number style  
-                        // 09420043911
-                        // 9420043911
-                        // 959420043911
-                        // +959420043911
-                        $pattern = "/^(09|\+959)+[0-9]+$/";
+                $new_history->active = 1;
+                $new_history->date = date("Y-m-j h:m:s");
+                $new_history->save();
+            }
+            $customer = Customer::find($request->customer_id);
+            $customer->name = $request->bill_to;
+            $customer->address = $request->attn;
+            $customer->package_id = $request->package['id'];
 
-                        if (is_array($phones)) {
-                            $phones = array_map('trim', $phones);//first remove white space from array value
-                            $phones = array_filter($phones);//get rid of empty value from array then
-                            $phones = array_values($phones);// reindexing the array
-                            $phone_1 = trim($phones[0]);
-                            $phone_2 = trim($phones[1]);
-                            
-                            $customer->phone_1 = $this->sanitisePhone($phone_1);  
-                            $customer->phone_2 = $this->sanitisePhone($phone_2);  
-                        
-                        }else{
-                            $customer->phone_1 =  $this->sanitisePhone($phones);
-                        }   
-                    }
-               
-                  
 
-                $customer->update();
-                if(RadiusController::checkRadiusEnable()){
-                    RadiusController::updateRadius($customer->id);
+            if ($request->phone) {
+
+                $phones = $billing_phone = preg_replace('/\s+/', '', $request->phone);
+                if (strpos($billing_phone, ',') !== false) {
+                    $phones = explode(",", $billing_phone);
                 }
-            
-            
+                if (strpos($billing_phone, ';') !== false) {
+                    $phones = explode(';', $billing_phone);
+                }
+                if (strpos($billing_phone, ':') !== false) {
+                    $phones = explode(':', $billing_phone);
+                }
+                if (strpos($billing_phone, ' ') !== false) {
+                    $phones = explode(' ', $billing_phone);
+                }
+                if (strpos($billing_phone, '/') !== false) {
+                    $phones = explode('/', $billing_phone);
+                }
+                //possible phone number style  
+                // 09420043911
+                // 9420043911
+                // 959420043911
+                // +959420043911
+                $pattern = "/^(09|\+959)+[0-9]+$/";
+
+                if (is_array($phones)) {
+                    $phones = array_map('trim', $phones); //first remove white space from array value
+                    $phones = array_filter($phones); //get rid of empty value from array then
+                    $phones = array_values($phones); // reindexing the array
+                    $phone_1 = trim($phones[0]);
+                    $phone_2 = trim($phones[1]);
+
+                    $customer->phone_1 = $this->sanitisePhone($phone_1);
+                    $customer->phone_2 = $this->sanitisePhone($phone_2);
+                } else {
+                    $customer->phone_1 =  $this->sanitisePhone($phones);
+                }
+            }
+
+
+
+            $customer->update();
+            if (RadiusController::checkRadiusEnable()) {
+                RadiusController::updateRadius($customer->id);
+            }
+
+
             $invoice->update();
             return redirect()->back()->with('message', 'Invoice Updated Successfully.');
         }
@@ -696,7 +687,7 @@ class BillingController extends Controller
     }
     public function preview_2(Request $request)
     {
-       
+
         $billing_invoice = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
             ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
             ->join('customers', 'receipt_records.customer_id', 'customers.id')
@@ -704,21 +695,21 @@ class BillingController extends Controller
             ->where('receipt_records.id', '=', $request->id)
             ->select('invoices.*', 'packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
             ->first();
-       
+
         return view('voucher', $billing_invoice);
     }
     public function showInvoice(Request $request)
     {
-       
+
         $billing_invoice = Invoice::join('customers', 'invoices.customer_id', 'customers.id')
             ->join('packages', 'customers.package_id', 'packages.id')
             ->where('invoices.id', '=', $request->id)
             ->select('invoices.*', 'packages.type as service_type')
             ->first();
-       
+
         return view('invoice', $billing_invoice);
     }
-  
+
     public function saveSingle(Request $request)
     {
         //   dd($request);
@@ -836,15 +827,15 @@ class BillingController extends Controller
         $user = User::find(Auth::user()->id);
         if ($request->bill_id) {
             $lists = Bills::all();
-            $packages =  Package::join('pops','pops.id','=','packages.pop_id')
-                        ->select('packages.*','pops.site_name')
-                        ->orderBy('price', 'ASC')->get();
-            $package_speed =  Package::select('speed','type')
-                        ->groupBy('speed','type')
-                        ->orderBy('speed', 'ASC')->get();
+            $packages =  Package::join('pops', 'pops.id', '=', 'packages.pop_id')
+                ->select('packages.*', 'pops.site_name')
+                ->orderBy('price', 'ASC')->get();
+            $package_speed =  Package::select('speed', 'type')
+                ->groupBy('speed', 'type')
+                ->orderBy('speed', 'ASC')->get();
             $package_type = Package::select('type')
-                        ->groupBy('type')
-                        ->orderBy('type', 'ASC')->get();
+                ->groupBy('type')
+                ->orderBy('type', 'ASC')->get();
             $townships = Township::get();
             $status = Status::get();
             $users = User::join('roles', 'users.role', 'roles.id')
@@ -878,17 +869,17 @@ class BillingController extends Controller
                 ->select('invoice_id')
                 ->get()
                 ->toArray();
-            $last_receipt = ReceiptRecord::join('invoices','receipt_records.invoice_id','=','invoices.id')
-                            ->groupBy('invoices.customer_id') 
-                            ->select(DB::raw('max(receipt_records.id) as id'))
-                            ->get()
-                            ->toArray();
-            $last_invoices = Invoice::join('receipt_records','receipt_records.invoice_id','=','invoices.id')
-                            ->whereIn('receipt_records.id',$last_receipt)
-                            ->select('invoices.id','invoices.customer_id','invoices.period_covered')
-                            ->get();
+            $last_receipt = ReceiptRecord::join('invoices', 'receipt_records.invoice_id', '=', 'invoices.id')
+                ->groupBy('invoices.customer_id')
+                ->select(DB::raw('max(receipt_records.id) as id'))
+                ->get()
+                ->toArray();
+            $last_invoices = Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
+                ->whereIn('receipt_records.id', $last_receipt)
+                ->select('invoices.id', 'invoices.customer_id', 'invoices.period_covered')
+                ->get();
             //select i.period_covered, i.ftth_id from invoices i join receipt_records rr on i.id = rr.invoice_id where rr.id in (select max(rr.id) as received_id from invoices i left join receipt_records rr on i.id = rr.invoice_id group by i.customer_id) and i.ftth_id = 'ggh0102';
-            
+
             $billings =  DB::table('invoices')->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->join('packages', 'customers.package_id', '=', 'packages.id')
                 ->join('townships', 'customers.township_id', '=', 'townships.id')
@@ -933,7 +924,7 @@ class BillingController extends Controller
                     $query->where('customers.package_id', '=', $package);
                 })
                 ->when($request->package_speed, function ($query, $package_speed) {
-                    $speed_type =  explode("|",$package_speed);
+                    $speed_type =  explode("|", $package_speed);
                     $speed = $speed_type[0];
                     $type = $speed_type[1];
                     $query->where('packages.speed', '=', $speed);
@@ -990,6 +981,7 @@ class BillingController extends Controller
                     'invoices.tax as tax',
                     'invoices.public_ip as public_ip',
                     'invoices.phone as phone',
+                    'invoices.sms_sent_status as sms_sent_status',
                     'receipt_records.collected_currency as currency',
                     'receipt_records.id as receipt_id',
                     'receipt_records.receipt_number as receipt_number',
@@ -1001,8 +993,8 @@ class BillingController extends Controller
                     'receipt_records.collected_amount as collected_amount',
                     'receipt_records.remark as remark',
                     'receipt_records.payment_channel as payment_channel',
-            
-                    
+
+
                 )
                 ->orderBy('invoices.id')
                 ->paginate(10);
@@ -1013,18 +1005,18 @@ class BillingController extends Controller
             $prepaid_customers = DB::table('customers')
                 ->join('packages', 'packages.id', '=', 'customers.package_id')
                 ->join('status', 'status.id', '=', 'customers.status_id')
-                ->leftjoin('receipt_records as rr','customers.id','=','rr.customer_id')
+                ->leftjoin('receipt_records as rr', 'customers.id', '=', 'rr.customer_id')
                 ->whereNotIn('customers.id', $invoices_customers)
                 ->where(function ($query) {
                     return $query->where('customers.deleted', '=', 0)
                         ->orwherenull('customers.deleted');
                 })
-                ->select('customers.*','customers.id as customer_id', 'packages.name as package_name', 'packages.speed as package_speed', 'packages.type as package_type', 'packages.price as package_price', 'status.name as customer_status',DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date'))
+                ->select('customers.*', 'customers.id as customer_id', 'packages.name as package_name', 'packages.speed as package_speed', 'packages.type as package_type', 'packages.price as package_price', 'status.name as customer_status', DB::raw('DATE_FORMAT(MAX(rr.receipt_date),"%Y-%m-%d") as rr_date'))
                 ->groupBy('customers.id')
                 ->get();
             $current_bill = DB::table('bills')->where('id', '=', $request->bill_id)->first();
 
-
+            $smsgateway = SmsGateway::first();
             $billings->appends($request->all())->links();
             return Inertia::render('Client/BillList', [
                 'lists' => $lists,
@@ -1043,19 +1035,20 @@ class BillingController extends Controller
                 'last_invoices' => $last_invoices,
                 'package_speed' => $package_speed,
                 'package_type' => $package_type,
+                'smsgateway' => $smsgateway,
             ]);
         } else {
 
             $lists = Bills::all();
-            $packages =  Package::join('pops','pops.id','=','packages.pop_id')
-            ->select('packages.*','pops.site_name')
-            ->orderBy('price', 'ASC')->get();
-            $package_speed =  Package::select('speed','type')
-                        ->groupBy('speed','type')
-                        ->orderBy('speed', 'ASC')->get();
+            $packages =  Package::join('pops', 'pops.id', '=', 'packages.pop_id')
+                ->select('packages.*', 'pops.site_name')
+                ->orderBy('price', 'ASC')->get();
+            $package_speed =  Package::select('speed', 'type')
+                ->groupBy('speed', 'type')
+                ->orderBy('speed', 'ASC')->get();
             $package_type =  Package::select('type')
-                        ->groupBy('type')
-                        ->orderBy('type', 'ASC')->get();
+                ->groupBy('type')
+                ->orderBy('type', 'ASC')->get();
             $townships = Township::get();
             $status = Status::get();
             $users = User::orderBy('name', 'ASC')->get();
@@ -1074,207 +1067,61 @@ class BillingController extends Controller
     }
     public function makeSinglePDF(Request $request)
     {
-        
+
         $invoice = Invoice::join('customers', 'invoices.customer_id', 'customers.id')
             ->join('packages', 'customers.package_id', 'packages.id')
             ->where('invoices.id', '=', $request->id)
             ->select('invoices.*', 'packages.type as service_type')
             ->first();
-            $options = [
-                'default_font_size' => '11',
-                'orientation'   => 'P',
-                'encoding'      => 'UTF-8',
-                'margin_top'  => 45,
-                'title' => $invoice->ftth_id,
-              ];
-        
-      // dd($invoice);
-        view()->share('invoice', $invoice);
-        $pdf = PDF::loadView('invoice',$invoice,[],$options);
+        $options = [
+            'default_font_size' => '11',
+            'orientation'   => 'P',
+            'encoding'      => 'UTF-8',
+            'margin_top'  => 45,
+            'title' => $invoice->ftth_id,
+        ];
+        $name = date("ymdHis") . '-' . $invoice->bill_number . ".pdf";
+        $path = $invoice->ftth_id . '/' . $name;
+        $pdf = $this->createPDF($options, 'invoice', $invoice, $name, $path);
 
-      //  $pdf->setOptions($options);
-     // return $pdf->stream('test.pdf'); 
-     $output = $pdf->output();
-     $name = date("ymdHis").'-'.$invoice->bill_number.".pdf";
-     $disk = Storage::disk('public');
-  
-     if ($disk->put($invoice->ftth_id.'/'.$name, $output)) {
-      // Successfully stored. Return the full path.
-      $invoice->invoice_file =  $disk->path($invoice->ftth_id.'/'.$name);
-      $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
+        if ($pdf['status'] == 'success') {
 
-      $app_url = getenv('APP_URL','https://localhost:8000');
-      $shortURLObject = $builder->destinationUrl($app_url.'/storage/'.$invoice->ftth_id.'/'.$name)->make();
-      $shortURL = $shortURLObject->url_key;
-      $invoice->invoice_url = $shortURL;
-      $invoice->update();
-    }
+            // Successfully stored. Return the full path.
+            $invoice->invoice_file =  $pdf['disk_path'];
+            $invoice->invoice_url = $pdf['shortURL'];
+            $invoice->update();
+            return redirect()->back()->with('message', 'PDF Generated Successfully.');
+        }
 
         // download PDF file with download method
-        return redirect()->back()->with('message', 'PDF Generated Successfully.');
+        return redirect()->back()->with('message', 'PDF Generation Fails.');
     }
 
-    public function makeReceiptPDF(Request $request)
-    {
-        
-        $receipt =  Invoice::join('receipt_records', 'receipt_records.invoice_id', '=', 'invoices.id')
-        ->leftjoin('users', 'users.id', '=', 'receipt_records.receipt_person')
-        ->join('customers', 'receipt_records.customer_id', 'customers.id')
-        ->join('packages', 'customers.package_id', 'packages.id')
-        ->where('receipt_records.id', '=', $request->id)
-        ->select('invoices.*', 'packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
-        ->first();
-   
-            $options = [
-                'default_font_size' => '11',
-                'orientation'   => 'P',
-                'encoding'      => 'UTF-8',
-                'margin_top'  => 45,
-                'title' => $receipt->ftth_id,
-              ];
-        
-      // dd($invoice);
-        view()->share('receipt', $receipt);
-        $pdf = PDF::loadView('receipt',$receipt,[],$options);
 
-      //  $pdf->setOptions($options);
-     // return $pdf->stream('test.pdf'); 
-     $output = $pdf->output();
-     $name = date("ymdHis").'-'.$receipt->bill_number.".pdf";
-     $disk = Storage::disk('public');
-  
-     if ($disk->put($receipt->ftth_id.'/'.$name, $output)) {
-      // Successfully stored. Return the full path.
-      $receipt->receipt_file =  $disk->path($receipt->ftth_id.'/'.$name);
-      $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
-
-      $app_url = getenv('APP_URL','https://localhost:8000');
-      $shortURLObject = $builder->destinationUrl($app_url.'/storage/'.$receipt->ftth_id.'/'.$name)->make();
-      $shortURL = $shortURLObject->url_key;
-      $receipt->receipt_url = $shortURL;
-      $receipt->update();
-    }
-
-        // download PDF file with download method
-        return redirect()->back()->with('message', 'Receipt PDF Generated Successfully.');
-    }
 
     public function makeAllPDF(Request $request)
     {
         // dd($request);
         $invoices =  Invoice::join('customers', 'customers.id', '=', 'invoices.customer_id')
             ->join('packages', 'customers.package_id', '=', 'packages.id')
-            ->join('townships', 'customers.township_id', '=', 'townships.id')
-            ->join('users', 'customers.sale_person_id', '=', 'users.id')
-            ->join('status', 'customers.status_id', '=', 'status.id')
             ->where('invoices.total_payable', '>', 0)
+            ->where('bill_id', '=', $request->bill_id)
+            ->whereNull('invoice_file')
             ->where(function ($query) {
                 return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
             })
-            ->where('bill_id', '=', $request->bill_id)
-            ->when($request->keyword, function ($query, $search = null) {
-                $query->where('customers.name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
-                    ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
-            })->when($request->general, function ($query, $general) {
-                $query->where(function ($query) use ($general) {
-                    $query->where('customers.name', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
-                });
-            })
-            ->when($request->total_payable_min, function ($query, $total_payable_min) {
-                $query->where('invoices.total_payable', '>=', $total_payable_min);
-            })
-            ->when($request->total_payable_max, function ($query, $total_payable_max) {
-                $query->where('invoices.total_payable', '<=', $total_payable_max);
-            })
-            ->when($request->installation, function ($query, $installation) {
-                $query->whereBetween('customers.installation_date', [$installation['from'], $installation['to']]);
-            })
-            ->when($request->package, function ($query, $package) {
-                $query->where('customers.package_id', '=', $package);
-            })
-
-            ->when($request->township, function ($query, $township) {
-                $query->where('customers.township_id', '=', $township);
-            })
-            ->when($request->status, function ($query, $status) {
-                $query->where('customers.status_id', '=', $status);
-            })
-            ->when($request->order, function ($query, $order) {
-                $query->whereBetween('customers.order_date', $order);
-            })
-            ->when($request->installation, function ($query, $installation) {
-                $query->whereBetween('customers.installation_date', $installation);
-            })
             ->select('invoices.*')
             ->get();
-        // $options = [
-        //     'enable-local-file-access' => true,
-        //     'orientation'   => 'portrait',
-        //     'encoding'      => 'UTF-8',
-        //     'footer-spacing' => 5,
-        //     'header-spacing' => 5,
-        //     'margin-top'  => 20,
-        //     'footer-html'   => view('footer')
-        //   ];
-        //   foreach ($invoices as $invoice) {
-        //     dd($invoice);
-        //     view()->share('voucher',$invoice);
-        //     $pdf = PDF::loadView('voucher',$invoice);
-
-        //     $pdf->setOptions($options);
-        //    $output = $pdf->output();
-        //    $name = $invoice->bill_number.".pdf";
-        //    $disk = Storage::disk('public');
-
-        //    if ($disk->put($name, $output)) {
-        //     // Successfully stored. Return the full path.
-        //     $biling_data = Invoice::find($invoice->id);
-        //     $biling_data->file =  $disk->path($name);
-        //     $biling_data->save();
-        //      }
-        //   }
         if ($invoices) {
 
-            $options = [
-                'enable-local-file-access' => true,
-                'orientation'   => 'portrait',
-                'encoding'      => 'UTF-8',
-                'footer-spacing' => 5,
-                'header-spacing' => 5,
-                'margin-top'  => 20,
-                'footer-html'   => view('footer')
-            ];
             foreach ($invoices as $invoice) {
-                if ($invoice->total_payable > 0) {
-                    view()->share('voucher', $invoice);
-                    $pdf = PDF::loadView('voucher', $invoice);
 
-                    $pdf->setOptions($options);
-                    $output = $pdf->output();
-                    $name = $invoice->bill_number . ".pdf";
-                    $disk = Storage::disk('public');
-
-                    if ($disk->put($invoice->ftth_id . '/' . $name, $output)) {
-                        $inv = Invoice::find($invoice->id);
-                        // Successfully stored. Return the full path.
-                        $inv->file =  $disk->path($invoice->ftth_id . '/' . $name);
-                        $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
-
-                        $shortURLObject = $builder->destinationUrl('https://oss.marga.com.mm/storage/' . $invoice->ftth_id . '/' . $name)->make();
-                        $shortURL = $shortURLObject->url_key;
-                        $inv->url = $shortURL;
-                        $inv->update();
-                    }
-                }
+                //event(new PdfGenerationProgress($count++));
+                dispatch(new PDFCreateJob($invoice->id));
             }
             // download PDF file with download method
-            return redirect()->back()->with('message', 'All PDF Generated Successfully.');
+            return redirect()->back()->with('message', 'PDF Generation is running background.');
         }
     }
     public function sendSingleEmail(Request $request)
@@ -1472,69 +1319,31 @@ class BillingController extends Controller
 
     public function sendSingleSMS(Request $request)
     {
+
         if ($request->id) {
-            $invoice = Invoice::find($request->id);
+
+            $invoice = Invoice::where('invoices.total_payable', '>', 0)
+                ->where(function ($query) {
+                    return $query->where('customers.deleted', '=', 0)
+                        ->orwherenull('customers.deleted');
+                })
+                ->where('sms_sent_status', '<>', 'sent')
+                ->find($request->id);
+
             if ($invoice->phone && $invoice->sms_sent_status != 'sent') {
 
-                $sms_template = EmailTemplate::where('default', '=', 1)
+                $sms_template = EmailTemplate::whereJsonContains('default_name', ['key' => 'bill_invoice'])
                     ->where('type', '=', 'sms')
                     ->first();
                 //check sms template
                 if ($sms_template) {
-                    $billing_phone = $invoice->phone;
-                    $phones = $billing_phone;
-                    if (strpos($billing_phone, ',') !== false) {
-                        $phones = explode(",", $billing_phone);
-                    }
-                    if (strpos($billing_phone, ';') !== false) {
-                        $phones = explode(';', $billing_phone);
-                    }
-                    if (strpos($billing_phone, ':') !== false) {
-                        $phones = explode(':', $billing_phone);
-                    }
-                    if (strpos($billing_phone, ' ') !== false) {
-                        $phones = explode(' ', $billing_phone);
-                    }
-                    if (strpos($billing_phone, '/') !== false) {
-                        $phones = explode('/', $billing_phone);
-                    }
+
                     // $sms_message = 'Testing';
                     $sms_message = $sms_template->body;
                     $sms_response = null;
                     $success = false;
-                    if (is_array($phones)) {
-                        foreach ($phones as $phone) {
-                            $pattern = "/^(09|\+959)+[0-9]+$/";
-                            if (!preg_match($pattern, $phone)) {
-                                $phone = '09' . $phone;
-                            }
-                            $email_body = $this->replaceMarkup($sms_message, $request->id);
-                            $sms_response = $this->sendSMS($phone, $email_body);
-                            if ($sms_response['status'] == 'success') {
-                                $client = new \GuzzleHttp\Client();
-                                $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
-                                $statusresponseBody = json_decode($status_response->getBody(), true);
-                                if ($statusresponseBody['status'] == 'Sent') {
-                                    $success = true;
-                                }
-                            }
-                        }
-                    } else {
-                        $pattern = "/^(09|\+959)+[0-9]+$/";
-                        if (!preg_match($pattern, $phones)) {
-                            $phones = '09' . $phones;
-                        }
-                        $email_body = $this->replaceMarkup($sms_message, $request->id);
-                        $sms_response = $this->sendSMS($phones, $email_body);
-                        if ($sms_response['status'] == 'success') {
-                            $client = new \GuzzleHttp\Client();
-                            $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
-                            $statusresponseBody = json_decode($status_response->getBody(), true);
-                            if ($statusresponseBody['status'] == 'Sent') {
-                                $success = true;
-                            }
-                        }
-                    }
+                    $message = $this->replaceInvoiceMarkup($request->id, $sms_message);
+                    $success = $this->deliverSMS($invoice->phone, $message);
                     $billing_data = Invoice::find($invoice->id);
                     $billing_data->sent_date = date('j M Y');
                     $billing_data->sms_sent_status = ($success) ? "sent" : "error";
@@ -1554,255 +1363,52 @@ class BillingController extends Controller
 
     public function sendAllSMS(Request $request)
     {
-        ini_set('max_execution_time', '0');
         $invoices =  Invoice::join('customers', 'customers.id', '=', 'invoices.customer_id')
-            ->join('packages', 'customers.package_id', '=', 'packages.id')
-            ->join('townships', 'customers.township_id', '=', 'townships.id')
-            ->leftjoin('users', 'customers.sale_person_id', '=', 'users.id')
-            ->join('status', 'customers.status_id', '=', 'status.id')
             ->where('invoices.total_payable', '>', 0)
             ->where(function ($query) {
                 return $query->where('customers.deleted', '=', 0)
                     ->orwherenull('customers.deleted');
             })
             ->where('bill_id', '=', $request->bill_id)
-            ->when($request->keyword, function ($query, $search = null) {
-                $query->where('customers.name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('customers.ftth_id', 'LIKE', '%' . $search . '%')
-                    ->orWhere('packages.name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('townships.name', 'LIKE', '%' . $search . '%');
-            })->when($request->general, function ($query, $general) {
-                $query->where(function ($query) use ($general) {
-                    $query->where('customers.name', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.phone_1', 'LIKE', '%' . $general . '%')
-                        ->orWhere('customers.phone_2', 'LIKE', '%' . $general . '%');
-                });
-            })
-            ->when($request->installation, function ($query, $installation) {
-                $query->whereBetween('customers.installation_date', [$installation['from'], $installation['to']]);
-            })
-            ->when($request->total_payable_min, function ($query, $total_payable_min) {
-                $query->where('invoices.total_payable', '>=', $total_payable_min);
-            })
-            ->when($request->total_payable_max, function ($query, $total_payable_max) {
-                $query->where('invoices.total_payable', '<=', $total_payable_max);
-            })
-            ->when($request->payment_type, function ($query, $payment_type) {
-                $type = ($payment_type == 1) ? 1 : 0;
-                $query->where('customers.payment_type', '=', $type);
-            })
-            ->when($request->package, function ($query, $package) {
-                $query->where('customers.package_id', '=', $package);
-            })
-            ->when($request->project, function ($query, $project) {
-                $query->where('customers.project_id', '=', $project);
-            })
-            ->when($request->township, function ($query, $township) {
-                $query->where('customers.township_id', '=', $township);
-            })
-            ->when($request->status, function ($query, $status) {
-                $query->where('customers.status_id', '=', $status);
-            })
-            ->when($request->order, function ($query, $order) {
-                $query->whereBetween('customers.order_date', $order);
-            })
-            ->when($request->installation, function ($query, $installation) {
-                $query->whereBetween('customers.installation_date', $installation);
+            ->where(function ($query) {
+                return $query->where('invoices.sms_sent_status', '<>', 'sent')
+                    ->orwherenull('invoices.sms_sent_status');
             })
             ->select('invoices.*')
             ->get();
 
-        $sms_template = EmailTemplate::where('default', '=', 1)
-            ->where('type', '=', 'sms')
-            ->first();
         foreach ($invoices as $invoice) {
-            if ($invoice->phone && $invoice->sms_sent_status != 'sent') {
-
-                $billing_phone = $invoice->phone;
-
-                if ($sms_template) {
-                    $billing_phone = $invoice->phone;
-                    $phones = $billing_phone;
-                    if (strpos($billing_phone, ',') !== false) {
-                        $phones = explode(",", $billing_phone);
-                    }
-                    if (strpos($billing_phone, ';') !== false) {
-                        $phones = explode(';', $billing_phone);
-                    }
-                    if (strpos($billing_phone, ':') !== false) {
-                        $phones = explode(':', $billing_phone);
-                    }
-                    if (strpos($billing_phone, ' ') !== false) {
-                        $phones = explode(' ', $billing_phone);
-                    }
-                    if (strpos($billing_phone, '/') !== false) {
-                        $phones = explode('/', $billing_phone);
-                    }
-                    $sms_message = $sms_template->body;
-                    $sms_response = null;
-                    $success = false;
-                    if (is_array($phones)) {
-                        foreach ($phones as $phone) {
-                            $pattern = "/^(09|\+959)+[0-9]+$/";
-                            if (!preg_match($pattern, $phone)) {
-                                $phone = '09' . $phone;
-                            }
-                            $email_body = $this->replaceMarkup($sms_message, $invoice->id);
-                            $sms_response = $this->sendSMS($phone, $email_body);
-                            if ($sms_response['status'] == 'success') {
-                                $client = new \GuzzleHttp\Client();
-                                $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
-                                $statusresponseBody = json_decode($status_response->getBody(), true);
-                                if ($statusresponseBody['status'] == 'Sent') {
-                                    $success = true;
-                                }
-                            }
-                        }
-                    } else {
-                        $pattern = "/^(09|\+959)+[0-9]+$/";
-                        if (!preg_match($pattern, $phones)) {
-                            $phones = '09' . $phones;
-                        }
-                        $email_body = $this->replaceMarkup($sms_message, $invoice->id);
-
-                        $sms_response = $this->sendSMS($phones, $email_body);
-                        if ($sms_response['status'] == 'success') {
-                            $client = new \GuzzleHttp\Client();
-                            $status_response = $client->request('GET', self::$sms_status_url . $sms_response['messageId'], ['headers' => self::$header]);
-                            $statusresponseBody = json_decode($status_response->getBody(), true);
-                            if ($statusresponseBody['status'] == 'Sent') {
-                                $success = true;
-                            }
-                        }
-                    }
-                    $billing_data = Invoice::find($invoice->id);
-                    $billing_data->sent_date = date('j M Y');
-                    $billing_data->sms_sent_status = ($success) ? "sent" : "error";
-                    $billing_data->update();
-                } // end of check sms template
-            } // end of check phone exists or not  
+            dispatch(new BillingSMSJob($invoice->id));
         } //end of foreach invoices
-        return redirect()->back()->with('message', 'Sent SMS Successfully.');
+        return redirect()->back()->with('message', 'SMS Sending Process Running in Background.');
     }
-    public function sanitisePhone($phone_no){
-        $phone_no = trim($phone_no);
-        $pattern_9 = "/^(9)[0-9]{7,9}$/";
-        $pattern_09 = "/^(09)[0-9]{7,9}$/";
-        $pattern_959 = "/^(959)[0-9]{7,9}$/";
-        $pattern_plus959 = "/^(\+959)[0-9]{7,9}$/";
-        $pattern_zero959 = "/^(0959)[0-9]{7,9}$/";
-        $pattern_overnum = "/^(099)[0-9]{9,12}$/";
-        $new_phone = $phone_no;
-        switch($phone_no){
-           
-            case preg_match($pattern_9, $phone_no)==true:
-               // echo 'this is 9 pattern';
-                
-                if(substr($phone_no,0,1)=='9')
-                {
-                    $new_phone= '0'.$phone_no;
-                }
-            break;
-            case preg_match($pattern_959, $phone_no)==true:
-              //  echo 'this is 959 pattern';
-                
-                if(substr($phone_no,0,3)=='959')
-                {
-                    $new_phone= '09'.substr($phone_no,3);
-                }
-            break;
-            case preg_match($pattern_plus959, $phone_no)==true:
-               // echo 'this is +959 pattern';
-                 if(substr($phone_no,0,4)=='+959')
-                {
-                    $new_phone= '09'.substr($phone_no,4);
-                }
-             case preg_match($pattern_zero959, $phone_no)==true:
-               // echo 'this is 0959 pattern';
-                 if(substr($phone_no,0,4)=='0959')
-                {
-                    $new_phone= '09'.substr($phone_no,4);
-                }
-            break;
-            case preg_match($pattern_09, $phone_no)==true:
-                $new_phone= $phone_no;
-            break;
-            case preg_match($pattern_overnum, $phone_no)==true:
-               // echo 'this is overnum pattern';
-                 if(substr($phone_no,0,3)=='099')
-                {
-                    $new_phone= '09'.substr($phone_no,3);
-                }
-            break;
-        }
-        return $new_phone;
-    }
-    
-    public function sanitiseAllPhone(){
-        $customers = Customer::all();
-        foreach ($customers as  $customer) {
-            $new_cus = Customer::find($customer->id);
-            $new_cus->phone_1 = ($customer->phone_1)?$this->checkPhoneArray($customer->phone_1):null;
-            $new_cus->phone_2 = ($customer->phone_2)?$this->checkPhoneArray($customer->phone_2):null;
-            $new_cus->save();
-        }
-    }
-    public function checkPhoneArray($cus_phone){
-     
-        $phones = $cus_phone;
-        $data = "";
-        $delimiters = array(",",";",":"," ","/");
-        $cus_phone = str_replace($delimiters,",",$cus_phone);
-         $phones = $cus_phone;
-         if (strpos($cus_phone, ',') !== false) {
-            $phones = explode(",", $cus_phone);
-         }
-              
-        if (is_array($phones)) {
-            $iter = new CachingIterator(new ArrayIterator($phones));
-          
-            foreach ($iter as $phone) {
-                $data .= $this->sanitisePhone($phone);
-                if($iter->hasNext()){
-                    $data .=",";
-                }
-            }
-        } else {
-           $data = $this->sanitisePhone($phones);
-        }
-        return $data;
-    }
-    
-    public function sendSMS($phone, $message)
+    public function sendBillReminder(Request $request)
     {
-        $postInput  =  [
-            'senderid' => self::$senderid,
-            'number' => trim($phone),
-            'message' => trim($message),
-        ];
-        //$response = Http::withHeaders($header)->post(self::$sms_post_url,$postInput );
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', self::$sms_post_url, ['form_params' => $postInput, 'headers' => self::$header]);
-        $responseBody = json_decode($response->getBody(), true);
-        sleep(1);
-        return $responseBody;
+        $receipts = ReceiptRecord::where('bill_id', '=', $request->bill_id)
+            ->select('invoice_id')
+            ->get()
+            ->toArray();
+        $invoices =  Invoice::join('customers', 'customers.id', '=', 'invoices.customer_id')
+            ->where('invoices.total_payable', '>', 0)
+            ->where(function ($query) {
+                return $query->where('customers.deleted', '=', 0)
+                    ->orwherenull('customers.deleted');
+            })
+            ->whereNotIn('invoices.id', $receipts)
+            ->where('bill_id', '=', $request->bill_id)
+            ->where(function ($query) {
+                return $query->where('invoices.reminder_sms_sent_status', '<>', 'sent')
+                    ->orwherenull('invoices.reminder_sms_sent_status');
+            })
+            ->select('invoices.*')
+            ->get();
+
+        foreach ($invoices as $invoice) {
+            dispatch(new ReminderSMSJob($invoice->id, count($invoices), Auth::id()));
+        } //end of foreach invoices
+        return redirect()->back()->with('message', 'Bill Reminder Sending Process Running in Background.');
     }
 
-    public function replaceMarkup($data, $id)
-    {
-        $invoice = Invoice::find($id);
-
-        if ($invoice) {
-            $dt = DateTime::createFromFormat('!m', $invoice->bill_month);
-            $month = $dt->format('F');
-            $bill_url = 'https://oss.marga.com.mm/s/' . $invoice->url;
-            $search = array('{{ftth_id}}', '{{bill_number}}', '{{period_covered}}', '{{month}}', '{{year}}', '{{bill_to}}', '{{attn}}', '{{usage_days}}', '{{total_payable}}', '{{payment_duedate}}', '{{url}}');
-            $replace = array($invoice->ftth_id, $invoice->bill_number, $invoice->period_covered, $month, $invoice->bill_year, $invoice->bill_to, $invoice->attn, $invoice->usage_days, $invoice->total_payable, $invoice->payment_duedate, $bill_url);
-            $replaced = str_replace($search, $replace, $data);
-            return $replaced;
-        }
-    }
     public function destroy(Request $request, $id)
     {
         if ($request->has('id')) {

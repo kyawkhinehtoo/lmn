@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 
 class EmailTemplate extends Model
@@ -14,8 +15,8 @@ class EmailTemplate extends Model
         'body',
         'cc_email',
         'type',
-        'default',
+        'default_name',
         'created_at',
         'updated_at'
-     ];
+    ];
 }

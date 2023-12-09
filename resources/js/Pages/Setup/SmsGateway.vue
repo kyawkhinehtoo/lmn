@@ -13,36 +13,56 @@
                 <div class="mb-4">
                   <label class="inline-flex">
                     <label for="status" class="text-gray-700 text-sm font-bold mt-1">ENABLE:</label>
-                    <input id="status" class="text-green-500 w-6 h-6 ml-2 focus:ring-green-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.status" />
-                    
+                    <input id="status"
+                      class="text-green-500 w-6 h-6 ml-2 focus:ring-green-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                      type="checkbox" v-model="form.status" />
+
                   </label>
                 </div>
-                 <div class="mb-4">
+                <div class="mb-4">
+                  <label for="sender_id" class="block text-gray-700 text-sm font-bold mb-2">Sender ID:</label>
+                  <input type="text"
+                    class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    id="sender_id" placeholder="Enter Sender ID" v-model="form.sender_id" />
+                  <div v-if="$page.props.errors.sender_id" class="text-red-500">{{ $page.props.errors.sender_id }}</div>
+                </div>
+                <div class="mb-4">
                   <label for="url" class="block text-gray-700 text-sm font-bold mb-2">API URL:</label>
-                  <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="url" placeholder="Enter API URL" v-model="form.api_url" />
+                  <input type="text"
+                    class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    id="url" placeholder="Enter API URL" v-model="form.api_url" />
                   <div v-if="$page.props.errors.api_url" class="text-red-500">{{ $page.props.errors.api_url }}</div>
                 </div>
                 <div class="mb-4">
                   <label for="sid" class="block text-gray-700 text-sm font-bold mb-2">API SID:</label>
-                  <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="sid" placeholder="Enter API SID" v-model="form.sid" />
+                  <input type="text"
+                    class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    id="sid" placeholder="Enter API SID" v-model="form.sid" />
                   <div v-if="$page.props.errors.sid" class="text-red-500">{{ $page.props.errors.sid }}</div>
                 </div>
                 <div class="mb-4">
                   <label for="token" class="block text-gray-700 text-sm font-bold mb-2">API TOKEN:</label>
-                  <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="token" placeholder="Enter API TOKEN" v-model="form.token" />
+                  <input type="text"
+                    class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    id="token" placeholder="Enter API TOKEN" v-model="form.token" />
                   <div v-if="$page.props.errors.token" class="text-red-500">{{ $page.props.errors.token }}</div>
                 </div>
               </div>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                <button wire:click.prevent="submit" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="!editMode">Save</button>
+                <button wire:click.prevent="submit" type="submit"
+                  class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition"
+                  v-show="!editMode">Save</button>
               </span>
               <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                <button wire:click.prevent="submit" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="editMode">Update</button>
+                <button wire:click.prevent="submit" type="submit"
+                  class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition"
+                  v-show="editMode">Update</button>
               </span>
               <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
-                <button @click="closeModal" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5">Cancel</button>
+                <button @click="closeModal" type="button"
+                  class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5">Cancel</button>
               </span>
             </div>
           </form>
@@ -72,11 +92,12 @@ export default {
     const form = reactive({
       id: null,
       status: null,
+      sender_id: null,
       api_url: null,
       sid: null,
       token: null,
     });
-   let editMode = ref(false);
+    let editMode = ref(false);
     function submit() {
       if (!editMode.value) {
         form._method = "POST";
@@ -97,7 +118,7 @@ export default {
         form._method = "PUT";
         Inertia.post("/smsgateway/" + form.id, form, {
           onSuccess: (page) => {
-              Toast.fire({
+            Toast.fire({
               icon: "success",
               title: page.props.flash.message,
             });
@@ -112,23 +133,24 @@ export default {
     function edit(data) {
       editMode.value = true;
       form.id = data.id;
-      form.status = (data.status == 1)?true:false;
+      form.sender_id = data.sender_id;
+      form.status = (data.status == 1) ? true : false;
       form.api_url = data.api_url;
       form.sid = data.sid;
       form.token = data.token;
     }
 
-   
+
     onMounted(() => {
-      if(props.gateway){
-        
+      if (props.gateway) {
+
         edit(props.gateway);
       }
     });
     onUpdated(() => {
-     
+
     });
-    return { form, submit,editMode};
+    return { form, submit, editMode };
   },
 };
 </script>

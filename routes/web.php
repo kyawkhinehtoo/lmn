@@ -30,8 +30,8 @@ use Inertia\Inertia;
 
 Route::redirect('/', '/dashboard');
 
-Route::group(['middleware'=> ['auth','role']], function(){
-	
+Route::group(['middleware' => ['auth', 'role']], function () {
+
 	Route::resource('/user', UserController::class);
 	Route::resource('/sla', SlaController::class);
 	Route::resource('/pop', PopController::class);
@@ -50,7 +50,7 @@ Route::group(['middleware'=> ['auth','role']], function(){
 	Route::resource('/role', RoleController::class);
 	Route::resource('/voip', VoipController::class);
 });
-Route::group(['middleware'=> 'auth'], function(){
+Route::group(['middleware' => 'auth'], function () {
 	Route::get('/getpackage/{id}', 'PackageController@getBundle');
 	Route::get('/incidentOverdue', 'IncidentAlertController@getOverdue');
 	Route::get('/incidentRemain', 'IncidentAlertController@getRemain');
@@ -98,7 +98,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('updateTownshipView', 'ExcelController@updateTownshipView')->name('updateTownshipView');
 	Route::post('updateContract', 'ExcelController@updateContract')->name('updateContract');
 	Route::post('updateTownship', 'ExcelController@updateTownship')->name('updateTownship');
-	
+
 	Route::post('updateTempExcel', 'ExcelController@updateTemp')->name('updateTempExcel');
 	Route::post('importPayment', 'ExcelController@importPayment')->name('importPayment');
 	Route::get('updateCustomerView', 'ExcelController@updateCustomerView')->name('updateCustomerView');
@@ -107,7 +107,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/exportBillingExcel', 'ExcelController@exportBillingExcel')->name('exportBillingExcel');
 	Route::post('/exportTempBillingExcel', 'ExcelController@exportTempBillingExcel')->name('exportTempBillingExcel');
 	Route::post('/exportRevenue', 'ExcelController@exportRevenue')->name('exportRevenue');
-	
+
 	Route::get('/billGenerator', 'BillingController@BillGenerator')->name('billGenerator');
 	Route::post('/updateTemp', 'BillingController@updateTemp')->name('updateTemp');
 	Route::post('/updateInvoice', 'BillingController@updateInvoice')->name('updateInvoice');
@@ -131,9 +131,10 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/getReceiptPDF/{id}', 'ReceiptController@makeReceiptPDF');
 	Route::post('/sendSingleEmail/{id}', 'BillingController@sendSingleEmail');
 	Route::post('/getAllPDF', 'BillingController@makeAllPDF');
-	Route::post('/sendAllEmail', 'BillingController@sendAllEmail');
+	Route::post('/sendSingleSMS/{id}', 'BillingController@sendSingleSMS');
+	Route::post('/sendAllSMS', 'BillingController@sendAllSMS');
+	Route::post('/sendBillReminder', 'BillingController@sendBillReminder');
 
-	
 	//Billing Receipt
 	Route::post('/saveReceipt', 'ReceiptController@store');
 	Route::post('/receipt/search', 'ReceiptController@show');
@@ -149,7 +150,7 @@ Route::group(['middleware'=> 'auth'], function(){
 
 	//SMS Gatweay
 	Route::resource('/smsgateway', SmsGatewayController::class);
-	
+
 	//Radius Gateway
 	Route::resource('/radiusconfig', RadiusController::class);
 	Route::get('/fillAllRadius', 'RadiusController@autofillRadius');
@@ -163,7 +164,7 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::post('/disableRadius/{id}', 'RadiusController@disableRadiusUser');
 	Route::get('/showRadius', 'RadiusController@display')->name('showRadius');
 	Route::post('/showRadius', 'RadiusController@display');
-	Route::post('/RadiusExport', 'ExcelController@exportRadiusReportExcel')->name('RadiusExport'); 
+	Route::post('/RadiusExport', 'ExcelController@exportRadiusReportExcel')->name('RadiusExport');
 	Route::post('/tempDeactivate/{id}', 'RadiusController@tempDeactivate');
 	Route::post('/tempActivate/{id}', 'RadiusController@tempActivate');
 
@@ -191,29 +192,28 @@ Route::group(['middleware'=> 'auth'], function(){
 	Route::get('/dailyreceipt/show', 'DailyReceiptController@index')->name('dailyreceipt');
 	Route::post('/exportReceipt', 'ExcelController@exportReceipt')->name('exportReceipt');
 
-	Route::get('/incidentReport','ReportController@incidentReport')->name('incidentReport');
-	Route::post('/incidentReport','ReportController@incidentReport');
-	Route::get('/getIncidentDetail/{id}/{date}','ReportController@getIncidentDetail');
+	Route::get('/incidentReport', 'ReportController@incidentReport')->name('incidentReport');
+	Route::post('/incidentReport', 'ReportController@incidentReport');
+	Route::get('/getIncidentDetail/{id}/{date}', 'ReportController@getIncidentDetail');
 	Route::post('/exportIncidentReportExcel', 'ExcelController@exportIncidentReportExcel')->name('exportIncidentReportExcel');
 
 	//Bill Configuration
 	Route::resource('/billconfig', BillingConfiguration::class);
 
 	//Utils 
-	Route::get('/sanitiseAllPhone','BillingController@sanitiseAllPhone');
+	Route::get('/sanitiseAllPhone', 'BillingController@sanitiseAllPhone');
 
 	//POPs
 	Route::get('/getPackages/{id}', 'PackageController@getPackage');
 
-	Route::resource('/publicIP',PublicIpController::class);
+	Route::resource('/publicIP', PublicIpController::class);
 
-	Route::get('/publicIpReport','ReportController@PublicIpReport')->name('publicIpReport');
-	Route::post('/publicIpReport','ReportController@PublicIpReport');
-	Route::post('/exportPublicIpReportExcel','ExcelController@exportPublicIpReportExcel')->name('exportPublicIpReportExcel');
-	Route::resource('/test',TestController::class);
-	Route::post('/doTestPDF','TestController@makeSinglePDF');
-	Route::post('/delTestPDF','TestController@destroyPDF');
-
+	Route::get('/publicIpReport', 'ReportController@PublicIpReport')->name('publicIpReport');
+	Route::post('/publicIpReport', 'ReportController@PublicIpReport');
+	Route::post('/exportPublicIpReportExcel', 'ExcelController@exportPublicIpReportExcel')->name('exportPublicIpReportExcel');
+	Route::resource('/test', TestController::class);
+	Route::post('/doTestPDF', 'TestController@makeSinglePDF');
+	Route::post('/delTestPDF', 'TestController@destroyPDF');
 });
 
 Route::get('/s/{shortURLKey}', '\AshAllenDesign\ShortURL\Controllers\ShortURLController');

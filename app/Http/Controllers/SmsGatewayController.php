@@ -20,6 +20,7 @@ class SmsGatewayController extends Controller
     public function store(Request $request)
     {
         Validator::make($request->all(), [
+            'sender_id' => ['required'],
             'status' => ['required'],
             'api_url' => ['required'],
             'sid' => ['required'],
@@ -27,6 +28,7 @@ class SmsGatewayController extends Controller
         ])->validate();
 
         $smsgateway = new SmsGateway();
+        $smsgateway->sender_id = $request->sender_id;
         $smsgateway->status = $request->status;
         $smsgateway->api_url = $request->api_url;
         $smsgateway->sid = $request->sid;
@@ -37,6 +39,7 @@ class SmsGatewayController extends Controller
     public function update(Request $request, $id)
     {
         Validator::make($request->all(), [
+            'sender_id' => ['required'],
             'status' => ['required'],
             'api_url' => ['required'],
             'sid' => ['required'],
@@ -45,6 +48,7 @@ class SmsGatewayController extends Controller
   
         if ($request->has('id')) {
             $smsgateway =  SmsGateway::find($request->input('id'));
+            $smsgateway->sender_id = $request->sender_id;
             $smsgateway->status = $request->status;
             $smsgateway->api_url = $request->api_url;
             $smsgateway->sid = $request->sid;

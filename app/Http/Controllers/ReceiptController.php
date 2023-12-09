@@ -10,19 +10,16 @@ use App\Models\Customer;
 use App\Models\ReceiptRecord;
 use App\Models\ReceiptSummery;
 use Inertia\Inertia;
-use NumberFormatter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
-use Illuminate\Support\Facades\Storage;
-use Mail;
 use DateTime;
 use DatePeriod;
 use DateInterval;
-
+use App\Traits\PdfTrait;
 class ReceiptController extends Controller
 {
+    use PdfTrait;
     public function index(Request $request)
     {
         return $this->show($request);
@@ -255,27 +252,18 @@ class ReceiptController extends Controller
               ];
         
       // dd($invoice);
-        view()->share('receipt', $receipt);
-        $pdf = PDF::loadView('receipt',$receipt,[],$options);
-
-      //  $pdf->setOptions($options);
-     // return $pdf->stream('test.pdf'); 
-     $output = $pdf->output();
-     $name = date("ymdHis").'-R'.$receipt->bill_number.".pdf";
-     $disk = Storage::disk('public');
-  
-        if ($disk->put($receipt->ftth_id.'/'.$name, $output)) {
-         
-        // Successfully stored. Return the full path.
-        $receipt->receipt_file =  $disk->path($receipt->ftth_id.'/'.$name);
-        $builder = new \AshAllenDesign\ShortURL\Classes\Builder();
         
-        $app_url = getenv('APP_URL','https://localhost:8000');
-        $shortURLObject = $builder->destinationUrl($app_url.'/storage/'.$receipt->ftth_id.'/'.$name)->make();
-        $shortURL = $shortURLObject->url_key;
-        $receipt->receipt_url = $shortURL;
+        $name = date("ymdHis").'-R'.$receipt->bill_number.".pdf";
+        $path = $receipt->ftth_id.'/'.$name;
+        $pdf = $this->createPDF($options, 'receipt',$receipt,$name,$path);
+        if ($pdf['status'] == 'success') {
+        // Successfully stored. Return the full path.
+        $receipt->receipt_file =  $pdf['disk_path'];
+        $receipt->receipt_url = $pdf['shortURL'];
         $receipt->update();
-        }
+     }
+  
+       
          // download PDF file with download method
          return redirect()->back()->with('message', 'Receipt PDF Generated Successfully.');
         

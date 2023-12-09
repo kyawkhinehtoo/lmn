@@ -10,7 +10,7 @@ class SmsGateway extends Model
     use HasFactory;
     protected $table = 'sms_gateway';
     protected $fillable = [
-        'status','sid','token','api_url', 'created_at', 'updated_at'
+       'sender_id', 'status','sid','token','api_url', 'created_at', 'updated_at'
     ];
 
 }

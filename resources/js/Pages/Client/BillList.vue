@@ -5,10 +5,12 @@
     </template>
 
     <div class="py-2">
+      <PdfGenerationProgress :progress="pdfprogress" @dismiss="dismiss" v-if="showPdfProgress" />
+      <SmsGenerationProgress :progress="smsprogress" @dismiss="dismiss" v-if="showSmsProgress" />
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex">
         <label for="name" class="block text-sm font-bold text-gray-700 w-24 mt-3">Billing List :</label>
         <select id="id" v-model="form.bill_id" name="bill_id"
-          class="ml-2 py-2.5 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          class="ml-2 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           tabindex="1" required>
           <option value="0">-Choose Package-</option>
           <option v-for="row in lists" v-bind:key="row.id" :value="row.id">{{ row.name }}</option>
@@ -19,7 +21,7 @@
           <i class="ml-1 fa fa-search text-white" tabindex="2"></i></a>
       </div>
 
-      <div class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4 flex justify-between">
+      <div class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4 flex justify-between" v-if="form.bill_id && form.bill_id != 0">
         <div class="flex">
           <a href="#" class="w-full text-right font-semibold text-xs underline mr-2" v-on:click="toggleAdv">Advance
             Search</a>
@@ -27,41 +29,67 @@
           <i class="fas fa-chevron-down text-blueGray-400" v-show="show_search"></i>
         </div>
         <div class="flex">
+          <a href="#" class="w-full text-right font-semibold text-xs underline mr-2" v-on:click="toggleCmd">Command
+            Bar</a>
+          <i class="fas fa-chevron-right text-blueGray-400" v-show="!show_command"></i>
+          <i class="fas fa-chevron-down text-blueGray-400" v-show="show_command"></i>
         </div>
+
       </div>
       <div v-show="show_search" class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4">
         <billing-search @search_parameter="goSearch" />
+      </div>
+      <div v-if="form.bill_id && form.bill_id != 0" v-show="show_command"
+        class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4 ">
+        <div class="flex gap-2 bg-white shadow sm:rounded-lg space-x-2 items-center py-2 px-2 md:px-2"
+          :class="[smsgateway.status == '1' ? 'justify-between' : 'justify-end']">
+          <div class="flex gap-2" v-if="smsgateway.status == '1'">
+            <a @click="sendAllSMS"
+              class="cursor-pointer inline-flex items-center px-2 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:border-red-700 focus:ring focus:ring-red-300 disabled:opacity-25 transition">Broadcast
+              Invoice <i class="ml-1 fa fa-sms text-white"></i></a>
+            <a @click="sendBillReminder"
+              class="cursor-pointer inline-flex items-center px-2 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-500 active:bg-red-700 focus:outline-none focus:border-yellow-700 focus:ring focus:ring-red-300 disabled:opacity-25 transition">Send
+              Bill Reminder <i class="ml-1 fa fa-sms text-white"></i></a>
+          </div>
+          <div class="flex gap-2">
+            <a @click="generateAllPDF"
+              class="cursor-pointer inline-flex items-center px-2 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">Generate
+              All PDF <i class="ml-1 fa fa-file-pdf text-white"></i></a>
+
+            <a @click="createPrepaid"
+              class="cursor-pointer inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition">Add
+              New Invoice <i class="ml-1 fa fa-plus-square text-white"></i></a>
+            <a @click="doExcel"
+              class="cursor-pointer inline-flex items-center px-2 py-2 bg-green-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">Export
+              <i class="ml-1 fa fa-download text-white"></i></a>
+          </div>
+
+
+
+
+
+        </div>
       </div>
       <div v-if="billings" class="max-w-full mx-auto sm:px-6 lg:px-8 mt-4">
         <div class="px-3 py-1 items-center bg-white rounded-md mb-2 shadow-sm flex justify-between w-full ">
           <div class="flex pt-1 w-full">
             <div class="relative w-full">
               <label class="text-xs">{{ paid_percent }}% Percentage of {{ (paid) ? new Intl.NumberFormat('en-US', {
-                  maximumSignificantDigits: 8
-                }).format(paid) : 0
+                maximumSignificantDigits: 8
+              }).format(paid) : 0
               }} BAHT in {{ new Intl.NumberFormat('en-US', {
-    maximumSignificantDigits: 8
-  }).format(receivable)
+  maximumSignificantDigits: 8
+}).format(receivable)
 }} BAHT</label>
-              <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-lightBlue-200">
+              <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-lightBlue-200 z-10">
                 <div :style="`width: ${paid_percent}%`"
-                  class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-lightBlue-500 ">
+                  class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-lightBlue-500 z-10">
                 </div>
 
               </div>
             </div>
           </div>
-          <div class="flex w-full justify-end gap-4">
-            <!-- <a @click="generateAllPDF" class="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-300 disabled:opacity-25 transition">Generate All PDF <i class="ml-1 fa fa-file-pdf text-white"></i></a>
-          <a @click="sendAllSMS" class="cursor-pointer inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-500 active:bg-yellow-700 focus:outline-none focus:border-yellow-700 focus:ring focus:ring-yellow-300 disabled:opacity-25 transition">Send SMS to All <i class="ml-1 fa fa-sms text-white"></i></a> -->
 
-            <a @click="createPrepaid"
-              class="cursor-pointer inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition">Add
-              New Invoice <i class="ml-1 fa fa-plus-square text-white"></i></a>
-            <a @click="doExcel"
-              class="cursor-pointer inline-flex items-center px-4 py-2 bg-green-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">Export
-              Excel <i class="ml-1 fa fa-download text-white"></i></a>
-          </div>
         </div>
         <div class="bg-white overflow-auto shadow-xl sm:rounded-lg" v-if="billings.data">
           <table class="min-w-full divide-y divide-gray-200">
@@ -76,12 +104,10 @@
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Package</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  BW</th>
-                <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Usage</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total</th>
-                
+
                 <!--
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Deliver SMS</th>
@@ -93,6 +119,8 @@
                   <i class="fa fa-print"></i> Invoice
                 </th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Invoice Delivery</th>
+                <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt</th>
                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Receipt Status</th>
@@ -103,30 +131,34 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="(row, index) in billings.data" v-bind:key="row.id">
+              <tr v-for="(row, index) in  billings.data " v-bind:key="row.id">
                 <td class="pl-4 px-2 py-3 text-xs whitespace-nowrap">{{ (index += billings.from) }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.bill_number }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.ftth_id }}</td>
-                <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.service_description }}</td>
-                <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.qty }}</td>
+                <td class="px-2 py-3 text-xs whitespace-nowrap">{{ (row.service_description !== row.qty) ?
+                  row.service_description + `(${row.qty})` : row.service_description }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.usage_days }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.total_payable }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.total_payable > 0">
-                    <span v-if="row.invoice_file"><a :href="'/s/' + row.invoice_url">Download</a></span><span v-else><button
-                        type="button" @click="generatePDF(row.id)"
+                    <span v-if="row.invoice_file"><a :href="'/s/' + row.invoice_url">Download</a></span><span
+                      v-else><button type="button" @click="generatePDF(row.id)"
                         class="h-8 text-md w-24 bg-blue-600 rounded text-white hover:bg-blue-700">Make PDF</button></span>
                   </span>
                 </td>
-               
-                <!--
+
+
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.total_payable > 0">
-                    <span v-if="row.status">{{ row.status }}</span><span v-else><button type="button"
-                        @click="sendSMS(row.id)"
-                        class="h-8 text-md w-20 bg-yellow-600 rounded text-white hover:bg-yellow-700">Send</button></span>
+                    <span v-if="row.sms_sent_status">{{ row.sent_date }}</span><span v-else>
+                      <span v-if="smsgateway.status == '1' && row.invoice_file">
+                        <button type="button" @click="sendSMS(row.id)"
+                          class="h-8 text-md w-20 bg-red-600 rounded text-white hover:bg-red-700">Send</button>
+                      </span>
+                    </span>
                   </span>
                 </td>
+                <!--
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.sent_date ? row.sent_date : "None" }}</td>
                   -->
                 <!-- <td class="px-2 py-3 text-xs whitespace-nowrap"><a :href="`/pdfpreview2/${row.id}`" target="_blank"><i class="fa fas fa-eye text-gray-400"></i></a></td> -->
@@ -140,12 +172,12 @@
                     Receipt</button>
                 </td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap capitalize">{{
-                    (row.receipt_status) ? row.receipt_status.replace('_', ' ') : ''
+                  (row.receipt_status) ? row.receipt_status.replace('_', ' ') : ''
                 }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.receipt_status">
-                    <span v-if="row.receipt_file"><a :href="'/s/' + row.receipt_url">Download</a></span><span v-else><button
-                        type="button" @click="generateReceiptPDF(row.receipt_id)"
+                    <span v-if="row.receipt_file"><a :href="'/s/' + row.receipt_url">Download</a></span><span
+                      v-else><button type="button" @click="generateReceiptPDF(row.receipt_id)"
                         class="h-8 text-md w-24 bg-blue-600 rounded text-white hover:bg-blue-700">Make PDF</button></span>
                   </span>
                 </td>
@@ -190,10 +222,10 @@
           <form @submit.prevent="submit">
             <div class="shadow overflow-hidden border-b border-gray-200 p-4">
               <p v-show="$page.props.errors.receipt_date" class="mt-2 text-sm text-red-500 block">{{
-                  $page.props.errors.receipt_date
+                $page.props.errors.receipt_date
               }}</p>
               <p v-show="$page.props.errors.collected_amount" class="mt-2 text-sm text-red-500 block">{{
-                  $page.props.errors.collected_amount
+                $page.props.errors.collected_amount
               }}</p>
               <div class="grid grid-cols-1 md:grid-cols-4 w-full">
 
@@ -239,7 +271,7 @@
                 </div>
                 <div class="py-4 col-span-3 sm:col-span-3 border-2 border-marga text-center flex flex-col">
                   <span class="font-semibold text-md">Amount In Word:</span> <span class="text-sm"> {{
-                      form.amount_in_word
+                    form.amount_in_word
                   }}</span>
                 </div>
               </div>
@@ -249,8 +281,8 @@
                   <label class="block mt-2">Received Amount</label>
                 </div>
                 <div class="col-span-1 sm:col-span-1 border-b-2 border-marga"><input type="text"
-                    class="py-2 px-0 inline-flex sm:text-sm border-0 focus:ring-0 w-full"
-                    v-model="form.collected_amount" @change="calc" /></div>
+                    class="py-2 px-0 inline-flex sm:text-sm border-0 focus:ring-0 w-full" v-model="form.collected_amount"
+                    @change="calc" /></div>
 
                 <div class="col-span-1 sm:col-span-1">
                   <label class="block mt-2">Payment Channel</label>
@@ -264,8 +296,8 @@
                         class="form-radio h-5 w-5 text-blue-700" name="type" v-model="form.type" value="kbz_pay" /><span
                         class="ml-2 text-gray-700 text-xs font-semibold">KPay</span> </label>
                     <label class="flex-auto items-center mt-1"> <input type="radio"
-                        class="form-radio h-5 w-5 text-blue-700" name="type" v-model="form.type"
-                        value="quick_pay" /><span class="ml-2 text-gray-700 text-xs font-semibold">KBZ Quickpay</span>
+                        class="form-radio h-5 w-5 text-blue-700" name="type" v-model="form.type" value="quick_pay" /><span
+                        class="ml-2 text-gray-700 text-xs font-semibold">KBZ Quickpay</span>
                     </label>
                     <label class="flex-auto items-center mt-1"> <input type="radio"
                         class="form-radio h-5 w-5 text-red-600" name="type" v-model="form.type" value="aya_pay" /><span
@@ -351,8 +383,8 @@
           role="dialog" aria-modal="true" aria-labelledby="modal-headline">
 
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 shadow sm:rounded-lg">
-            <h6 class="md:min-w-full text-indigo-700 text-sm uppercase font-bold block pt-1 no-underline"
-              v-if="editMode">Billing Detail Information</h6>
+            <h6 class="md:min-w-full text-indigo-700 text-sm uppercase font-bold block pt-1 no-underline" v-if="editMode">
+              Billing Detail Information</h6>
             <h6 class="md:min-w-full text-indigo-700 text-sm uppercase font-bold block pt-1 no-underline" v-else>Create
               Invoice</h6>
 
@@ -377,7 +409,7 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="customer_status" v-model="form_2.customer_status" />
                 <div v-if="$page.props.errors.customer_status" class="text-red-500">{{
-                    $page.props.errors.customer_status
+                  $page.props.errors.customer_status
                 }}</div>
               </div>
               <div class="mb-4 md:col-span-1">
@@ -396,8 +428,8 @@
                 <input type="text"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="ftth_id" placeholder="Enter Customer ID" v-model="form_2.ftth_id" disabled v-if="editMode" />
-                <multiselect deselect-label="Selected already" :options="prepaid_customers" track-by="id"
-                  label="ftth_id" v-model="form_2.ftth_id" :allow-empty="true" v-else @select="updateData" />
+                <multiselect deselect-label="Selected already" :options="prepaid_customers" track-by="id" label="ftth_id"
+                  v-model="form_2.ftth_id" :allow-empty="true" v-else @select="updateData" />
                 <div v-if="$page.props.errors.ftth_id" class="text-red-500">{{ $page.props.errors.ftth_id }}</div>
               </div>
             </div>
@@ -417,7 +449,7 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="payment_duedate" placeholder="Enter Payment Due Date" v-model="form_2.payment_duedate" />
                 <div v-if="$page.props.errors.payment_duedate" class="text-red-500">{{
-                    $page.props.errors.payment_duedate
+                  $page.props.errors.payment_duedate
                 }}</div>
 
                 <!-- <label for="end_date" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Last End Date
@@ -489,13 +521,13 @@
                 <div class="flex justify-between ">
                   <input type="number"
                     class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                    id="usage_d" v-model="form_2.usage_d" @change="updateUsage" />
+                    id="usage_d" v-model="form_2.usage_d" @input="updateUsage" />
                   <span
                     class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                     Days </span>
                   <input type="number"
                     class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                    id="usage_mo" v-model="form_2.usage_mo" @change="updateUsage"/>
+                    id="usage_mo" v-model="form_2.usage_mo" @input="updateUsage" />
                   <span
                     class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                     Months </span>
@@ -543,7 +575,7 @@
                   id="previous_balance" placeholder="Enter Previous Balance" v-model="form_2.previous_balance"
                   @change="form2_calc" />
                 <div v-if="$page.props.errors.previous_balance" class="text-red-500">{{
-                    $page.props.errors.previous_balance
+                  $page.props.errors.previous_balance
                 }}</div>
 
                 <label for="current_charge" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Current Charge
@@ -575,8 +607,7 @@
                 <label for="compensation" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Compensation :</label>
                 <input type="number"
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                  id="compensation" placeholder="Enter Compensation" v-model="form_2.compensation"
-                  @change="form2_calc" />
+                  id="compensation" placeholder="Enter Compensation" v-model="form_2.compensation" @change="form2_calc" />
                 <div v-if="$page.props.errors.compensation" class="text-red-500">{{ $page.props.errors.compensation }}
                 </div>
 
@@ -638,7 +669,11 @@ import { Inertia } from "@inertiajs/inertia";
 import Multiselect from "@suadelabs/vue3-multiselect";
 import Pagination from "@/Components/Pagination";
 import BillingSearch from "@/Components/BillingSearch";
+import PdfGenerationProgress from "@/Components/PdfGenerationProgress";
+import SmsGenerationProgress from "@/Components/SmsGenerationProgress";
 import LitepieDatepicker from "litepie-datepicker";
+
+import Echo from "laravel-echo";
 export default {
   name: "BillList",
   components: {
@@ -647,6 +682,9 @@ export default {
     BillingSearch,
     Multiselect,
     LitepieDatepicker,
+    SmsGenerationProgress,
+    PdfGenerationProgress,
+
   },
   props: {
     lists: Object,
@@ -661,12 +699,13 @@ export default {
     roles: Object,
     max_receipt: Object,
     prepaid_customers: Object,
-    receivable: Object,
-    paid: Object,
+    receivable: String,
+    paid: Number,
     current_bill: Object,
     last_invoices: Object,
     package_speed: Object,
     package_type: Object,
+    smsgateway: Object,
   },
   setup(props) {
     provide("packages", props.packages);
@@ -675,11 +714,16 @@ export default {
     provide("status", props.status);
     provide("package_speed", props.package_speed);
     provide("package_type", props.package_type);
+    //Pusher.logToConsole = true;
+    const pdfprogress = ref(0);
+    const smsprogress = ref(0);
+
     const formatter = ref({
       date: "YYYY-MM-DD",
       month: "MMM",
     });
     let show_search = ref(false);
+    let show_command = ref(false);
     let loading = ref(false);
     let parameter = ref("");
     let isOpen = ref(false);
@@ -690,6 +734,9 @@ export default {
     let receipt_number = ref(0);
     const paid_percent = ref(0);
     let disable_submit = ref(false);
+
+    const showPdfProgress = ref(false);
+    const showSmsProgress = ref(false);
     const form = reactive({
       id: null,
       bill_id: (props.current_bill) ? props.current_bill['id'] : null,
@@ -787,14 +834,15 @@ export default {
       let end_date = null;
       let last_invoice;
       last_invoice = props.last_invoices.filter((d) => d.customer_id == data.customer_id)[0];
-      
-        if (typeof last_invoice == 'object' ) {
-          
-          if (last_invoice.period_covered.indexOf(' to ') !== false) {
-            let t_date = last_invoice.period_covered.split(" to ");
-            end_date = t_date[1];
-          }
+
+      if (typeof last_invoice == 'object') {
+
+        if (last_invoice.period_covered.indexOf(' to ') !== false) {
+          let t_date = last_invoice.period_covered.split(" to ");
+          end_date = t_date[1];
+        }
       }
+      updateDateMonth(data.usage_days);
       form_2.id = data.id;
       form_2.bill_id = data.bill_id;
       form_2.customer_id = data.customer_id;
@@ -812,10 +860,12 @@ export default {
       form_2.payment_duedate = data.payment_duedate;
       form_2.service_description = data.service_description;
       form_2.qty = data.qty;
-      form_2.usage_days = (data.usage_days)?data.usage_days:'0 Month';
+      form_2.usage_days = (data.usage_days == 'undefined') ? '1 Month' : data.usage_days;
+
+
       form_2.tax = data.tax;
       form_2.normal_cost = data.normal_cost;
-      form_2.type = (data.type)?data.type:'MRC';
+      form_2.type = (data.type) ? data.type : 'MRC';
       form_2.total_payable = data.total_payable;
       form_2.discount = data.discount;
       form_2.email = data.email;
@@ -825,24 +875,7 @@ export default {
       form_2.package = props.packages.filter((d) => d.name == data.service_description)[0];
       form_2.end_date = end_date;
       var result = form_2.usage_days.indexOf(' and ');
-      if (result !== -1) {
-        var usage = form_2.usage_days.split(' and ');
-        var day = usage[1].match(/\d/g)[0];
-        var month = usage[0].match(/\d/g)[0];
-        form_2.usage_d = parseInt(day);
-        form_2.usage_mo = parseInt(month);
-      } else {
-        if (form_2.usage_days.indexOf('Day') !== -1) {
-          var day = form_2.usage_days.match(/\d/g)[0];
-          form_2.usage_d = parseInt(day);
-          form_2.usage_mo = null;
-        } else {
-          var month = form_2.usage_days.match(/\d/g)[0];
-          form_2.usage_d = null;
-          form_2.usage_mo = parseInt(month);
-        }
-      }
-      form_2.public_ip = (data.public_ip)?data.public_ip:0;
+      form_2.public_ip = (data.public_ip) ? data.public_ip : 0;
       editMode.value = true;
       openEdit();
     }
@@ -855,13 +888,13 @@ export default {
       let end_date = null;
       let last_invoice;
       last_invoice = props.last_invoices.filter((d) => d.customer_id == option.id)[0];
-      
-        if (typeof last_invoice == 'object' ) {
-          
-          if (last_invoice.period_covered.indexOf(' to ') !== false) {
-            let t_date = last_invoice.period_covered.split(" to ");
-            end_date = t_date[1];
-          }
+
+      if (typeof last_invoice == 'object') {
+
+        if (last_invoice.period_covered.indexOf(' to ') !== false) {
+          let t_date = last_invoice.period_covered.split(" to ");
+          end_date = t_date[1];
+        }
       }
       form_2.customer_id = option.id;
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
@@ -876,7 +909,7 @@ export default {
       form_2.current_charge = option.package_price * option.prepaid_period;
       form_2.compensation = 0;
       form_2.otc = 0;
-      form_2.public_ip = (option.public_ip)?option.public_ip:0;
+      form_2.public_ip = (option.public_ip) ? option.public_ip : 0;
       form_2.package = props.packages.filter((d) => d.name == option.package_name)[0];
       //form_2.sub_total = data.sub_total;
       //form_2.payment_duedate = data.payment_duedate;
@@ -906,18 +939,13 @@ export default {
       var dt = new Date();
       var month = dt.getMonth();
       var year = dt.getFullYear();
-      var daysInMonth = 30;
-      var dailyCost = (form_2.normal_cost) ? form_2.normal_cost / daysInMonth : 0;
-      var dailyCost = dailyCost.toFixed(2);
-      console.log("Daily Cost : " + dailyCost);
-      // var daysInMonth = new Date(year, month, 0).getDate();
-      form_2.usage_days = (form_2.usage_mo) ? form_2.usage_mo + ' Months' : '';
-      form_2.usage_days += (form_2.usage_d) ? ' and ' + form_2.usage_d + ' Days' : '';
-      let daycount = (form_2.usage_d) ? dailyCost * form_2.usage_d : 0;
-      let monthcount = (form_2.usage_mo) ? form_2.usage_mo * form_2.normal_cost : 0;
-      let current_charge = daycount + monthcount;
-      form_2.current_charge = current_charge.toFixed(2);
-      console.log("current charges : " + form_2.current_charge)
+      var daysInMonth = new Date(year, month, 0).getDate();
+      form_2.usage_days = form_2.usage_mo ? form_2.usage_mo + " Months" : "";
+      form_2.usage_days += (form_2.usage_mo && form_2.usage_d) ? " and " : "";
+      form_2.usage_days += form_2.usage_d ? " " + form_2.usage_d + " Days" : "";
+      let daycount = form_2.usage_d ? (form_2.normal_cost / daysInMonth) * form_2.usage_d : 0;
+      let monthcount = form_2.usage_mo ? form_2.usage_mo * form_2.normal_cost : 0;
+      form_2.current_charge = Math.round(daycount + monthcount);
       form2_calc();
     }
     function resetEdit() {
@@ -1013,7 +1041,11 @@ export default {
     };
     const toggleAdv = () => {
       show_search.value = !show_search.value;
-      console.log(props.route);
+      //console.log(props.route);
+    };
+    const toggleCmd = () => {
+      show_command.value = !show_command.value;
+
     };
 
     function view() {
@@ -1054,7 +1086,7 @@ export default {
           console.log("error ..".errors);
         },
         onStart: (pending) => {
-          console.log("Loading .." + pending);
+
           loading.value = true;
         },
       });
@@ -1074,7 +1106,7 @@ export default {
           console.log("error ..".errors);
         },
         onStart: (pending) => {
-          console.log("Loading .." + pending);
+
           loading.value = true;
         },
       });
@@ -1094,12 +1126,13 @@ export default {
           console.log("error ..".errors);
         },
         onStart: (pending) => {
-          console.log("Loading .." + pending);
+
           loading.value = true;
         },
       });
     }
     function sendSMS(data) {
+
       Inertia.post("/sendSingleSMS/" + data, data, {
         preserveState: true,
         onSuccess: (page) => {
@@ -1114,7 +1147,7 @@ export default {
           console.log("error ..".errors);
         },
         onStart: (pending) => {
-          console.log("Loading .." + pending);
+
         },
       });
     }
@@ -1134,7 +1167,28 @@ export default {
           console.log("error ..".errors);
         },
         onStart: (pending) => {
-          console.log("Loading .." + pending);
+
+          loading.value = true;
+        },
+      });
+    }
+    function sendBillReminder() {
+      let data = parameter.value;
+      Inertia.post("/sendBillReminder", data, {
+        preserveState: true,
+        onSuccess: (page) => {
+          loading.value = false;
+          Toast.fire({
+            icon: "success",
+            title: page.props.flash.message,
+          });
+        },
+        onError: (errors) => {
+          closeModal();
+          console.log("error ..".errors);
+        },
+        onStart: (pending) => {
+
           loading.value = true;
         },
       });
@@ -1244,7 +1298,7 @@ export default {
 
     }
     function calTax() {
-      let sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip)  - parseInt(form_2.compensation);
+      let sub_total = parseInt(form_2.previous_balance) + parseInt(form_2.current_charge) + parseInt(form_2.otc) + parseInt(form_2.public_ip) - parseInt(form_2.compensation);
       form_2.sub_total = sub_total.toFixed(2);
       form_2.tax = (parseInt(form_2.sub_total) / 100) * 5;
       form_2.tax = form_2.tax.toFixed(2);
@@ -1255,7 +1309,7 @@ export default {
       form_2.sub_total = sub_total.toFixed(2);
       let total_payable = parseInt(form_2.sub_total) - parseInt(form_2.discount);
       if (form_2.tax) {
-          total_payable = parseInt(form_2.total_payable) + parseInt(form_2.tax);
+        total_payable = parseInt(form_2.total_payable) + parseInt(form_2.tax);
       }
       form_2.total_payable = total_payable.toFixed(2);
     }
@@ -1277,32 +1331,112 @@ export default {
         paid_percent.value = 0;
       }
     }
+    const dismiss = (e) => {
+
+      if (e) {
+
+        showPdfProgress.value = !e;
+        showSmsProgress.value = !e;
+      }
+    };
+
+    function updateDateMonth(str) {
+
+      let matches = str.match(/(\d+)\s*Months?\s*(?:and\s*(\d+)\s*Days?)?/i);
+      let matches_2 = str.match(/(?:(\d+)\s*Months?\s*and\s*?)?(\d+)\s*Day?/i);
+
+      if (matches) {
+        console.log(matches);
+        const [, months, days] = matches.map(match => (match ? parseInt(match, 10) : 0));
+
+        if (months > 0) {
+          form_2.usage_mo = months;
+        }
+
+        if (days > 0) {
+          form_2.usage_d = days;
+        }
+      } else if (matches_2) {
+        const [days] = matches_2.map(match => (match ? parseInt(match, 10) : 0));
+        console.log(matches_2);
+        if (days > 0) {
+          form_2.usage_d = days;
+        }
+      } else {
+        console.error("No numeric values followed by 'Months' or 'Days' found in the string.");
+      }
+
+    }
     onMounted(() => {
-      console.log(props.packages);
+      console.log("Hey I am mount3ed");
+      //  console.log(props.packages);
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name} ${x.site_name}`);
       });
       props.package_speed.map(function (x) {
         return (x.item_data = `${x.speed} Mbps - ${x.type.toUpperCase()}`);
       });
-      
-    //   if (typeof   props.billings == 'object' ) {
-    //   props.billings.data.map(function (x) {
-    //     let end_date = null;
-    //     let last_invoice;
-    //     last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
-    //    // if (last_invoice.period_covered) {
-    //     if (typeof last_invoice == 'object' ) {
-    //       console.log(last_invoice);
-    //       if (last_invoice.period_covered.indexOf(' to ') !== false) {
-    //         let t_date = last_invoice.period_covered.split(" to ");
-    //         end_date = t_date[1];
-    //       }
-    //     }
-    //     return x.end_date = end_date;
-    //   });
-    // }
-    //if (typeof   props.prepaid_customers == 'object' ) {
+      // window.Echo.channel("pdf-generation").listen("PdfGenerationProgress", (event) => {
+      //   console.log("PdfGenerationProgress : " + event.progress);
+      //   progress.value = event.progress;
+
+      // });
+      window.Echo.channel('pdfprogressbar')
+        .listen('.pdfgen', (e) => {
+
+          pdfprogress.value = e.progress;
+          if (typeof props.billings == 'object') {
+            props.billings.data.map(function (x) {
+              if (x.id == e.invoice_id) {
+                x.invoice_file = e.invoice_file;
+                x.invoice_url = e.invoice_url;
+              }
+            });
+          }
+          if (pdfprogress.value > 0) {
+            showPdfProgress.value = true;
+          }
+        });
+
+      window.Echo.channel('smsprogressbar')
+        .listen('.billsms', (e) => {
+          smsprogress.value = e.progress;
+          if (typeof props.billings == 'object') {
+            props.billings.data.map(function (x) {
+              if (x.id == e.invoice_id) {
+                const date = new Date();
+                const options = { day: 'numeric', month: 'short', year: 'numeric' };
+                const formattedDate = date.toLocaleDateString('en-UK', options);
+                x.sms_sent_status = 'sent';
+                return x.sent_date = formattedDate;
+              }
+            });
+          }
+
+          if (smsprogress.value > 0) {
+            showSmsProgress.value = true;
+          }
+        });
+
+      console.log("Now it is listening");
+
+      //   if (typeof   props.billings == 'object' ) {
+      //   props.billings.data.map(function (x) {
+      //     let end_date = null;
+      //     let last_invoice;
+      //     last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+      //    // if (last_invoice.period_covered) {
+      //     if (typeof last_invoice == 'object' ) {
+      //       console.log(last_invoice);
+      //       if (last_invoice.period_covered.indexOf(' to ') !== false) {
+      //         let t_date = last_invoice.period_covered.split(" to ");
+      //         end_date = t_date[1];
+      //       }
+      //     }
+      //     return x.end_date = end_date;
+      //   });
+      // }
+      //if (typeof   props.prepaid_customers == 'object' ) {
       // props.prepaid_customers.map(function (x) {
       //   let end_date = null;
       //   let last_invoice;
@@ -1316,8 +1450,8 @@ export default {
       //   }
       //   return x.end_date = end_date;
       // });
-      
-  //  }
+
+      //  }
       invoiceEdit.value = checkEdit();
       cal_percent();
       let bill_id = (props.current_bill) ? props.current_bill['id'] : null;
@@ -1334,37 +1468,39 @@ export default {
       props.package_speed.map(function (x) {
         return (x.item_data = `${x.speed} Mbps - ${x.type.toUpperCase()}`);
       });
-//  if (typeof   props.billings == 'object' ) {
-//       props.billings.data.map(function (x) {
-//         let end_date = null;
-//         let last_invoice;
-//         last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
-//        // if (last_invoice.period_covered) {
-//         if (typeof last_invoice == 'object' ) {
-//           console.log(last_invoice);
-//           if (last_invoice.period_covered.indexOf(' to ') !== false) {
-//             let t_date = last_invoice.period_covered.split(" to ");
-//             end_date = t_date[1];
-//           }
-//         }
-//         return x.end_date = end_date;
-//       });
-//     }
-    // if (typeof   props.prepaid_customers == 'object' ) {
-    //   props.prepaid_customers.map(function (x) {
-    //     let end_date = null;
-    //     let last_invoice;
-    //      last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
-    //      if (typeof last_invoice == 'object' ) {
-    //       console.log(last_invoice);
-    //       if (last_invoice.period_covered.indexOf(' to ') !== false) {
-    //         let t_date = last_invoice.period_covered.split(" to ");
-    //         end_date = t_date[1];
-    //       }
-    //     }
-    //     return x.end_date = end_date;
-    //   });
-    // }
+
+
+      //  if (typeof   props.billings == 'object' ) {
+      //       props.billings.data.map(function (x) {
+      //         let end_date = null;
+      //         let last_invoice;
+      //         last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+      //        // if (last_invoice.period_covered) {
+      //         if (typeof last_invoice == 'object' ) {
+      //           console.log(last_invoice);
+      //           if (last_invoice.period_covered.indexOf(' to ') !== false) {
+      //             let t_date = last_invoice.period_covered.split(" to ");
+      //             end_date = t_date[1];
+      //           }
+      //         }
+      //         return x.end_date = end_date;
+      //       });
+      //     }
+      // if (typeof   props.prepaid_customers == 'object' ) {
+      //   props.prepaid_customers.map(function (x) {
+      //     let end_date = null;
+      //     let last_invoice;
+      //      last_invoice = props.last_invoices.filter((d) => d.customer_id == x.customer_id)[0];
+      //      if (typeof last_invoice == 'object' ) {
+      //       console.log(last_invoice);
+      //       if (last_invoice.period_covered.indexOf(' to ') !== false) {
+      //         let t_date = last_invoice.period_covered.split(" to ");
+      //         end_date = t_date[1];
+      //       }
+      //     }
+      //     return x.end_date = end_date;
+      //   });
+      // }
       invoiceEdit.value = checkEdit();
       cal_percent();
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
@@ -1376,7 +1512,7 @@ export default {
         parameter.value = parm;
       }
     });
-    return { form, form_2, formatter, view, show_search, toggleAdv, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage, disable_submit, updatePackage };
+    return { form, form_2, formatter, view, show_search, show_command, toggleAdv, toggleCmd, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage, disable_submit, updatePackage, pdfprogress, smsprogress, dismiss, showPdfProgress, showSmsProgress, sendBillReminder };
   },
 };
 </script>
