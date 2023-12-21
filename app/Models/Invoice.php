@@ -52,6 +52,7 @@ class Invoice extends Model
         'bill_year',
         'reminder_sms_sent_status',
         'reminder_sms_sent_date',
+        'popsite_id',
         'created_at',
         'updated_at'
 

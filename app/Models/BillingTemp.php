@@ -15,10 +15,10 @@ class BillingTemp extends Model
      * @var array
      */
     protected $fillable = [
-        'period_covered', 
-        'bill_number', 
-        'customer_id', 
-        'ftth_id', 
+        'period_covered',
+        'bill_number',
+        'customer_id',
+        'ftth_id',
         'date_issued',
         'bill_to',
         'attn',
@@ -44,8 +44,9 @@ class BillingTemp extends Model
         'file',
         'bill_month',
         'bill_year',
+        'popsite_id',
         'created_at',
         'updated_at'
-        
+
     ];
 }

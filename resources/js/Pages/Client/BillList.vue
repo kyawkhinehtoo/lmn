@@ -831,6 +831,7 @@ export default {
     });
     function edit_invoice(data) {
 
+
       let end_date = null;
       let last_invoice;
       last_invoice = props.last_invoices.filter((d) => d.customer_id == data.customer_id)[0];
@@ -872,7 +873,8 @@ export default {
       form_2.phone = data.phone;
       form_2.reset_receipt = data.reset_receipt;
       form_2.receipt_id = data.receipt_id;
-      form_2.package = props.packages.filter((d) => d.name == data.service_description)[0];
+
+      form_2.package = props.packages.filter((d) => (d.name == data.service_description && d.pop_id == data.pop_id))[0];
       form_2.end_date = end_date;
       var result = form_2.usage_days.indexOf(' and ');
       form_2.public_ip = (data.public_ip) ? data.public_ip : 0;
@@ -896,6 +898,7 @@ export default {
           end_date = t_date[1];
         }
       }
+
       form_2.customer_id = option.id;
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
       //form_2.period_covered = data.period_covered;

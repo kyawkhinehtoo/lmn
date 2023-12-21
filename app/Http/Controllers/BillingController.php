@@ -102,6 +102,7 @@ class BillingController extends Controller
                 'packages.type as type',
                 'packages.speed as speed',
                 'packages.price as price',
+                'packages.pop_id as pop_id',
                 'packages.currency as currency',
                 'status.name as status'
             )
@@ -208,6 +209,7 @@ class BillingController extends Controller
                     $billing->sub_total = $total_cost;
                     $billing->payment_duedate = $request->due_date;
                     $billing->service_description = $value->package;
+                    $billing->popsite_id = $value->pop_id;
                     $billing->qty = $value->speed . " Mbps";
                     $billing->usage_days = $billing_day;
                     $billing->customer_status = $value->status;
@@ -480,7 +482,10 @@ class BillingController extends Controller
             $invoice->otc = $request->otc;
             $invoice->sub_total = $request->sub_total;
             $invoice->payment_duedate = $request->payment_duedate;
+
             $invoice->service_description = $request->service_description;
+            $invoice->popsite_id = $request->package['pop_id'];
+
             $invoice->qty = $request->qty;
             $invoice->usage_days = $request->usage_days;
             $invoice->normal_cost = $request->normal_cost;
@@ -490,6 +495,7 @@ class BillingController extends Controller
             $invoice->total_payable = $request->total_payable;
             $invoice->discount = $request->discount;
             $invoice->phone = $request->phone;
+
             if ($request->reset_email) {
                 $invoice->sent_date = null;
                 $invoice->mail_sent_status = null;
@@ -650,7 +656,7 @@ class BillingController extends Controller
         $invoice->bill_id = $request->bill_id;
         $invoice->invoice_number = ($max_invoice_id) ? ($max_invoice_id->max_invoice_number + 1) : 1;
         $invoice->period_covered = $request->period_covered;
-        $invoice->bill_number = $bill->bill_number . '-' . $request->ftth_id['ftth_id'];
+        $invoice->bill_number = $bill->bill_number;
         $invoice->ftth_id = $request->ftth_id['ftth_id'];
         $invoice->date_issued = $request->date_issued;
         $invoice->bill_to = $request->bill_to;
@@ -675,6 +681,7 @@ class BillingController extends Controller
         $invoice->customer_status = $customer_status->status_name;
         $invoice->bill_month = $bill->bill_month;
         $invoice->bill_year = $bill->bill_year;
+        $invoice->popsite_id = $request->package['pop_id'];
         $invoice->amount_in_word = 'Amount in words: ' . ucwords($inWords->format($request->total_payable));
         $invoice->commercial_tax = "The Prices are inclusive of Commerial Tax (5%)";
         $invoice->save();
@@ -795,6 +802,7 @@ class BillingController extends Controller
                     $billing->sub_total = $value->sub_total;
                     $billing->payment_duedate = $value->payment_duedate;
                     $billing->service_description = $value->service_description;
+                    $billing->popsite_id = $value->popsite_id;
                     $billing->qty = $value->qty;
                     $billing->usage_days = $value->usage_days;
                     $billing->customer_status = $value->customer_status;
@@ -830,7 +838,7 @@ class BillingController extends Controller
             $packages =  Package::join('pops', 'pops.id', '=', 'packages.pop_id')
                 ->select('packages.*', 'pops.site_name')
                 ->orderBy('price', 'ASC')->get();
-            $package_speed =  Package::select('speed', 'type')
+            $package_speed =  Package::select('id', 'speed', 'type', 'price')
                 ->groupBy('speed', 'type')
                 ->orderBy('speed', 'ASC')->get();
             $package_type = Package::select('type')
@@ -981,6 +989,7 @@ class BillingController extends Controller
                     'invoices.tax as tax',
                     'invoices.public_ip as public_ip',
                     'invoices.phone as phone',
+                    'invoices.popsite_id as pop_id',
                     'invoices.sms_sent_status as sms_sent_status',
                     'receipt_records.collected_currency as currency',
                     'receipt_records.id as receipt_id',

@@ -17,13 +17,13 @@ class DashboardController extends Controller
     {
 
         $all_customers = DB::table('customers')
-        ->join('status', 'customers.status_id', '=', 'status.id')
-        ->whereNotIn('status.type', ['cancel'])
-        ->where(function ($query) {
-            return $query->where('customers.deleted', '=', 0)
-                ->orwherenull('customers.deleted');
-        })
-        ->count();
+            ->join('status', 'customers.status_id', '=', 'status.id')
+            ->whereNotIn('status.type', ['cancel'])
+            ->where(function ($query) {
+                return $query->where('customers.deleted', '=', 0)
+                    ->orwherenull('customers.deleted');
+            })
+            ->count();
         $total = DB::table('customers')
             ->join('status', 'customers.status_id', '=', 'status.id')
             ->whereIn('status.type', ['active', 'disabled'])
@@ -36,7 +36,7 @@ class DashboardController extends Controller
 
         $to_install = DB::table('customers')
             ->join('status', 'customers.status_id', '=', 'status.id')
-            ->whereIn('status.type', ['new','pending'])
+            ->whereIn('status.type', ['new', 'pending'])
             ->where(function ($query) {
                 return $query->where('customers.deleted', '=', 0)
                     ->orwherenull('customers.deleted');
@@ -79,7 +79,7 @@ class DashboardController extends Controller
             ->where('packages.type', '=', 'ftth')
             ->count();
 
-        $sme = DB::table('customers')
+        $b2b = DB::table('customers')
             ->join('status', 'customers.status_id', '=', 'status.id')
             ->join('packages', 'customers.package_id', '=', 'packages.id')
             ->where(function ($query) {
@@ -87,7 +87,7 @@ class DashboardController extends Controller
                     ->orwherenull('customers.deleted');
             })
             ->whereIn('status.type', ['active', 'suspense', 'disabled'])
-            ->where('packages.type', '=', 'sme')
+            ->where('packages.type', '=', 'b2b')
             ->count();
 
         $dia = DB::table('customers')
@@ -115,7 +115,7 @@ class DashboardController extends Controller
             ->orderBy('packages.name', 'DESC')
             ->get();
 
-        $sme_total = DB::table('customers')
+        $b2b_total = DB::table('customers')
             ->join('status', 'customers.status_id', '=', 'status.id')
             ->join('packages', 'customers.package_id', '=', 'packages.id')
             ->where(function ($query) {
@@ -123,7 +123,7 @@ class DashboardController extends Controller
                     ->orwherenull('customers.deleted');
             })
             ->whereIn('status.type', ['active', 'suspense', 'disabled'])
-            ->where('packages.type', '=', 'sme')
+            ->where('packages.type', '=', 'b2b')
             ->select('packages.name', DB::raw('COUNT(customers.ftth_id) AS customers'))
             ->groupBy('packages.name')
             ->orderBy('packages.name', 'DESC')
@@ -151,10 +151,10 @@ class DashboardController extends Controller
             'terminate' => $terminate,
             'install_week' => $install_week,
             'ftth' => $ftth,
-            'sme' => $sme,
+            'b2b' => $b2b,
             'dia' => $dia,
             'ftth_total' => $ftth_total,
-            'sme_total' => $sme_total,
+            'b2b_total' => $b2b_total,
             'dia_total' => $dia_total,
             'all_customers' => $all_customers,
         ]);
@@ -173,7 +173,7 @@ class DashboardController extends Controller
 
         $townships  = Township::join('customers', 'customers.township_id', 'townships.id')
             ->join('packages', 'packages.id', 'customers.package_id')
-			->when($request->general, function ($query, $general) {
+            ->when($request->general, function ($query, $general) {
                 $query->where(function ($query) use ($general) {
                     $query->where('customers.name', 'LIKE', '%' . $general . '%')
                         ->orWhere('customers.ftth_id', 'LIKE', '%' . $general . '%')
@@ -248,7 +248,7 @@ class DashboardController extends Controller
             })
             ->groupBy('townships.name')
             ->select('townships.*', DB::raw('COUNT(*) AS total'))
-          	->orderBy('total')
+            ->orderBy('total')
             ->get();
 
         $customers = DB::table('customers')
