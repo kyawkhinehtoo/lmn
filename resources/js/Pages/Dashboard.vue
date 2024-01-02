@@ -261,7 +261,7 @@ export default {
         labels: b2b_name.value,
         datasets: [
           {
-            label: "b2b User Chart",
+            label: "B2B User Chart",
             backgroundColor: "#1abc9c",
             data: b2b_number.value,
           },
