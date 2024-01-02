@@ -832,7 +832,10 @@ class BillingController extends Controller
     public function showBill(Request $request)
     {
         $roles = Role::get();
-        $user = User::find(Auth::user()->id);
+        $user = User::join('roles', 'users.role', 'roles.id')
+            ->select('users.*', 'roles.delete_invoice')
+            ->where('users.id', '=', Auth::user()->id)
+            ->first();
         if ($request->bill_id) {
             $lists = Bills::all();
             $packages =  Package::join('pops', 'pops.id', '=', 'packages.pop_id')
@@ -1417,7 +1420,31 @@ class BillingController extends Controller
         } //end of foreach invoices
         return redirect()->back()->with('message', 'Bill Reminder Sending Process Running in Background.');
     }
-
+    public function destroyInvoice(Request $request, $id)
+    {
+        if ($request->has('id')) {
+            $invoice = Invoice::find($request->input('id'));
+            $receipt = ReceiptRecord::where('invoice_id', '=', $request->input('id'))->first();
+            if ($receipt) {
+                $receipt_id = $receipt->id;
+                ReceiptRecord::find($receipt_id)->delete();
+                $months = 12;
+                while ($months > 0) {
+                    $status =  ReceiptSummery::where($months, '=', $receipt_id)
+                        ->where('customer_id', '=', $invoice->customer_id)
+                        ->first();
+                    if ($status) {
+                        $status->$months = null;
+                        $status->update();
+                    }
+                    $months--;
+                }
+                $receipt->delete();
+            }
+            $invoice->delete();
+            return redirect()->back();
+        }
+    }
     public function destroy(Request $request, $id)
     {
         if ($request->has('id')) {

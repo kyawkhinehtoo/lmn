@@ -112,10 +112,12 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('/updateTemp', 'BillingController@updateTemp')->name('updateTemp');
 	Route::post('/updateInvoice', 'BillingController@updateInvoice')->name('updateInvoice');
 	Route::post('/createInvoice', 'BillingController@createInvoice')->name('createInvoice');
+	Route::delete('/deleteInvoice/{id}', 'BillingController@destroyInvoice')->name('deleteInvoice');
 	Route::post('/doGenerate', 'BillingController@doGenerate');
 	Route::post('/saveFinal', 'BillingController@saveFinal');
 	//Route::post('/showbill', 'BillingController@showBill')->name('showbill');
 	Route::get('/showbill', 'BillingController@showBill')->name('showbill');
+
 	Route::get('/tempBilling', 'BillingController@goTemp')->name('tempBilling');
 	Route::post('/tempBilling/search/', 'BillingController@goTemp');
 	Route::post('/truncateBilling', 'BillingController@destroyall');

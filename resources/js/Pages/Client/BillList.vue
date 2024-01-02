@@ -128,6 +128,8 @@
                   <i class="fa fa-print"></i> Receipt
                 </th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only" v-if="invoiceEdit">Action</span></th>
+
+
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -184,7 +186,13 @@
                 <td class="px-6 py-3 text-xs whitespace-nowrap text-right font-medium" v-if="invoiceEdit">
                   <a href="#" @click="edit_invoice(row)" class="text-yellow-600 hover:text-yellow-900"><i
                       class="fas fa-pen"></i></a>
+                  <span v-if="user.delete_invoice"> |
+                    <a href="#" @click="deleteRow(row)" class="text-red-600 hover:text-red-900"><i
+                        class="fas fa-trash"></i></a>
+                  </span>
+
                 </td>
+
               </tr>
             </tbody>
           </table>
@@ -1464,6 +1472,11 @@ export default {
         parameter.value = parm;
       }
     });
+    const deleteRow = (data) => {
+      if (!confirm("Are you sure want to Delete?")) return;
+      data._method = "DELETE";
+      Inertia.post("/deleteInvoice/" + data.id, data);
+    }
     onUpdated(() => {
       props.packages.map(function (x) {
         return (x.item_data = `${x.price} Baht - ${x.name} ${x.site_name}`);
@@ -1515,7 +1528,7 @@ export default {
         parameter.value = parm;
       }
     });
-    return { form, form_2, formatter, view, show_search, show_command, toggleAdv, toggleCmd, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage, disable_submit, updatePackage, pdfprogress, smsprogress, dismiss, showPdfProgress, showSmsProgress, sendBillReminder };
+    return { form, form_2, formatter, view, show_search, show_command, toggleAdv, toggleCmd, goSearch, getFile, generatePDF, loading, generateAllPDF, sendSMS, parameter, sendAllSMS, doExcel, openReceipt, closeModal, calc, form2_calc, calTax, isOpen, outstanding, saveReceipt, updateInvoice, generateReceiptPDF, receipt_number, editInvoice, edit_invoice, openEdit, closeEdit, createPrepaid, invoiceEdit, updateData, editMode, paid_percent, createInvoice, updateUsage, disable_submit, updatePackage, pdfprogress, smsprogress, dismiss, showPdfProgress, showSmsProgress, sendBillReminder, deleteRow };
   },
 };
 </script>

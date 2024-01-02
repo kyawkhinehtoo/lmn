@@ -31,7 +31,7 @@ class Role extends Model
      * @var array
      */
     protected $fillable = [
-        'name','permission','read_customer','read_incident','write_incident','edit_invoice', 'bill_generation','bill_receipt','delete_customer', 
+        'name', 'permission', 'read_customer', 'read_incident', 'write_incident', 'edit_invoice', 'bill_generation', 'bill_receipt', 'delete_customer',
         'radius_read',
         'radius_write',
         'incident_report',
@@ -43,6 +43,7 @@ class Role extends Model
         'edit_ip',
         'delete_ip',
         'ip_report',
+        'delete_invoice',
         'created_at', 'updated_at'
     ];
 
@@ -51,9 +52,7 @@ class Role extends Model
      *
      * @var array
      */
-    protected $hidden = [
-        
-    ];
+    protected $hidden = [];
 
     /**
      * The attributes that should be casted to native types.
@@ -61,7 +60,7 @@ class Role extends Model
      * @var array
      */
     protected $casts = [
-        'name' => 'string','permission' => 'string','read_customer'=>'integer','read_incident' => 'integer','write_incident' => 'integer','edit_invoice' => 'integer','bill_generation' => 'integer',
+        'name' => 'string', 'permission' => 'string', 'read_customer' => 'integer', 'read_incident' => 'integer', 'write_incident' => 'integer', 'edit_invoice' => 'integer', 'bill_generation' => 'integer',
         'bill_receipt' => 'integer',
         'radius_read' => 'integer',
         'radius_write' => 'integer',
@@ -97,5 +96,4 @@ class Role extends Model
     {
         return $this->hasOne(User::class);
     }
-    
 }

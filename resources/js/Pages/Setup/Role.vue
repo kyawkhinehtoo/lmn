@@ -8,10 +8,15 @@
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="flex justify-between space-x-2 items-end mb-2 px-1 md:px-0">
           <div class="relative flex flex-wrap">
-            <span class="z-10 h-full leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3"><i class="fas fa-search"></i></span>
-            <input type="text" placeholder="Search here..." class="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full pl-10" id="search" v-model="search" v-on:keyup.enter="searchTsp" />
+            <span
+              class="z-10 h-full leading-snug font-normal absolute text-center text-blueGray-300 absolute bg-transparent rounded text-base items-center justify-center w-8 pl-3 py-3"><i
+                class="fas fa-search"></i></span>
+            <input type="text" placeholder="Search here..."
+              class="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:ring w-full pl-10"
+              id="search" v-model="search" v-on:keyup.enter="searchTsp" />
           </div>
-          <button @click="openModal" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Create</button>
+          <button @click="openModal"
+            class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">Create</button>
         </div>
         <div class="bg-white  shadow-xl sm:rounded-lg" v-if="roles.data">
           <!-- <button @click="openModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-3">Create New Township</button>
@@ -21,9 +26,12 @@
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permission</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Permission</th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Action</span></th>
               </tr>
             </thead>
@@ -31,7 +39,9 @@
               <tr v-for="row in roles.data" v-bind:key="row.id">
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.id }}</td>
                 <td class="px-6 py-3 whitespace-nowrap">{{ row.name }}</td>
-                <td class="px-6 py-3 whitespace-nowrap"><div v-html="getPerm(row.permission)"></div></td>
+                <td class="px-6 py-3 whitespace-nowrap">
+                  <div v-html="getPerm(row.permission)"></div>
+                </td>
                 <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
                   <a href="#" @click="edit(row)" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                   <a href="#" @click="deleteRow(row)" class="text-red-600 hover:text-red-900">Delete</a>
@@ -46,160 +56,213 @@
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
               </div>
               ​
-              <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+              <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full"
+                role="dialog" aria-modal="true" aria-labelledby="modal-headline">
                 <form @submit.prevent="submit">
                   <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 min-h-screen">
                     <div class="">
                       <div class="mb-4">
                         <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Status :</label>
-                        <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" id="name" placeholder="Enter Role Name" v-model="form.name" />
+                        <input type="text"
+                          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                          id="name" placeholder="Enter Role Name" v-model="form.name" />
                         <div v-if="$page.props.errors.name" class="text-red-500">{{ $page.props.errors.name[0] }}</div>
                       </div>
-        
+
                       <div class="mb-4">
-                         <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
                           <legend class="text-gray-700 text-sm font-bold">Customer Data </legend>
-                            <label class="inline-flex ml-2 text-sm">
-                          <input class="text-gray-500 text-sm w-6 h-6 mr-2 focus:ring-gray-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.read_customer" />
-                          Read Only to Customer Data
-                        </label>
-                         <label class="inline-flex ml-2 text-sm">
-                          <input class="text-gray-500 text-sm w-6 h-6 mr-2 focus:ring-gray-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.delete_customer" />
-                          Enable Delete Customer
-                        </label>  
-                        <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission :</label>
-                        <!-- <select multiple>
+                          <label class="inline-flex ml-2 text-sm">
+                            <input
+                              class="text-gray-500 text-sm w-6 h-6 mr-2 focus:ring-gray-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                              type="checkbox" v-model="form.read_customer" />
+                            Read Only to Customer Data
+                          </label>
+                          <label class="inline-flex ml-2 text-sm">
+                            <input
+                              class="text-gray-500 text-sm w-6 h-6 mr-2 focus:ring-gray-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                              type="checkbox" v-model="form.delete_customer" />
+                            Enable Delete Customer
+                          </label>
+                          <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission :</label>
+                          <!-- <select multiple>
                           <option v-for="row in col" v-bind:key="row.id" class="capitalize"> {{ row.name.replace(/_/g, " ") }}</option>
                         </select> -->
-                        <div class="mt-1 flex rounded-md shadow-sm" v-if="col.length !== 0">
-                          <multiselect deselect-label="Selected already" :options="col" track-by="id" label="name" v-model="form.permission" :allow-empty="true" :multiple="true" :taggable="true"> </multiselect>
-                        </div>
-                         </fieldset>
+                          <div class="mt-1 flex rounded-md shadow-sm" v-if="col.length !== 0">
+                            <multiselect deselect-label="Selected already" :options="col" track-by="id" label="name"
+                              v-model="form.permission" :allow-empty="true" :multiple="true" :taggable="true">
+                            </multiselect>
+                          </div>
+                        </fieldset>
                       </div>
-                       <div class="mb-4">
-                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                      <div class="mb-4">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
                           <legend class="text-gray-700 text-sm font-bold">Incident Control </legend>
-                     
-                      <div class="max-w-full text-sm flex">
-                       
-                        <label class="inline-flex ml-2">
-                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.read_incident" />
-                          Incident Read Permission
-                        </label>
-                          <label class="inline-flex ml-2">
-                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.write_incident" />
-                          Incident Write Permission
-                        </label>
-                          <label class="inline-flex ml-2">
-                          <input class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.incident_only" />
-                          Incident Only Access Permission
-                        </label>
-               
-                  
-                      </div>
-                  </fieldset>
+
+                          <div class="max-w-full text-sm flex">
+
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.read_incident" />
+                              Incident Read Permission
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.write_incident" />
+                              Incident Write Permission
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-indigo-500 w-6 h-6 mr-2 focus:ring-indigo-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.incident_only" />
+                              Incident Only Access Permission
+                            </label>
+
+
+                          </div>
+                        </fieldset>
                       </div>
                       <div class="mb-4">
-                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
                           <legend class="text-gray-700 text-sm font-bold">Billing Control </legend>
-                     
-                      <div class="max-w-full text-sm flex">
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.bill_generation" />
-                          Bill Generate
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.bill_receipt" />
-                          Bill Receipt
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.edit_invoice" />
-                          Edit Invoice Permission
-                        </label>
-                 
-                      </div>
-                  </fieldset>
-                      </div>
-                        <div class="mb-4">
-                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
-                          <legend class="text-gray-700 text-sm font-bold">Radius Control </legend>
-                     
-                      <div class="max-w-full text-sm flex">
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.radius_read" />
-                          Read Radius Information
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.radius_write" />
-                          Update Radius Information
-                        </label>
-                      
-                 
-                      </div>
-                  </fieldset>
+
+                          <div class="max-w-full text-sm flex">
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.bill_generation" />
+                              Bill Generate
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.bill_receipt" />
+                              Bill Receipt
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.edit_invoice" />
+                              Edit Invoice Permission
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.delete_invoice" />
+                              Delete Invoice Permission
+                            </label>
+
+                          </div>
+                        </fieldset>
                       </div>
                       <div class="mb-4">
-                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Radius Control </legend>
+
+                          <div class="max-w-full text-sm flex">
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.radius_read" />
+                              Read Radius Information
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.radius_write" />
+                              Update Radius Information
+                            </label>
+
+
+                          </div>
+                        </fieldset>
+                      </div>
+                      <div class="mb-4">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
                           <legend class="text-gray-700 text-sm font-bold">Public IP Control </legend>
-                     
-                      <div class="max-w-full text-sm flex">
-                        <label class="inline-flex ml-2">
-                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.read_only_ip" />
-                         Read-Only IP
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.add_ip" />
-                         Add IP
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.edit_ip" />
-                        Edit IP
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.delete_ip" />
-                       Delete IP
-                        </label>
-                      
-                 
+
+                          <div class="max-w-full text-sm flex">
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.read_only_ip" />
+                              Read-Only IP
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.add_ip" />
+                              Add IP
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.edit_ip" />
+                              Edit IP
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-blue-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.delete_ip" />
+                              Delete IP
+                            </label>
+
+
+                          </div>
+                        </fieldset>
                       </div>
-                  </fieldset>
-                      </div>
-                 <div class="mb-4">
-                      <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                      <div class="mb-4">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
                           <legend class="text-gray-700 text-sm font-bold">Report Control </legend>
-                     
-                      <div class="max-w-full text-sm flex">
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.incident_report" />
-                          View Incident Report
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.bill_report" />
-                         View Bill Receipt Report
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.radius_report" />
-                         View Radius User Report
-                        </label>
-                        <label class="inline-flex ml-2">
-                          <input class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded" type="checkbox" v-model="form.ip_report" />
-                         View IP Usage Report
-                        </label>
-                 
-                      </div>
-                  </fieldset>
+
+                          <div class="max-w-full text-sm flex">
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.incident_report" />
+                              View Incident Report
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.bill_report" />
+                              View Bill Receipt Report
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.radius_report" />
+                              View Radius User Report
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.ip_report" />
+                              View IP Usage Report
+                            </label>
+
+                          </div>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
                   <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                      <button wire:click.prevent="submit" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="!editMode">Save</button>
+                      <button wire:click.prevent="submit" type="submit"
+                        class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition"
+                        v-show="!editMode">Save</button>
                     </span>
                     <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                      <button wire:click.prevent="submit" type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" v-show="editMode">Update</button>
+                      <button wire:click.prevent="submit" type="submit"
+                        class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition"
+                        v-show="editMode">Update</button>
                     </span>
                     <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
-                      <button @click="closeModal" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5">Cancel</button>
+                      <button @click="closeModal" type="button"
+                        class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5">Cancel</button>
                     </span>
                   </div>
                 </form>
@@ -239,7 +302,7 @@ export default {
       id: null,
       name: null,
       permission: null,
-      delete_customer : null,
+      delete_customer: null,
       read_customer: null,
       read_incident: null,
       write_incident: null,
@@ -270,6 +333,7 @@ export default {
       form.read_incident = null;
       form.write_incident = null;
       form.edit_invoice = null;
+      form.delete_invoice = null;
       form.bill_generation = null;
       form.bill_receipt = null;
       form.radius_read = null;
@@ -329,23 +393,24 @@ export default {
         form.permission = props.col.filter((d) => permission_array.includes(d.name));
       }
       form.read_customer = (data.read_customer) ? true : false;
-      form.delete_customer =(data.delete_customer)?true:false;
-      form.read_incident =(data.read_incident)?true:false;
-      form.write_incident = (data.write_incident)?true:false;
-      form.edit_invoice = (data.edit_invoice)?true:false;
-      form.bill_generation = (data.bill_generation)?true:false;
-      form.bill_receipt = (data.bill_receipt)?true:false;
-      form.radius_read = (data.radius_read)?true:false;
-      form.radius_write = (data.radius_write)?true:false;
-      form.incident_report = (data.incident_report)?true:false;
-      form.bill_report = (data.bill_report)?true:false;
-      form.radius_report = (data.radius_report)?true:false;
-      form.incident_only = (data.incident_only)?true:false;
-      form.read_only_ip = (data.read_only_ip)?true:false;
-      form.add_ip = (data.add_ip)?true:false;
-      form.edit_ip = (data.edit_ip)?true:false;
-      form.delete_ip = (data.delete_ip)?true:false;
-      form.ip_report = (data.ip_report)?true:false;
+      form.delete_customer = (data.delete_customer) ? true : false;
+      form.read_incident = (data.read_incident) ? true : false;
+      form.write_incident = (data.write_incident) ? true : false;
+      form.edit_invoice = (data.edit_invoice) ? true : false;
+      form.delete_invoice = (data.delete_invoice) ? true : false;
+      form.bill_generation = (data.bill_generation) ? true : false;
+      form.bill_receipt = (data.bill_receipt) ? true : false;
+      form.radius_read = (data.radius_read) ? true : false;
+      form.radius_write = (data.radius_write) ? true : false;
+      form.incident_report = (data.incident_report) ? true : false;
+      form.bill_report = (data.bill_report) ? true : false;
+      form.radius_report = (data.radius_report) ? true : false;
+      form.incident_only = (data.incident_only) ? true : false;
+      form.read_only_ip = (data.read_only_ip) ? true : false;
+      form.add_ip = (data.add_ip) ? true : false;
+      form.edit_ip = (data.edit_ip) ? true : false;
+      form.delete_ip = (data.delete_ip) ? true : false;
+      form.ip_report = (data.ip_report) ? true : false;
       editMode.value = true;
       openModal();
     }
@@ -377,7 +442,7 @@ export default {
       }
       return perm;
     }
-  
+
     const closeModal = () => {
       isOpen.value = false;
       resetForm();
@@ -393,7 +458,7 @@ export default {
       props.col.map(function (x) {
         return (x.col_data = "<label :class='capitalize'>" + x.name + "</label>");
       });
-   
+
     });
     return { form, submit, getPerm, editMode, isOpen, openModal, closeModal, edit, deleteRow, searchTsp, search };
   },
