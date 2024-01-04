@@ -83,7 +83,7 @@
 
         <!--End All Card-->
         <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800">
-          <h4 class="mb-4 p-4 font-semibold text-gray-800 dark:text-gray-300">FTTH Users</h4>
+          <h4 class="mb-4 p-4 font-semibold text-gray-800 dark:text-gray-300">FTTH Customers</h4>
           <vue3-chart-js v-bind="{ ...barChartFTTH }" />
         </div>
         <div class="grid gap-6 mb-8 md:grid-cols-2 mt-2">
@@ -119,7 +119,7 @@
                 <div class=""></div>
               </div>
             </div>
-            <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Total Service Graph</h4>
+            <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">B2B and DIA Customers</h4>
 
             <vue3-chart-js v-bind="{ ...barChartb2b }" />
             <vue3-chart-js v-bind="{ ...barChartDIA }" />
