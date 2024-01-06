@@ -176,7 +176,8 @@ trait SMSTrait
             $response = $client->request('POST', self::$sms_post_url, ['form_params' => $postInput, 'headers' => self::$header]);
             $responseBody = json_decode($response->getBody(), true);
             //   $responseBody = array('status' => 'success');
+            return $responseBody;
         }
-        return $responseBody;
+        return false;
     }
 }
