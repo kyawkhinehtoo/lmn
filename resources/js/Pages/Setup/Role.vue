@@ -26,7 +26,8 @@
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  No.
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Name</th>
@@ -85,7 +86,8 @@
                               type="checkbox" v-model="form.delete_customer" />
                             Enable Delete Customer
                           </label>
-                          <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission :</label>
+                          <label for="permission" class="block text-gray-700 text-sm font-bold mb-2">Permission
+                            :</label>
                           <!-- <select multiple>
                           <option v-for="row in col" v-bind:key="row.id" class="capitalize"> {{ row.name.replace(/_/g, " ") }}</option>
                         </select> -->
@@ -93,6 +95,22 @@
                             <multiselect deselect-label="Selected already" :options="col" track-by="id" label="name"
                               v-model="form.permission" :allow-empty="true" :multiple="true" :taggable="true">
                             </multiselect>
+                          </div>
+                        </fieldset>
+                      </div>
+                      <div class="mb-4">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Dashboard </legend>
+
+                          <div class="max-w-full text-sm flex">
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.bill_dashboard" />
+                              Show Billing
+                            </label>
+
+
                           </div>
                         </fieldset>
                       </div>
@@ -153,6 +171,12 @@
                                 class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
                                 type="checkbox" v-model="form.delete_invoice" />
                               Delete Invoice Permission
+                            </label>
+                            <label class="inline-flex ml-2">
+                              <input
+                                class="text-red-500 w-6 h-6 mr-2 focus:ring-red-400 focus:ring-opacity-25 border border-gray-300 rounded"
+                                type="checkbox" v-model="form.bill_readonly" />
+                              Read-Only to Bill
                             </label>
 
                           </div>
@@ -320,6 +344,8 @@ export default {
       edit_ip: null,
       delete_ip: null,
       ip_report: null,
+      bill_readonly: null,
+      bill_dashboard: null,
     });
     const search = ref("");
     let editMode = ref(false);
@@ -347,6 +373,8 @@ export default {
       form.edit_ip = null;
       form.delete_ip = null;
       form.ip_report = null;
+      form.bill_readonly = null;
+      form.bill_dashboard = null;
     }
     function submit() {
       if (!editMode.value) {
@@ -411,6 +439,8 @@ export default {
       form.edit_ip = (data.edit_ip) ? true : false;
       form.delete_ip = (data.delete_ip) ? true : false;
       form.ip_report = (data.ip_report) ? true : false;
+      form.bill_readonly = (data.bill_readonly) ? true : false;
+      form.bill_dashboard = (data.bill_dashboard) ? true : false;
       editMode.value = true;
       openModal();
     }

@@ -6,7 +6,9 @@ use App\Models\Package;
 use App\Models\Project;
 use App\Models\Status;
 use App\Models\Township;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Packages;
@@ -142,8 +144,12 @@ class DashboardController extends Controller
             ->groupBy('packages.name')
             ->orderBy('packages.name', 'DESC')
             ->get();
-
-
+        $total_receivable = $this->getBillIssue();
+        $total_paid = $this->getBillReceipt();
+        $dashboard_role = User::join('roles', 'users.role', 'roles.id')
+            ->select('users.*', 'roles.bill_dashboard')
+            ->where('users.id', '=', Auth::user()->id)
+            ->first();
         return Inertia::render("Dashboard", [
             'total' => $total,
             'to_install' => $to_install,
@@ -157,6 +163,9 @@ class DashboardController extends Controller
             'b2b_total' => $b2b_total,
             'dia_total' => $dia_total,
             'all_customers' => $all_customers,
+            'total_paid' => $total_paid,
+            'total_receivable' => $total_receivable,
+            'dashboard_role' => $dashboard_role,
         ]);
     }
     public function maps(Request $request)
@@ -341,5 +350,117 @@ class DashboardController extends Controller
             'projects' => $projects,
             'status' => $status,
         ]);
+    }
+    public function getBillReceipt()
+    {
+        $dateRangeSql = "
+        SELECT 
+        DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL seq MONTH) AS start_date,
+        LAST_DAY(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL seq MONTH)) AS end_date
+        FROM (
+        SELECT @row := @row + 1 AS seq 
+        FROM 
+            (SELECT 0 UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+            UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL 
+            SELECT 9) t1,
+            (SELECT 0 UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+            UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL 
+            SELECT 9) t2,
+            (SELECT @row := -1) t3
+            ) seq
+            WHERE seq <= 6
+        ";
+        $monthlyReceipts = DB::table('invoices')
+            ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
+            ->select(
+                DB::raw('SUM(collected_amount) as collected_amount'),
+                DB::raw('invoices.bill_month as month'),
+                DB::raw('invoices.bill_year as year')
+            )
+            ->groupBy('month', 'year');
+        $dateRangeQuery = DB::table(DB::raw("($dateRangeSql) as date_range"));
+        $total_paid = $dateRangeQuery
+            ->leftJoinSub($monthlyReceipts, 'monthlyReceipts', function ($join) {
+                $join->on(DB::raw("YEAR(date_range.start_date)"), '=', 'monthlyReceipts.year')
+                    ->on(DB::raw("MONTH(date_range.start_date)"), '=', 'monthlyReceipts.month');
+            })
+            ->select(
+                DB::raw('YEAR(date_range.start_date) as year'),
+                DB::raw('MONTH(date_range.start_date) as month'),
+                DB::raw('COALESCE(sum(monthlyReceipts.collected_amount), 0) as total_paid')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $results = [];
+
+        foreach ($total_paid as $paid) {
+            $results[] = [
+                'year' => $paid->year,
+                'month' => $paid->month,
+                'total' => $paid->total_paid,
+            ];
+        }
+
+        return $results;
+    }
+    public function getBillIssue()
+    {
+        $dateRangeSql = "
+    SELECT 
+        DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL seq MONTH) AS start_date,
+        LAST_DAY(DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL seq MONTH)) AS end_date
+    FROM (
+        SELECT @row := @row + 1 AS seq 
+        FROM 
+            (SELECT 0 UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+            UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL 
+            SELECT 9) t1,
+            (SELECT 0 UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+            UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL 
+            SELECT 9) t2,
+            (SELECT @row := -1) t3
+    ) seq
+    WHERE seq <= 6
+";
+
+        $monthlyInvoices = DB::table('invoices')
+            ->select(
+                DB::raw('SUM(total_payable) as total_payable'),
+                DB::raw('bill_month as month'),
+                DB::raw('bill_year as year')
+            )
+            ->groupBy('month', 'year');
+
+        $dateRangeQuery = DB::table(DB::raw("($dateRangeSql) as date_range"));
+
+        $total_receivable = $dateRangeQuery
+            ->leftJoinSub($monthlyInvoices, 'monthlyInvoices', function ($join) {
+                $join->on(DB::raw("YEAR(date_range.start_date)"), '=', 'monthlyInvoices.year')
+                    ->on(DB::raw("MONTH(date_range.start_date)"), '=', 'monthlyInvoices.month');
+            })
+            ->select(
+                DB::raw('YEAR(date_range.start_date) as year'),
+                DB::raw('MONTH(date_range.start_date) as month'),
+                DB::raw('COALESCE(sum(monthlyInvoices.total_payable), 0) as total_payable')
+            )
+            ->groupBy('month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $results = [];
+
+        foreach ($total_receivable as $receivable) {
+            $results[] = [
+                'year' => $receivable->year,
+                'month' => $receivable->month,
+                'total' => $receivable->total_payable,
+            ];
+        }
+
+        return $results;
     }
 }

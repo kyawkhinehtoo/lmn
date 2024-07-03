@@ -60,6 +60,8 @@ class RoleController extends Controller
         $role->edit_ip = $request->edit_ip;
         $role->delete_ip = $request->delete_ip;
         $role->ip_report = $request->ip_report;
+        $role->bill_readonly = $request->bill_readonly;
+        $role->bill_dashboard = $request->bill_dashboard;
 
         $role->save();
         return redirect()->route('role.index')->with('message', 'Role Created Successfully.');
@@ -110,6 +112,8 @@ class RoleController extends Controller
             $role->edit_ip = $request->edit_ip;
             $role->delete_ip = $request->delete_ip;
             $role->ip_report = $request->ip_report;
+            $role->bill_readonly = $request->bill_readonly;
+            $role->bill_dashboard = $request->bill_dashboard;
 
             $role->update();
             return redirect()->back()

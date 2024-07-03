@@ -5,7 +5,7 @@
     </template>
 
     <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 ">
         <!--All Card-->
         <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-6">
           <!-- Card -->
@@ -82,20 +82,26 @@
         </div>
 
         <!--End All Card-->
-        <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800">
+        <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 my-2">
           <h4 class="mb-4 p-4 font-semibold text-gray-800 dark:text-gray-300">FTTH Customers</h4>
-          <vue3-chart-js v-bind="{ ...barChartFTTH }" />
+          <bar-chart :chartData="barChartFTTH" :options="chartOptions" />
         </div>
+
+        <div v-if="billingChart && dashboard_role.bill_dashboard"
+          class="min-w-0 bg-white dark:bg-gray-800 col-span-1 rounded-md shadow-sm my-2">
+          <h3 class="p-4 font-semibold text-gray-800 dark:text-gray-300">Billing Activity Details</h3>
+          <bar-chart :chartData="billingChart" :options="chartOptions" />
+        </div>
+
         <div class="grid gap-6 mb-8 md:grid-cols-2 mt-2">
           <div class="min-w-0 p-4 bg-white rounded-lg shadow dark:bg-gray-800">
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Service Ratio</h4>
             <div style="display: flex;flex-direction:column;">
-              <vue3-chart-js :id="doughnutChart.id" ref="chartRef" :type="doughnutChart.type"
-                :data="doughnutChart.data"></vue3-chart-js>
+              <doughnut-chart :chartData="doughnutChart" :options="chartOptions" />
               <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
                 <!-- Chart legend -->
                 <div class="flex items-center">
-                  <span class="inline-block w-3 h-3 mr-1 rounded-full" style="background:#00D8FF"></span>
+                  <span class="inline-block w-3 h-3 mr-1 rounded-full" style="background:#255483"></span>
                   <span>{{ ftth }}</span>
                 </div>
                 <div class="flex items-center">
@@ -121,8 +127,8 @@
             </div>
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">B2B and DIA Customers</h4>
 
-            <vue3-chart-js v-bind="{ ...barChartb2b }" />
-            <vue3-chart-js v-bind="{ ...barChartDIA }" />
+            <bar-chart :chartData="barChartb2b" :options="chartOptions" />
+            <bar-chart :chartData="barChartDIA" :options="chartOptions" />
 
           </div>
         </div>
@@ -133,12 +139,17 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import Vue3ChartJs from "@j-t-mcc/vue3-chartjs";
+import { LineChart as Vue3ChartJs, DoughnutChart, BarChart } from 'vue-chart-3';
+import { Chart, registerables } from "chart.js";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+Chart.register(...registerables, ChartDataLabels);
 import { ref } from "vue";
 export default {
   components: {
     AppLayout,
     Vue3ChartJs,
+    DoughnutChart,
+    BarChart
   },
   name: "Dashboard",
   props: {
@@ -154,9 +165,22 @@ export default {
     suspense: Object,
     terminate: Object,
     install_week: Object,
+    total_paid: Object,
+    total_receivable: Object,
+    dashboard_role: Object
   },
   setup(props) {
     const chartRef = ref(null);
+    const chartOptions = ref({
+      plugins: {
+        datalabels: {
+          display: true,
+          color: 'white',
+          align: 'top',
+          formatter: (value) => value
+        }
+      }
+    });
     let proj_name = ref(['FTTH', 'B2B', 'DIA']);
     let ftth_name = ref([]);
     let b2b_name = ref([]);
@@ -187,136 +211,84 @@ export default {
       dia_name.value.push(x.name)
     });
     const doughnutChart = {
-      id: "doughnut",
-      type: "doughnut",
-      data: {
-        labels: proj_name.value,
-        datasets: [
-          {
-            backgroundColor: ["#34495e", "#41B883", "#E46651"],
-            data: [props.ftth, props.b2b, props.dia],
-          },
-        ],
-      },
+      labels: proj_name.value,
+      datasets: [
+        {
+
+          borderColor: ["#255483", "#41B883", "#E46651"],
+          backgroundColor: ["#557EA4", "#96D7BA", "#ECB3A9"],
+          data: [props.ftth, props.b2b, props.dia],
+        },
+      ],
     };
     const barChartFTTH = {
-      type: "bar",
-      options: {
-        min: 0,
-        max: 100,
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "top",
-          },
+      labels: ftth_name.value,
+      datasets: [
+        {
+          label: "FTTH User Chart",
+          backgroundColor: "#618DBA",
+          data: ftth_number.value,
         },
-        scales: {
-          y: {
-            min: 0,
-            max: Math.max(ftth_number) + 20,
-            ticks: {
-              callback: function (value) {
-                return `${value}`;
-              },
-            },
-          },
-        },
-      },
-      data: {
-        labels: ftth_name.value,
-        datasets: [
-          {
-            label: "FTTH User Chart",
-            backgroundColor: "#34495e",
-            data: ftth_number.value,
-          },
 
-        ],
-      },
+      ],
+
     };
     const barChartb2b = {
-      type: "bar",
-      options: {
-        min: 0,
-        max: 100,
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "top",
-          },
+      labels: b2b_name.value,
+      datasets: [
+        {
+          label: "B2B User Chart",
+          backgroundColor: "#1abc9c",
+          data: b2b_number.value,
         },
-        scales: {
-          y: {
-            min: 0,
-            max: Math.max(b2b_number) + 20,
-            ticks: {
-              callback: function (value) {
-                return `${value}`;
-              },
-            },
-          },
-        },
-      },
-      data: {
-        labels: b2b_name.value,
-        datasets: [
-          {
-            label: "B2B User Chart",
-            backgroundColor: "#1abc9c",
-            data: b2b_number.value,
-          },
 
-        ],
-      },
+      ],
+
     };
     const barChartDIA = {
-      type: "bar",
-      options: {
-        min: 0,
-        max: 20,
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "top",
-          },
-        },
-        scales: {
-          y: {
-            min: 0,
-            max: Math.max(dia_number) + 20,
-            ticks: {
-              callback: function (value) {
-                return `${value}`;
-              },
-            },
-          },
-        },
-      },
-      data: {
-        labels: dia_name.value,
-        datasets: [
-          {
-            label: "DIA User Chart",
-            backgroundColor: ["#E46651"],
-            data: dia_number.value,
-          },
 
-        ],
-      },
-    };
-    const updateChart = () => {
-      doughnutChart.data.labels = ["Cats", "Dogs", "Hamsters", "Dragons"];
-      doughnutChart.data.datasets = [
+      labels: dia_name.value,
+      datasets: [
         {
-          backgroundColor: ["#333333", "#E46651", "#00D8FF", "#DD1B16"],
-          data: [100, 20, 800, 20],
+          label: "DIA User Chart",
+          backgroundColor: "#E46651",
+          data: dia_number.value,
         },
+
+      ],
+
+    };
+
+    const billingChart = {
+      labels: props.total_receivable.map(statistic => `${getMonthName(statistic.month)}, ${statistic.year} `),
+
+
+      datasets: [
+        {
+          label: 'Receivable',
+          backgroundColor: '#7123A9',
+          data: props.total_receivable.map(statistic => statistic.total),
+        },
+        {
+          label: 'Paid',
+          backgroundColor: '#1abc9c',
+          data: props.total_paid.map(statistic => statistic.total),
+        },
+      ]
+    };
+    //get Month Name
+    function getMonthName(number) {
+      const months = [
+        'Jan', 'Feb', 'Mar', 'Apr',
+        'May', 'Jun', 'Jul', 'Aug',
+        'Sep', 'Oct', 'Nov', 'Dec'
       ];
 
-      chartRef.value.update();
-    };
-    const getMax = (data) => {
-
+      if (number >= 1 && number <= 12) {
+        return months[number - 1];
+      } else {
+        return 'Invalid input. Please provide a number between 1 and 12.';
+      }
     }
     return {
       doughnutChart,
@@ -324,7 +296,11 @@ export default {
       proj_name,
       barChartFTTH,
       barChartb2b,
-      barChartDIA
+      barChartDIA,
+      billingChart,
+      chartOptions,
+      getMonthName
+
     };
   },
 };

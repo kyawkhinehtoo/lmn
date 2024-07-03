@@ -18,7 +18,7 @@
 
     body {
         font-family: sans-serif, Tharlon;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
     }
 
     .header-img {

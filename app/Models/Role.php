@@ -44,6 +44,8 @@ class Role extends Model
         'delete_ip',
         'ip_report',
         'delete_invoice',
+        'bill_dashboard',
+        'bill_readonly',
         'created_at', 'updated_at'
     ];
 
@@ -68,6 +70,8 @@ class Role extends Model
         'bill_report' => 'integer',
         'radius_report' => 'integer',
         'incident_only' => 'integer',
+        'bill_dashboard' => 'integer',
+        'bill_readonly' => 'integer',
         'created_at' => 'timestamp', 'updated_at' => 'timestamp'
     ];
 

@@ -245,7 +245,7 @@
                     </tr>
                     <tr>
                         <td rowspan="2">Address : {{$attn}}</td>
-                        <td>Date : {{ date("j F Y",strtotime($date_issued)) }}</td>
+                        <td>Date : {{ date("j F Y",strtotime($receipt_date)) }}</td>
                     </tr>
                     <tr>
                         <td>Package : {{$service_description}}</td>

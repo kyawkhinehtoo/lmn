@@ -83,7 +83,7 @@ class BillingController extends Controller
                 return $query->where('customers.deleted', '=', 0)
                     ->orwherenull('customers.deleted');
             })
-            ->whereNotIn('status.type', ['new', 'pending', 'cancel'])
+            ->whereNotIn('status.type', ['new', 'pending', 'cancel', 'suspense', 'terminate'])
             //->where('customers.ftth_id','=','TCL00009-FTTH')//just for debugging
             ->select(
                 'customers.id as id',
@@ -225,7 +225,7 @@ class BillingController extends Controller
                     $billing->save();
                 }
             }
-            return redirect()->back()->with('message', 'Billing Created Successfully.');
+            return redirect()->route('tempBilling');
         } else {
             return redirect()->back()->with('message', 'Billing Created Successfully.');
         }
@@ -832,8 +832,8 @@ class BillingController extends Controller
     public function showBill(Request $request)
     {
         $roles = Role::get();
-        $user = User::join('roles', 'users.role', 'roles.id')
-            ->select('users.*', 'roles.delete_invoice')
+        $billing_role = User::join('roles', 'users.role', 'roles.id')
+            ->select('roles.*')
             ->where('users.id', '=', Auth::user()->id)
             ->first();
         if ($request->bill_id) {
@@ -859,19 +859,35 @@ class BillingController extends Controller
                 $orderform['status'] = ($request->orderform == 'signed') ? 1 : 0;
 
             $max_receipt =  DB::table('invoices')
+                ->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
                 ->where('invoices.bill_id', '=', $request->bill_id)
                 ->select(DB::raw('max(receipt_records.receipt_number) as max_receipt_number'))
+                ->where(function ($query) {
+                    return $query->where('customers.deleted', '=', 0)
+                        ->orWhereNull('customers.deleted');
+                })
                 ->first();
             $total_receivable = DB::table('invoices')
+                ->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->where('invoices.bill_id', '=', $request->bill_id)
+                ->where(function ($query) {
+                    return $query->where('customers.deleted', '=', 0)
+                        ->orWhereNull('customers.deleted');
+                })
                 ->select(DB::raw('sum(invoices.total_payable) as total_payable'))
+
                 ->first();
             $receivable = $total_receivable->total_payable;
 
             $total_paid = DB::table('invoices')
+                ->join('customers', 'customers.id', '=', 'invoices.customer_id')
                 ->leftJoin('receipt_records', 'invoices.id', '=', 'receipt_records.invoice_id')
                 ->where('invoices.bill_id', '=', $request->bill_id)
+                ->where(function ($query) {
+                    return $query->where('customers.deleted', '=', 0)
+                        ->orWhereNull('customers.deleted');
+                })
                 ->select(DB::raw('sum(receipt_records.collected_amount) as paid'))
                 ->first();
             $paid = $total_paid->paid;
@@ -1037,7 +1053,7 @@ class BillingController extends Controller
                 'status' => $status,
                 'billings' => $billings,
                 'users' => $users,
-                'user' => $user,
+                'billing_role' => $billing_role,
                 'roles' => $roles,
                 'max_receipt' => $max_receipt,
                 'prepaid_customers' => $prepaid_customers,
@@ -1070,7 +1086,7 @@ class BillingController extends Controller
                 'townships' => $townships,
                 'status' => $status,
                 'users' => $users,
-                'user' => $user,
+                'billing_role' => $billing_role,
                 'roles' => $roles,
                 'package_speed' => $package_speed,
                 'package_type' => $package_type,
@@ -1086,6 +1102,7 @@ class BillingController extends Controller
             ->select('invoices.*', 'packages.type as service_type')
             ->first();
         $options = [
+            'format' => 'A4',
             'default_font_size' => '11',
             'orientation'   => 'P',
             'encoding'      => 'UTF-8',
