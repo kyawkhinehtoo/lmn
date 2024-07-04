@@ -832,6 +832,7 @@ class BillingController extends Controller
     public function showBill(Request $request)
     {
         $roles = Role::get();
+        $smsgateway = SmsGateway::first();
         $billing_role = User::join('roles', 'users.role', 'roles.id')
             ->select('roles.*')
             ->where('users.id', '=', Auth::user()->id)
@@ -1044,7 +1045,7 @@ class BillingController extends Controller
                 ->get();
             $current_bill = DB::table('bills')->where('id', '=', $request->bill_id)->first();
 
-            $smsgateway = SmsGateway::first();
+
             $billings->appends($request->all())->links();
             return Inertia::render('Client/BillList', [
                 'lists' => $lists,
@@ -1090,6 +1091,7 @@ class BillingController extends Controller
                 'roles' => $roles,
                 'package_speed' => $package_speed,
                 'package_type' => $package_type,
+                'smsgateway' => $smsgateway,
             ]);
         }
     }
