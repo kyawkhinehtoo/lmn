@@ -35,21 +35,46 @@ class PDFCreateJob implements ShouldQueue
      */
     public function handle()
     {
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
         $invoice = Invoice::join('customers', 'invoices.customer_id', 'customers.id')
             ->join('packages', 'customers.package_id', 'packages.id')
             ->where('invoices.id', '=', $this->invoice_id)
             ->select('invoices.*', 'packages.type as service_type')
             ->first();
         $options = [
+            'format' => 'A4',
             'default_font_size' => '11',
             'orientation'   => 'P',
             'encoding'      => 'UTF-8',
-            'margin_top'  => 45,
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+
             'title' => $invoice->ftth_id,
+            'fontDir'          => array_merge($fontDirs, [base_path('resources/fonts/')]),
+            'fontdata'         => $fontData + [
+                'notosanthai' => [
+                    'R' => 'NotoSansThai-Regular.ttf'
+                ],
+                'notoserifmyanmar' => [
+                    'R' => 'NotoSerifMyanmar-Regular.ttf'
+                ],
+                'pyidaungsu' => [
+                    'R' => 'Pyidaungsu-2.5.3_Regular.ttf'
+                ],
+                'serif' => [
+                    'R' => 'NotoSerif-Regular.ttf',
+                    'B' => 'NotoSerif-Bold.ttf'
+                ]
+            ],
         ];
         $name = date("ymdHis") . '-' . $invoice->bill_number . ".pdf";
         $path = $invoice->ftth_id . '/' . $name;
-        $pdf = $this->createPDF($options, 'invoice', $invoice, $name, $path);
+        $pdf = $this->createPDF($options, 'invoice_compact', $invoice, $name, $path);
 
         if ($pdf['status'] == 'success') {
 

@@ -16,9 +16,9 @@ trait PdfTrait
         view()->share($template, $data);
 
         $pdf = PDF::loadView($template, $data, [], $options);
-        $pdf->getMpdf()->AddPage();
-        $pdf->getMpdf()->SetDisplayMode('fullpage', 'two');
-        $pdf->getMpdf()->WriteHTML((string)view($template, $data, [], $options));
+        // $pdf->getMpdf()->AddPage();
+        // $pdf->getMpdf()->SetDisplayMode('fullpage', 'two');
+        // $pdf->getMpdf()->WriteHTML((string)view($template, $data, [], $options));
         $output = $pdf->output();
 
         $disk = Storage::disk('public');

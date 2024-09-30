@@ -690,7 +690,7 @@ class BillingController extends Controller
     public function preview_1(Request $request)
     {
         $billings = BillingTemp::find($request->id);
-        return view('preview', $billings);
+        return view('preview_compact', $billings);
     }
     public function preview_2(Request $request)
     {
@@ -703,7 +703,7 @@ class BillingController extends Controller
             ->select('invoices.*', 'packages.type as service_type', 'receipt_records.remark as remark', 'receipt_records.collected_amount as collected_amount', 'receipt_records.receipt_date as receipt_date', 'receipt_records.receipt_number as receipt_number', 'users.name as collector')
             ->first();
 
-        return view('voucher', $billing_invoice);
+        return view('receipt_compact', $billing_invoice);
     }
     public function showInvoice(Request $request)
     {
@@ -1103,17 +1103,42 @@ class BillingController extends Controller
             ->where('invoices.id', '=', $request->id)
             ->select('invoices.*', 'packages.type as service_type')
             ->first();
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
         $options = [
             'format' => 'A4',
             'default_font_size' => '11',
             'orientation'   => 'P',
             'encoding'      => 'UTF-8',
-            'margin_top'  => 45,
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+
             'title' => $invoice->ftth_id,
+            'fontDir'          => array_merge($fontDirs, [base_path('resources/fonts/')]),
+            'fontdata'         => $fontData + [
+                'notosanthai' => [
+                    'R' => 'NotoSansThai-Regular.ttf'
+                ],
+                'notoserifmyanmar' => [
+                    'R' => 'NotoSerifMyanmar-Regular.ttf'
+                ],
+                'pyidaungsu' => [
+                    'R' => 'Pyidaungsu-2.5.3_Regular.ttf'
+                ],
+                'serif' => [
+                    'R' => 'NotoSerif-Regular.ttf',
+                    'B' => 'NotoSerif-Bold.ttf'
+                ]
+            ],
         ];
         $name = date("ymdHis") . '-' . $invoice->bill_number . ".pdf";
         $path = $invoice->ftth_id . '/' . $name;
-        $pdf = $this->createPDF($options, 'invoice', $invoice, $name, $path);
+        $pdf = $this->createPDF($options, 'invoice_compact', $invoice, $name, $path);
 
         if ($pdf['status'] == 'success') {
 
@@ -1133,6 +1158,7 @@ class BillingController extends Controller
     public function makeAllPDF(Request $request)
     {
         // dd($request);
+
         $invoices =  Invoice::join('customers', 'customers.id', '=', 'invoices.customer_id')
             ->join('packages', 'customers.package_id', '=', 'packages.id')
             ->where('invoices.total_payable', '>', 0)

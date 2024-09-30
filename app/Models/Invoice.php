@@ -32,6 +32,7 @@ class Invoice extends Model
         'service_description',
         'qty',
         'usage_days',
+        'usage_months',
         'customer_status',
         'normal_cost',
         'type',

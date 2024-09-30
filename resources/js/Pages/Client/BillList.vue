@@ -76,11 +76,11 @@
           <div class="flex pt-1 w-full">
             <div class="relative w-full">
               <label class="text-xs">{{ paid_percent }}% Percentage of {{ (paid) ? new Intl.NumberFormat('en-US', {
-        maximumSignificantDigits: 8
-      }).format(paid) : 0
+                maximumSignificantDigits: 8
+              }).format(paid) : 0
                 }} BAHT in {{ new Intl.NumberFormat('en-US', {
-        maximumSignificantDigits: 8
-      }).format(receivable)
+                  maximumSignificantDigits: 8
+                }).format(receivable)
                 }} BAHT</label>
               <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-lightBlue-200 z-10">
                 <div :style="`width: ${paid_percent}%`"
@@ -135,12 +135,12 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="(row, index) in  billings.data " v-bind:key="row.id">
+              <tr v-for="(row, index) in billings.data " v-bind:key="row.id">
                 <td class="pl-4 px-2 py-3 text-xs whitespace-nowrap">{{ (index += billings.from) }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.bill_number }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.ftth_id }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ (row.service_description !== row.qty) ?
-        row.service_description + `(${row.qty})` : row.service_description }}</td>
+                  row.service_description + `(${row.qty})` : row.service_description }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.usage_days }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">{{ row.total_payable }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
@@ -180,8 +180,8 @@
 
                 </td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap capitalize">{{
-        (row.receipt_status) ? row.receipt_status.replace('_', ' ') : ''
-      }}</td>
+                  (row.receipt_status) ? row.receipt_status.replace('_', ' ') : ''
+                  }}</td>
                 <td class="px-2 py-3 text-xs whitespace-nowrap">
                   <span v-if="row.receipt_status">
                     <span v-if="row.receipt_file"><a :href="'/s/' + row.receipt_url">Download</a></span><span
@@ -238,11 +238,11 @@
           <form @submit.prevent="submit">
             <div class="shadow overflow-hidden border-b border-gray-200 p-4">
               <p v-show="$page.props.errors.receipt_date" class="mt-2 text-sm text-red-500 block">{{
-        $page.props.errors.receipt_date
-      }}</p>
+                $page.props.errors.receipt_date
+                }}</p>
               <p v-show="$page.props.errors.collected_amount" class="mt-2 text-sm text-red-500 block">{{
-        $page.props.errors.collected_amount
-      }}</p>
+                $page.props.errors.collected_amount
+                }}</p>
               <div class="grid grid-cols-1 md:grid-cols-4 w-full">
 
                 <div class="col-span-2 sm:col-span-2 border-2 border-marga bg-marga">
@@ -287,8 +287,8 @@
                 </div>
                 <div class="py-4 col-span-3 sm:col-span-3 border-2 border-marga text-center flex flex-col">
                   <span class="font-semibold text-md">Amount In Word:</span> <span class="text-sm"> {{
-        form.amount_in_word
-      }}</span>
+                    form.amount_in_word
+                    }}</span>
                 </div>
               </div>
 
@@ -428,8 +428,8 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="customer_status" v-model="form_2.customer_status" />
                 <div v-if="$page.props.errors.customer_status" class="text-red-500">{{
-        $page.props.errors.customer_status
-      }}</div>
+                  $page.props.errors.customer_status
+                  }}</div>
               </div>
               <div class="mb-4 md:col-span-1">
                 <label for="period_covered" class="block text-gray-700 text-sm font-bold mb-2">Period Covered :</label>
@@ -468,8 +468,8 @@
                   class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                   id="payment_duedate" placeholder="Enter Payment Due Date" v-model="form_2.payment_duedate" />
                 <div v-if="$page.props.errors.payment_duedate" class="text-red-500">{{
-        $page.props.errors.payment_duedate
-      }}</div>
+                  $page.props.errors.payment_duedate
+                  }}</div>
 
                 <!-- <label for="end_date" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Last End Date
                   :</label>
@@ -594,8 +594,8 @@
                   id="previous_balance" placeholder="Enter Previous Balance" v-model="form_2.previous_balance"
                   @change="form2_calc" />
                 <div v-if="$page.props.errors.previous_balance" class="text-red-500">{{
-        $page.props.errors.previous_balance
-      }}</div>
+                  $page.props.errors.previous_balance
+                  }}</div>
 
                 <label for="current_charge" class="mt-4 block text-gray-700 text-sm font-bold mb-2">Current Charge
                   :</label>
@@ -962,7 +962,8 @@ export default {
       var dt = new Date();
       var month = dt.getMonth();
       var year = dt.getFullYear();
-      var daysInMonth = new Date(year, month, 0).getDate();
+      var daysInMonth = 30; //fixed to 30 30 Sept 2024
+      // var daysInMonth = new Date(year, month, 0).getDate();
       form_2.usage_days = form_2.usage_mo ? form_2.usage_mo + " Months" : "";
       form_2.usage_days += (form_2.usage_mo && form_2.usage_d) ? " and " : "";
       form_2.usage_days += form_2.usage_d ? " " + form_2.usage_d + " Days" : "";
