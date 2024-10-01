@@ -1107,11 +1107,11 @@ class BillingController extends Controller
         $fontDirs = $defaultConfig['fontDir'];
         $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
-
+        //'format' => [241.3, 137.16],
         $options = [
-            'format' => 'A4',
+            'format' => 'A5',
             'default_font_size' => '11',
-            'orientation'   => 'P',
+            'orientation'   => 'L',
             'encoding'      => 'UTF-8',
             'margin_left' => 10,
             'margin_right' => 10,

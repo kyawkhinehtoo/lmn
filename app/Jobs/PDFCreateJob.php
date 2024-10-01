@@ -45,9 +45,9 @@ class PDFCreateJob implements ShouldQueue
             ->select('invoices.*', 'packages.type as service_type')
             ->first();
         $options = [
-            'format' => 'A4',
+            'format' => 'A5',
             'default_font_size' => '11',
-            'orientation'   => 'P',
+            'orientation'   => 'L',
             'encoding'      => 'UTF-8',
             'margin_left' => 10,
             'margin_right' => 10,

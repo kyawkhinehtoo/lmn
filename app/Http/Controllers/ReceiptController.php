@@ -250,9 +250,9 @@ class ReceiptController extends Controller
         $fontData = $defaultFontConfig['fontdata'];
 
         $options = [
-            'format' => 'A4',
+            'format' => 'A5',
             'default_font_size' => '11',
-            'orientation'   => 'P',
+            'orientation'   => 'L',
             'encoding'      => 'UTF-8',
             'margin_left' => 10,
             'margin_right' => 10,
