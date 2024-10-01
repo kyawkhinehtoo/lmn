@@ -60,7 +60,7 @@
             <a @click="createPrepaid" v-if="!billing_role.bill_readonly"
               class="cursor-pointer inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition">Add
               New Invoice <i class="ml-1 fa fa-plus-square text-white"></i></a>
-            <a @click="doExcel"
+            <a @click="doExcel()"
               class="cursor-pointer inline-flex items-center px-2 py-2 bg-green-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring focus:ring-green-300 disabled:opacity-25 transition">Export
               <i class="ml-1 fa fa-download text-white"></i></a>
           </div>
@@ -745,7 +745,7 @@ export default {
     let show_search = ref(false);
     let show_command = ref(false);
     let loading = ref(false);
-    let parameter = ref("");
+    let parameter = ref({});
     let isOpen = ref(false);
     let editMode = ref(false);
     let editInvoice = ref(false);
@@ -1057,10 +1057,13 @@ export default {
     }
     const goSearch = (parm) => {
       let url = "/showbill";
+      parameter.value = parm;
       if (form.bill_id != null) {
         parm.bill_id = form.bill_id;
       }
-      parameter.value = parm;
+
+      console.log(parm);
+      console.log(parameter.value);
       Inertia.get(url, parm, { preserveState: true });
     };
     const toggleAdv = () => {
@@ -1219,6 +1222,7 @@ export default {
     }
 
     function doExcel() {
+      console.log(parameter.value);
       axios.post("/exportBillingExcel", parameter.value).then((response) => {
         console.log(response);
         var a = document.createElement("a");
@@ -1479,7 +1483,7 @@ export default {
       invoiceEdit.value = props.billing_role.edit_invoice;
       cal_percent();
       let bill_id = (props.current_bill) ? props.current_bill['id'] : null;
-      if (bill_id) {
+      if (bill_id && parameter.value == null) {
         let parm = Object.create({});
         parm.bill_id = bill_id;
         parameter.value = parm;
@@ -1535,7 +1539,7 @@ export default {
       form_2.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
       form.bill_id = (props.current_bill) ? props.current_bill['id'] : null;
       let bill_id = (props.current_bill) ? props.current_bill['id'] : null;
-      if (bill_id) {
+      if (bill_id && parameter.value == null) {
         let parm = Object.create({});
         parm.bill_id = bill_id;
         parameter.value = parm;
