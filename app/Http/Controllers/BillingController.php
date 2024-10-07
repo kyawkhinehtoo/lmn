@@ -1118,6 +1118,7 @@ class BillingController extends Controller
             'margin_top' => 10,
             'margin_bottom' => 10,
             'mode' => 'utf-8',
+            'tempDir' => storage_path('app/mpdf'),
             'title' => $invoice->ftth_id,
 
         ];

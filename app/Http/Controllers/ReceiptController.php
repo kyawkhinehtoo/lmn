@@ -258,7 +258,7 @@ class ReceiptController extends Controller
             'margin_right' => 10,
             'margin_top' => 10,
             'margin_bottom' => 10,
-
+            'tempDir' => storage_path('app/mpdf'),
             'title' => $receipt->ftth_id,
             'fontDir'          => array_merge($fontDirs, [base_path('resources/fonts/')]),
             'fontdata'         => $fontData + [
