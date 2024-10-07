@@ -37,6 +37,7 @@ use App\Jobs\PDFCreateJob;
 use App\Jobs\BillingSMSJob;
 use App\Jobs\ReminderSMSJob;
 
+
 class BillingController extends Controller
 {
     use PdfTrait, MarkupTrait, SMSTrait;
@@ -1107,7 +1108,6 @@ class BillingController extends Controller
         $fontDirs = $defaultConfig['fontDir'];
         $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
-        //'format' => [241.3, 137.16],
         $options = [
             'format' => 'A5',
             'default_font_size' => '11',
@@ -1117,24 +1117,9 @@ class BillingController extends Controller
             'margin_right' => 10,
             'margin_top' => 10,
             'margin_bottom' => 10,
-
+            'mode' => 'utf-8',
             'title' => $invoice->ftth_id,
-            'fontDir'          => array_merge($fontDirs, [base_path('resources/fonts/')]),
-            'fontdata'         => $fontData + [
-                'notosanthai' => [
-                    'R' => 'NotoSansThai-Regular.ttf'
-                ],
-                'notoserifmyanmar' => [
-                    'R' => 'NotoSerifMyanmar-Regular.ttf'
-                ],
-                'pyidaungsu' => [
-                    'R' => 'Pyidaungsu-2.5.3_Regular.ttf'
-                ],
-                'serif' => [
-                    'R' => 'NotoSerif-Regular.ttf',
-                    'B' => 'NotoSerif-Bold.ttf'
-                ]
-            ],
+
         ];
         $name = date("ymdHis") . '-' . $invoice->bill_number . ".pdf";
         $path = $invoice->ftth_id . '/' . $name;

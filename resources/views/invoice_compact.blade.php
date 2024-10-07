@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
         body {
-            font-family: sans-serif, serif, "notoserifmyanmar", "notosanthai";
+            font-family: sans-serif, serif, "pyidaungsu", "notosanthai";
         }
 
         .container {
@@ -22,7 +22,8 @@
         }
 
         .thai {
-            font-family: "notosanthai";
+            font-family: "notosanthai" !important;
+            font-size: 20px;
         }
 
         .myanmar {
@@ -33,7 +34,7 @@
             width: 150px;
             height: auto;
             float: left;
-            margin-right: 5px;
+            margin-right: 10px;
         }
 
         table {
@@ -54,15 +55,14 @@
         h2 {
             text-decoration: underline;
             font-style: italic;
+            font-size: 26px;
         }
 
         .header table td.title {
             font-weight: 900;
         }
 
-        .content::before {
-            content: ": ";
-        }
+
 
         table.collapse {
             table-layout: fixed;
@@ -70,41 +70,27 @@
 
         }
 
+        td {
+            vertical-align: top;
+            font-size: 14px;
+        }
+
         table.collapse td,
         table.collapse th {
             border: 1px solid black;
             padding: 5px;
-            text-align: center;
+
         }
 
-        td.right {
+        .right {
             text-align: right !important;
         }
 
-        /* Set column width percentages */
-        colgroup col:nth-child(1) {
-            width: 10%;
+        .center {
+            text-align: center;
         }
 
-        /* No. */
-        colgroup col:nth-child(2) {
-            width: 50%;
-        }
 
-        /* Description */
-        colgroup col:nth-child(3) {
-            width: 10%;
-        }
-
-        /* Qty */
-        colgroup col:nth-child(4) {
-            width: 15%;
-        }
-
-        /* Price (THB) */
-        colgroup col:nth-child(5) {
-            width: 15%;
-        }
 
         /* Total Amount (THB) */
         p.thankyou {
@@ -162,27 +148,34 @@
                 <tbody>
                     <tr>
                         <td class="title">Customer Name</td>
-                        <td colspan="2" class="content myanmar">: {{ $bill_to }}</td>
+                        <td colspan="2" class="myanmar">: {{ $bill_to }}</td>
                         <td class="title">Invoice No</td>
-                        <td class="content">: {{ $invoice_no }}</td>
+                        <td>: {{ $invoice_no }}</td>
                     </tr>
                     <tr>
                         <td class="title">Customer ID</td>
-                        <td colspan="2" class="content">: {{ $ftth_id }}</td>
+                        <td colspan="2">: {{ $ftth_id }}</td>
                         <td class="title">Date </td>
-                        <td class="content">: {{ date('j F Y', strtotime($date_issued)) }}</td>
+                        <td>: {{ date('j F Y', strtotime($date_issued)) }}</td>
                     </tr>
                     <tr>
                         <td class="title">Address</td>
-                        <td colspan="2" class="content myanmar">: {{ $attn }}</td>
+                        <td colspan="2">
+                            <table>
+                                <tr>
+                                    <td>:</td>
+                                    <td class="myanmar">{{ $attn }}</td>
+                                </tr>
+                            </table>
+                        </td>
                         <td class="title">Package: </td>
-                        <td class="content">: {{ $service_description }}</td>
+                        <td>: {{ $service_description }}</td>
                     </tr>
                     <tr>
                         <td class="title">Contact No.</td>
-                        <td colspan="2" class="content">: {{ $phone }}</td>
+                        <td colspan="2">: {{ $phone }}</td>
                         <td class="title">Internet Speed </td>
-                        <td class="content">: {{ $qty }}</td>
+                        <td>: {{ $qty }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -194,27 +187,21 @@
 
             <table class="collapse">
 
-                <colgroup>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                </colgroup>
+
                 <thead>
                     <tr>
-                        <th>No.</th>
-                        <th>Description</th>
-                        <th>Qty</th>
-                        <th>Price (THB)</th>
-                        <th>Total Amount (THB)</th>
+                        <th style="width: 10%;">No.</th>
+                        <th style="width: 35%;">Description</th>
+                        <th style="width: 10%;">Qty</th>
+                        <th style="width: 20%;">Price (THB)</th>
+                        <th style="width: 25%;">Total Amount (THB)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>1</td>
-                        <td>{{ $service_description }} for <br /> {{ $period_covered }} </td>
-                        <td>1</td>
+                        <td class="center">1</td>
+                        <td class="center">{{ $service_description }} for <br /> {{ $period_covered }} </td>
+                        <td class="center">1</td>
                         <td class="right">{{ number_format($normal_cost, 2, '.') }}</td>
                         <td class="right">{{ number_format($sub_total, 2, '.') }}</td>
                     </tr>

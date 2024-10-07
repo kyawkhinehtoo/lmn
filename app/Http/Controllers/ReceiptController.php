@@ -269,7 +269,7 @@ class ReceiptController extends Controller
                     'R' => 'NotoSerifMyanmar-Regular.ttf'
                 ],
                 'pyidaungsu' => [
-                    'R' => 'Pyidaungsu-2.5.3_Regular.ttf'
+                    'R' => 'Pyidaungsu-2.5.3_Numbers.ttf'
                 ],
                 'serif' => [
                     'R' => 'NotoSerif-Regular.ttf',

@@ -5,8 +5,7 @@ namespace App\Traits;
 use App\Models\Incident;
 use Illuminate\Support\Facades\DB;
 use Datetime;
-//use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
-use misterspelik\LaravelPdf\Facades\Pdf as PDF;
+use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Storage;
 
 trait PdfTrait
@@ -16,12 +15,17 @@ trait PdfTrait
 
         view()->share($template, $data);
 
-        $pdf = PDF::loadView($template, $data, [], $options);
+        // $pdf = PDF::loadView($template, $data, [], $options);
+        $html = view()->make('test', $data)->render();
         // $pdf->getMpdf()->AddPage();
         // $pdf->getMpdf()->SetDisplayMode('fullpage', 'two');
         // $pdf->getMpdf()->WriteHTML((string)view($template, $data, [], $options));
-        $output = $pdf->output();
-
+        // $output = $pdf->output();
+        $pdf = new TCPDF;
+        $pdf::SetTitle('Hello World');
+        $pdf::AddPage();
+        $pdf::writeHTML($html, true, false, true, false, '');
+        $output = $pdf::Output();
         $disk = Storage::disk('public');
 
         if ($disk->put($path, $output)) {

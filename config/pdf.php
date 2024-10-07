@@ -30,4 +30,20 @@ return [
     'pdfa'                     => false,
     'pdfaauto'                 => false,
     'use_active_forms'         => false,
+    'font_path' => base_path('resources/fonts/'),
+    'font_data' => [
+        'serif' => [
+            'R' => 'NotoSerif-Regular.ttf',
+            'B' => 'NotoSerif-Bold.ttf'
+        ],
+        'notosanthai' => [
+            'R' => 'NotoSansThai-Regular.ttf'
+        ],
+        'pyidaungsu' => [
+            'R' => 'Tharlon-Regular.ttf',
+            'useOTL' => 0xFF,
+        ],
+        'default_font' => 'pyidaungsu',
+        // ...add as many as you want.
+    ]
 ];
