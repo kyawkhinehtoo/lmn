@@ -1026,7 +1026,7 @@ class BillingController extends Controller
 
 
                 )
-                ->orderBy('invoices.id')
+                ->orderBy('invoices.id', 'DESC')
                 ->paginate(10);
             //DATE_FORMAT(date_and_time, '%Y-%m-%dT%H:%i') AS 
             $invoices_customers = DB::table('customers')->join('invoices', 'invoices.customer_id', '=', 'customers.id')
@@ -1036,7 +1036,7 @@ class BillingController extends Controller
                 ->join('packages', 'packages.id', '=', 'customers.package_id')
                 ->join('status', 'status.id', '=', 'customers.status_id')
                 ->leftjoin('receipt_records as rr', 'customers.id', '=', 'rr.customer_id')
-                ->whereNotIn('customers.id', $invoices_customers)
+                //->whereNotIn('customers.id', $invoices_customers)
                 ->where(function ($query) {
                     return $query->where('customers.deleted', '=', 0)
                         ->orwherenull('customers.deleted');

@@ -252,7 +252,7 @@
                     </tr>
                     <tr>
                         <td>Contact No. : {{$phone}}</td>
-                        <td>Internet Speed : {{$qty}}</td>
+                        <td>Speed : {{$qty}}</td>
                     </tr>
                 </table>
             </div>

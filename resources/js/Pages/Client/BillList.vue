@@ -1222,18 +1222,18 @@ export default {
     }
 
     function doExcel() {
-      console.log(parameter.value);
-      axios.post("/exportBillingExcel", parameter.value).then((response) => {
+      axios.post("/exportBillingExcel", parameter.value, { responseType: "blob" }).then((response) => {
         console.log(response);
         var a = document.createElement("a");
         document.body.appendChild(a);
         a.style = "display: none";
-        let blob = new Blob([response.data], { type: "text/csv" }),
-          url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = "billings.csv";
-        a.click();
-        window.URL.revokeObjectURL(url);
+        var blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `billings_${new Date().getTime()}.xlsx`;
+        link.click();
       });
     }
     function openModal() {
@@ -1276,7 +1276,7 @@ export default {
       form.amount_in_word = data.amount_in_word;
       form.receipt_date = data.receipt_date;
       form.user = (data.collected_person) ? props.users.filter((d) => d.id == data.collected_person)[0] : null;
-      form.collected_amount = data.collected_amount;
+      form.collected_amount = (data.collected_amount) ? data.collected_amount : data.total_payable;
       form.type = (data.payment_channel) ? data.payment_channel : 'cash';
       form.remark = data.remark;
       form.currency = (data.currency) ? data.currency : 'baht';
