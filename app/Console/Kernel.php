@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Http\Controllers\AutoExpireController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 

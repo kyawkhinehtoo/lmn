@@ -404,6 +404,27 @@ class RadiusController extends Controller
         }
         return null;
     }
+    public function getActiveUser()
+    {
+        $radius_config = RadiusConfig::first();
+        if (self::checkRadiusEnable()) {
+            $client = new \GuzzleHttp\Client();
+            $url = 'http://' . $radius_config->server . ':' . $radius_config->port . '/api/get-active';
+            $response = null;
+            try {
+                self::loginRadius();
+                $header = ['Authorization' => 'Bearer ' . session('token')];
+                $res = $client->post($url, ['headers' => $header], ['connect_timeout' => 1]);
+                $response = json_decode($res->getBody());
+                if ($response) {
+                    return json_encode($response->data, 200);
+                }
+            } catch (\Throwable $e) {
+                return null;
+            }
+        }
+        return null;
+    }
     public function getExpiredRange($expiration)
     {
         $radius_config = RadiusConfig::first();
