@@ -525,7 +525,7 @@ class RadiusController extends Controller
             $user_data['lastname'] = ($dn && $sn) ? $dn . $sn : '';
             $user_data['company'] = ($data->onu_serial) ? $data->onu_serial : '';
             $user_data['phone'] = $data->phone_1;
-            $user_data['mobile'] = ($data->social_account) ? $data->social_account : '';
+            $user_data['mobile'] = ($data->phone_2) ? $data->phone_2 : '';
             $user_data['address'] = $data->address;
             $user_data['city'] = $data->township_name;
             $user_data['country'] = $data->city;
@@ -596,7 +596,7 @@ class RadiusController extends Controller
             ->leftjoin('sn_ports', 'customers.sn_id', 'sn_ports.id')
             ->leftjoin('dn_ports', 'sn_ports.dn_id', 'dn_ports.id')
             ->where('customers.id', '=', $id)
-            ->select('customers.*', 'townships.name as township_name', 'status.type as status_type', 'cities.name as city', 'dn_ports.name as dn_name', 'sn_ports.name as sn_name', 'packages.radius_package as srvid')
+            ->select('customers.*', 'townships.name as township_name', 'status.name as status_name', 'status.type as status_type', 'cities.name as city', 'dn_ports.name as dn_name', 'sn_ports.name as sn_name', 'packages.radius_package as srvid')
             ->first();
 
         if (isset($data->pppoe_account)) {
@@ -629,7 +629,8 @@ class RadiusController extends Controller
             //         break;
             // }
             //$user_data['groupid'] = 8;
-            $user_data['enableuser'] = ($data->status_type == 'active') ? 1 : 0;
+            if ($data->status_name != 'Expired')
+                $user_data['enableuser'] = ($data->status_type == 'active') ? 1 : 0;
 
             $user_data['firstname'] = $data->name;
             $user_data['lastname'] = ($dn && $sn) ? $dn . $sn : '';
@@ -704,12 +705,12 @@ class RadiusController extends Controller
             $radius_users = RadiusController::getExpiredRange($expiration);
             $radius_users = json_decode($radius_users, true);
         }
-        $vlans = Customer::where(function ($query) {
-            return $query->where('customers.deleted', '=', 0)
-                ->orWhereNull('customers.deleted');
-        })->select('vlan')
-            ->groupBy('vlan')
-            ->get();
+        // $vlans = Customer::where(function ($query) {
+        //     return $query->where('customers.deleted', '=', 0)
+        //         ->orWhereNull('customers.deleted');
+        // })->select('vlan')
+        //     ->groupBy('vlan')
+        //     ->get();
         $customers =  DB::table('customers')
             ->leftjoin('packages', 'customers.package_id', '=', 'packages.id')
             ->leftjoin('townships', 'customers.township_id', '=', 'townships.id')
@@ -721,9 +722,9 @@ class RadiusController extends Controller
                 return $query->where('customers.deleted', '=', 0)
                     ->orWhereNull('customers.deleted');
             })
-            ->when($request->vlan, function ($query, $vlan) {
-                $query->where('customers.vlan', '=',  $vlan);
-            })
+            // ->when($request->vlan, function ($query, $vlan) {
+            //     $query->where('customers.vlan', '=',  $vlan);
+            // })
             ->when($request->general, function ($query, $general) {
                 $query->where(function ($query) use ($general) {
                     $query->where('customers.name', 'LIKE', '%' . $general . '%')
@@ -792,8 +793,7 @@ class RadiusController extends Controller
         $customers->appends($request->all())->links();
         return Inertia::render('Client/Radius', [
             'customers' => $customers,
-            'radius' => $radius,
-            'vlans' => $vlans
+            'radius' => $radius
         ]);
     }
     public static function setExpiry($username, $expiration)

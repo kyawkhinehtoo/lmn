@@ -25,12 +25,14 @@ class AutoExpireController extends Controller
         $radius = new RadiusController();
         $radius_users = $radius->getExpiredUser($expiration);
         $radius_users = json_decode($radius_users, true);
+        var_dump($radius_users);
         $affectedRows = 0;
         if ($radius_users) {
             foreach ($radius_users as $customer) {
+                Log::info('setExpire to customer id.', $customer['username']);
                 DB::table('customers')
                     ->join('status', 'status.id', 'customers.status_id')
-                    ->where('ftth_id', $customer['username'])
+                    ->where('pppoe_account', $customer['username'])
                     ->where('status.type', 'active')
                     ->update(['customers.status_id' => DB::raw('(SELECT id FROM status WHERE name = "Expired")')]);
             }
@@ -43,11 +45,11 @@ class AutoExpireController extends Controller
         $radius_users = $radius->getActiveUser();
         $radius_users = json_decode($radius_users, true);
 
-        if ($$radius_users) {
+        if ($radius_users) {
             foreach ($radius_users as $customer) {
                 DB::table('customers')
                     ->join('status', 'status.id', 'customers.status_id')
-                    ->where('ftth_id', $customer['username'])
+                    ->where('pppoe_account', $customer['username'])
                     ->where('status.name', 'Expired')
                     ->update(['customers.status_id' => DB::raw('(SELECT id FROM status WHERE name = "Active")')]);
             }
