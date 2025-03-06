@@ -46,6 +46,7 @@ class Role extends Model
         'delete_invoice',
         'bill_dashboard',
         'bill_readonly',
+        'customer_status',
         'created_at', 'updated_at'
     ];
 

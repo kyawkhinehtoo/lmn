@@ -127,7 +127,7 @@ class RevenueExport implements FromQuery, WithMapping,WithHeadings
     }
     public function collectedPerson($id){
         $person = User::find($id);
-        return $person->name;
+        return ($person)?$person->name:'';
     }
 
 }

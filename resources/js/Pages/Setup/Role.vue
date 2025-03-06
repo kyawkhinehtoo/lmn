@@ -100,6 +100,17 @@
                       </div>
                       <div class="mb-4">
                         <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
+                          <legend class="text-gray-700 text-sm font-bold">Customer Status </legend>
+
+                          <div class="mt-1 flex rounded-md shadow-sm" v-if="customerStatus.length !== 0">
+                            <multiselect deselect-label="Selected already" :options="customerStatus" track-by="id" label="name"
+                              v-model="form.customer_status" :allow-empty="true" :multiple="true" :taggable="true">
+                            </multiselect>
+                          </div>
+                        </fieldset>
+                      </div>
+                      <div class="mb-4">
+                        <fieldset class="mt-4 border border-solid border-gray-300 p-3 rounded-md">
                           <legend class="text-gray-700 text-sm font-bold">Dashboard </legend>
 
                           <div class="max-w-full text-sm flex">
@@ -319,6 +330,7 @@ export default {
     roles: Object,
     col: Object,
     menus: Object,
+    customerStatus: Object,
     errors: Object,
   },
   setup(props) {
@@ -375,6 +387,7 @@ export default {
       form.ip_report = null;
       form.bill_readonly = null;
       form.bill_dashboard = null;
+      form.customer_status = null;
     }
     function submit() {
       if (!editMode.value) {
@@ -441,6 +454,7 @@ export default {
       form.ip_report = (data.ip_report) ? true : false;
       form.bill_readonly = (data.bill_readonly) ? true : false;
       form.bill_dashboard = (data.bill_dashboard) ? true : false;
+      form.customer_status= JSON.parse(data.customer_status);
       editMode.value = true;
       openModal();
     }

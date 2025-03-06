@@ -266,7 +266,9 @@ class CustomerController extends Controller
             ->select('users.name as name', 'users.id as id')
             ->get();
         $townships = Township::join('cities', 'townships.city_id', '=', 'cities.id')->select('townships.*', 'cities.name as city_name', 'cities.short_code as city_code', 'cities.id as city_id')->get();
-        $status_list = Status::get();
+       // $status_list = Status::get();
+        $status_list = Role::join('users','users.role','roles.id')->select('roles.customer_status')->where('users.id', '=', Auth::user()->id)->first();
+        $status_list = json_decode($status_list->customer_status);
         $roles = Role::get();
         $user = User::join('roles', 'roles.id', '=', 'users.role')->select('users.*', 'roles.name as role_name')->where('users.id', '=', Auth::user()->id)->first();
         $role = Role::join('users', 'roles.id', '=', 'users.role')->select('roles.*')->where('users.id', '=', Auth::user()->id)->first();

@@ -113,8 +113,8 @@
                   </div>
                   <div class="col-span-1 sm:col-span-1">
                     <label for="status" class="block text-sm font-medium text-gray-700"><span class="text-red-500">*</span> Customer Status </label>
-                    <div class="mt-1 flex rounded-md shadow-sm" v-if="status_list.length !== 0">
-                      <multiselect deselect-label="Selected already" :options="status_list" track-by="id" label="name" v-model="form.status" :allow-empty="false" :disabled="checkPerm('status_id')"></multiselect>
+                    <div class="mt-1 flex rounded-md shadow-sm" v-if="statusList.length !== 0">
+                      <multiselect deselect-label="Selected already" :options="statusList" track-by="id" label="name" v-model="form.status" :allow-empty="false" :disabled="!disableStatus?checkPerm('status_id'):disableStatus" ></multiselect>
                     </div>
                     <p v-show="$page.props.errors.status" class="mt-2 text-sm text-red-500">{{ $page.props.errors.status }}</p>
                   </div>
@@ -519,8 +519,9 @@ export default {
     provide('role', props.role);
     let res_packages = ref("");
     let res_sn = ref("");
-
+    let disableStatus = ref(false);
     let pppoe_auto = ref(false);
+    let statusList = ref(props.status_list);
     let lat_long = '';
       
       if(props.customer.location){
@@ -713,7 +714,32 @@ export default {
       const integerValue = matches ? parseInt(matches.join('')) : 0;
       return integerValue;
     }
-    
+    function isCustomerStatusIncluded(roleStatus, customerStatus) {
+        if (!roleStatus || !customerStatus) {
+            console.error("Invalid inputs: roleStatus or customerStatus is missing");
+            return false;
+        }
+
+        try {
+            // Ensure roleStatus is parsed JSON if it's a string
+            if (typeof roleStatus === "string") {
+                roleStatus = JSON.parse(roleStatus);
+            }
+
+            // Validate roleStatus is an array
+            if (!Array.isArray(roleStatus)) {
+                console.error("Error: roleStatus is not an array", roleStatus);
+                return false;
+            }
+
+            // Check if customerStatus exists in roleStatus by ID
+            return roleStatus.some(status => status.id === customerStatus.id);
+        } catch (error) {
+            console.error("Error parsing roleStatus:", error);
+            return false;
+        }
+    }
+
     onMounted(() => {
       props.sn.map(function (x) {
            x.item_data = `${x.name} / ${x.port}`;
@@ -759,10 +785,20 @@ export default {
         }
       }
       form.pppoe_password = (!checkPerm('pppoe_password'))?props.customer.pppoe_password:"********";
-      form.status = props.status_list.filter((d) => d.id == props.customer.status_id)[0];
+      let customerStatus = props.status_list.filter((d) => d.id == props.customer.status_id)[0];
+      form.status = customerStatus;
+
+      let roleStatus = props.role.customer_status;
+
+      if (!isCustomerStatusIncluded(roleStatus, customerStatus)) {
+        statusList.value = props.status_list;
+        disableStatus.value = true;
+      }else{
+        statusList.value = JSON.parse(roleStatus);
+      }
       form.subcom = props.subcoms.filter((d) => d.id == props.customer.subcom_id)[0];
     });
-    return { form,submit,isNumber,checkPerm,res_sn,DNSelect,tab,tabClick,fillPppoe,pppoe_auto,generatePassword,POPSelect,res_packages };
+    return { form,submit,isNumber,checkPerm,res_sn,DNSelect,tab,tabClick,fillPppoe,pppoe_auto,generatePassword,POPSelect,res_packages ,statusList,disableStatus};
   },
 };
 </script>

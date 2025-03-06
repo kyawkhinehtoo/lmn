@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Role;
 use App\Models\Customer;
 use App\Models\Menu;
+use App\Models\Status;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator;
 use DB;
@@ -19,9 +20,10 @@ class RoleController extends Controller
         })
             ->paginate(10);
         $menus = Menu::all();
+        $customerStatus = Status::all();
         $customer = new Customer();
         $col = $customer->getTableColumns();
-        return Inertia::render('Setup/Role', ['roles' => $roles, 'col' => $col, 'menus' => $menus]);
+        return Inertia::render('Setup/Role', ['roles' => $roles, 'col' => $col, 'menus' => $menus,'customerStatus'=>$customerStatus]);
     }
 
     public function store(Request $request)
@@ -41,6 +43,9 @@ class RoleController extends Controller
                     $role->permission .= $value['name'];
             }
         }
+        if (!empty($request->customer_status)) {
+            $role->customer_status = json_encode($request->customer_status);
+         }
         $role->read_customer = $request->read_customer;
         $role->read_incident = $request->read_incident;
         $role->delete_customer = $request->delete_customer;
@@ -83,6 +88,9 @@ class RoleController extends Controller
                     else
                         $role->permission .= $value['name'];
                 }
+            }
+            if (!empty($request->customer_status)) {
+               $role->customer_status = json_encode($request->customer_status);
             }
             // if(!empty($request->menu_id)){
             //     foreach ($request->menu_id as $key => $value) {
