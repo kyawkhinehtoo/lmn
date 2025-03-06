@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DateTime;
 use DB;
+use Illuminate\Support\Facades\Log;
 
 class AutoExpireController extends Controller
 {
@@ -25,18 +26,18 @@ class AutoExpireController extends Controller
         $radius = new RadiusController();
         $radius_users = $radius->getExpiredUser($expiration);
         $radius_users = json_decode($radius_users, true);
-        var_dump($radius_users);
         $affectedRows = 0;
         if ($radius_users) {
             foreach ($radius_users as $customer) {
-                Log::info('setExpire to customer id.', $customer['username']);
-                DB::table('customers')
+// 	    Log::info('setExpire to customer id.'.$customer['username']);
+              $affectedRows +=  DB::table('customers')
                     ->join('status', 'status.id', 'customers.status_id')
                     ->where('pppoe_account', $customer['username'])
                     ->where('status.type', 'active')
                     ->update(['customers.status_id' => DB::raw('(SELECT id FROM status WHERE name = "Expired")')]);
             }
-        }
+        Log::info('setExpire completed.',['affectedRows' => $affectedRows]);
+	}
     }
     private function setActive()
     {
@@ -57,7 +58,9 @@ class AutoExpireController extends Controller
     }
     public function __invoke()
     {
+	 Log::info('AutoExpireController started.');
         $this->setExpire();
         $this->setActive();
+	Log::info('AutoExpireController completed.');
     }
 }
